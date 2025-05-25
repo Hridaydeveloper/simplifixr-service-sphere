@@ -11,8 +11,11 @@ import {
   Smartphone
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 const ServicesGrid = () => {
+  const navigate = useNavigate();
+
   const services = [
     {
       icon: Sparkles,
@@ -64,13 +67,17 @@ const ServicesGrid = () => {
     }
   ];
 
+  const handleServiceClick = () => {
+    navigate('/services');
+  };
+
   return (
     <section id="services" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             All Services in{" "}
-            <span className="bg-gradient-to-r from-[#00F5D4] to-[#00D4AA] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] bg-clip-text text-transparent">
               One Place
             </span>
           </h2>
@@ -84,6 +91,7 @@ const ServicesGrid = () => {
             <Card 
               key={index} 
               className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-0 shadow-md"
+              onClick={handleServiceClick}
             >
               <CardContent className="p-6">
                 <div className={`w-12 h-12 rounded-xl ${service.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
@@ -101,7 +109,10 @@ const ServicesGrid = () => {
         </div>
 
         <div className="text-center mt-12">
-          <button className="text-[#00F5D4] font-semibold hover:text-[#00D4AA] transition-colors">
+          <button 
+            onClick={handleServiceClick}
+            className="text-[#00D4AA] font-semibold hover:text-[#00C49A] transition-colors"
+          >
             View All Services →
           </button>
         </div>

@@ -1,0 +1,208 @@
+
+import { useState } from "react";
+import { ArrowLeft, Search, Filter, Star, Clock, MapPin, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
+import { 
+  Sparkles, 
+  Wrench, 
+  GraduationCap, 
+  Heart, 
+  Truck, 
+  PartyPopper,
+  Car,
+  Smartphone 
+} from "lucide-react";
+
+const Services = () => {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const categories = [
+    { id: "all", name: "All Services", icon: null },
+    { id: "cleaning", name: "Cleaning & Sanitation", icon: Sparkles },
+    { id: "repairs", name: "Repairs & Maintenance", icon: Wrench },
+    { id: "education", name: "Education & Tech", icon: GraduationCap },
+    { id: "healthcare", name: "Healthcare & Wellness", icon: Heart },
+    { id: "events", name: "Events & Religious", icon: PartyPopper },
+    { id: "logistics", name: "Logistics & Moving", icon: Truck },
+    { id: "automotive", name: "Automotive", icon: Car },
+    { id: "device", name: "Device Repair", icon: Smartphone }
+  ];
+
+  const allServices = [
+    // Cleaning & Sanitation
+    { id: 1, category: "cleaning", name: "Kitchen Deep Cleaning", price: "₹499-899", rating: 4.8, time: "2-3 hrs", image: "🍳" },
+    { id: 2, category: "cleaning", name: "Bathroom Cleaning", price: "₹299-599", rating: 4.9, time: "1-2 hrs", image: "🚿" },
+    { id: 3, category: "cleaning", name: "Living Room Cleaning", price: "₹399-699", rating: 4.7, time: "2 hrs", image: "🛋️" },
+    { id: 4, category: "cleaning", name: "Garden Maintenance", price: "₹599-1299", rating: 4.6, time: "3-4 hrs", image: "🌱" },
+    { id: 5, category: "cleaning", name: "Full House Cleaning", price: "₹1499-2999", rating: 4.9, time: "4-6 hrs", image: "🏠" },
+    
+    // Repairs & Maintenance
+    { id: 6, category: "repairs", name: "Plumbing Services", price: "₹299-899", rating: 4.8, time: "1-3 hrs", image: "🔧" },
+    { id: 7, category: "repairs", name: "Electrical Work", price: "₹399-1299", rating: 4.7, time: "2-4 hrs", image: "⚡" },
+    { id: 8, category: "repairs", name: "AC Repair & Service", price: "₹499-1599", rating: 4.8, time: "2-3 hrs", image: "❄️" },
+    { id: 9, category: "repairs", name: "Carpentry Work", price: "₹599-1999", rating: 4.6, time: "3-5 hrs", image: "🔨" },
+    
+    // Education & Tech
+    { id: 10, category: "education", name: "Home Tutoring - Math", price: "₹299-699/hr", rating: 4.9, time: "1-2 hrs", image: "📚" },
+    { id: 11, category: "education", name: "Computer Training", price: "₹499-999/hr", rating: 4.7, time: "2 hrs", image: "💻" },
+    { id: 12, category: "education", name: "Language Classes", price: "₹399-799/hr", rating: 4.8, time: "1-2 hrs", image: "🗣️" },
+    
+    // Healthcare & Wellness
+    { id: 13, category: "healthcare", name: "Salon at Home", price: "₹799-1999", rating: 4.8, time: "2-3 hrs", image: "💇" },
+    { id: 14, category: "healthcare", name: "Massage Therapy", price: "₹999-2499", rating: 4.9, time: "1-2 hrs", image: "💆" },
+    { id: 15, category: "healthcare", name: "Physiotherapy", price: "₹599-1299", rating: 4.7, time: "1 hr", image: "🏥" },
+    
+    // Events & Religious
+    { id: 16, category: "events", name: "Puja Services", price: "₹1999-4999", rating: 4.9, time: "3-5 hrs", image: "🕉️" },
+    { id: 17, category: "events", name: "Party Helpers", price: "₹799-1599", rating: 4.6, time: "4-6 hrs", image: "🎉" },
+    { id: 18, category: "events", name: "Catering Services", price: "₹199-499/person", rating: 4.8, time: "varies", image: "🍽️" },
+    
+    // Logistics & Moving
+    { id: 19, category: "logistics", name: "Packers & Movers", price: "₹2999-9999", rating: 4.7, time: "4-8 hrs", image: "📦" },
+    { id: 20, category: "logistics", name: "Delivery Services", price: "₹99-499", rating: 4.8, time: "1-3 hrs", image: "🚚" },
+    
+    // Automotive
+    { id: 21, category: "automotive", name: "Car Wash & Detailing", price: "₹399-1299", rating: 4.8, time: "2-4 hrs", image: "🚗" },
+    { id: 22, category: "automotive", name: "Bike Service", price: "₹299-899", rating: 4.6, time: "2-3 hrs", image: "🏍️" },
+    
+    // Device Repair
+    { id: 23, category: "device", name: "Mobile Repair", price: "₹299-1999", rating: 4.7, time: "1-2 hrs", image: "📱" },
+    { id: 24, category: "device", name: "Laptop Repair", price: "₹599-2999", rating: 4.8, time: "2-4 hrs", image: "💻" }
+  ];
+
+  const filteredServices = allServices.filter(service => {
+    const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
+    const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+      
+      {/* Header */}
+      <div className="pt-20 pb-8 bg-gradient-to-r from-[#00D4AA] to-[#00F5D4]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-white mb-2">All Services</h1>
+              <p className="text-white/90 text-lg">Find the perfect service for your needs</p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="border-white text-white hover:bg-white hover:text-[#00D4AA]"
+              onClick={() => window.history.back()}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Search & Filter */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <Input 
+                placeholder="Search services..." 
+                className="pl-10" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" className="md:w-auto">
+              <Filter className="w-4 h-4 mr-2" />
+              Filters
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Categories Sidebar */}
+          <div className="lg:col-span-1">
+            <h3 className="font-semibold text-lg mb-4">Categories</h3>
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center ${
+                    selectedCategory === category.id
+                      ? 'bg-[#00D4AA] text-white'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {category.icon && <category.icon className="w-4 h-4 mr-3" />}
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Services Grid */}
+          <div className="lg:col-span-3">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {selectedCategory === "all" ? "All Services" : categories.find(c => c.id === selectedCategory)?.name}
+              </h2>
+              <span className="text-gray-600">{filteredServices.length} services found</span>
+            </div>
+
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredServices.map((service) => (
+                <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md">
+                  <CardContent className="p-6">
+                    <div className="text-4xl mb-4">{service.image}</div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#00D4AA] transition-colors">
+                      {service.name}
+                    </h3>
+                    
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="font-semibold text-[#00D4AA]">{service.price}</span>
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
+                          <span className="text-gray-600">{service.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {service.time}
+                      </div>
+                    </div>
+
+                    <Button className="w-full bg-[#00D4AA] hover:bg-[#00C49A] text-white group-hover:scale-105 transition-transform">
+                      Book Now
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {filteredServices.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-gray-400 text-lg mb-2">No services found</div>
+                <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
+  );
+};
+
+export default Services;
