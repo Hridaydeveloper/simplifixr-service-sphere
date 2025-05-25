@@ -271,7 +271,7 @@ const Services = () => {
               <h1 className="text-4xl font-bold mb-2 text-gray-950 mx-0 my-[10px]">All Services</h1>
               <p className="text-white/90 text-lg">Find the perfect service for your needs</p>
             </div>
-            <Button variant="outline" onClick={() => window.history.back()} className="border-white text-gray-50 bg-teal-700 hover:bg-teal-600">
+            <Button variant="outline" onClick={() => window.history.back()} className="border-white text-gray-50 bg-teal-600 hover:bg-teal-500">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
