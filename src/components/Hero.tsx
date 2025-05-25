@@ -65,7 +65,7 @@ const Hero = () => {
               </div>
               <div className="flex items-center bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full">
                 <div className="w-10 h-10 bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-sm">2K+</span>
+                  <span className="text-white font-bold text-sm">1K+</span>
                 </div>
                 <div>
                   <div className="font-semibold text-gray-900">Verified Providers</div>
