@@ -74,7 +74,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Phone</h4>
-                    <p className="text-gray-600">+91-9876543210</p>
+                    <p className="text-gray-600">+91-9615262753 / 8787890893</p>
                     <p className="text-sm text-gray-500">24/7 Support Available</p>
                   </div>
                 </div>
@@ -85,7 +85,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">WhatsApp</h4>
-                    <p className="text-gray-600">+91-9876543210</p>
+                    <p className="text-gray-600">+91-9615262753 / 8787890893</p>
                     <p className="text-sm text-gray-500">Instant booking support</p>
                   </div>
                 </div>
@@ -96,7 +96,7 @@ const ContactSection = () => {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Email</h4>
-                    <p className="text-gray-600">support@simplifixr.com</p>
+                    <p className="text-gray-600">simplifixr2025@gmail.com</p>
                     <p className="text-sm text-gray-500">We'll respond within 24 hours</p>
                   </div>
                 </div>
@@ -108,7 +108,7 @@ const ContactSection = () => {
                   <div>
                     <h4 className="font-semibold text-gray-900">Headquarters</h4>
                     <p className="text-gray-600">Agartala, Tripura</p>
-                    <p className="text-sm text-gray-500">Serving pan-India</p>
+                    <p className="text-sm text-gray-500">Serving pan-Agartala</p>
                   </div>
                 </div>
               </div>

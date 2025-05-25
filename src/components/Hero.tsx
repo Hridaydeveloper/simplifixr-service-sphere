@@ -40,7 +40,7 @@ const Hero = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
                   <Search className="absolute left-4 top-4 w-5 h-5 text-[#00D4AA]" />
-                  <Input placeholder="What service do you need?" className="pl-12 py-3 border-gray-200 rounded-xl focus:border-[#00D4AA] focus:ring-[#00D4AA]/20" />
+                  <Input placeholder="What service do you need?" className="pl-12 py-3 border-gray-200 focus:border-[#00D4AA] focus:ring-[#00D4AA]/20 rounded-lg" />
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-4 w-5 h-5 text-[#00D4AA]" />
