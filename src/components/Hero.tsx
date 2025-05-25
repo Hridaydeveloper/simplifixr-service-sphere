@@ -1,15 +1,41 @@
+
 import { Search, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Map from "./Map";
+
 const Hero = () => {
-  return <section id="home" className="pt-16 pb-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+  const navigate = useNavigate();
+  const [searchService, setSearchService] = useState("");
+  const [location, setLocation] = useState("");
+  const [showMap, setShowMap] = useState(false);
+
+  const handleBookService = () => {
+    navigate('/services');
+  };
+
+  const handleLocationSubmit = () => {
+    if (location.trim()) {
+      setShowMap(true);
+    }
+  };
+
+  const handleLocationSelect = (lat: number, lng: number, address: string) => {
+    console.log('Selected location:', { lat, lng, address });
+    // Here you can store the selected location for booking
+  };
+
+  return (
+    <section id="home" className="pt-16 pb-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh] mx-0 px-0">
           <div className="space-y-8 animate-fade-in">
             <div className="space-y-6">
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#00D4AA]/20 to-[#00F5D4]/20 rounded-full border border-[#00D4AA]/30 backdrop-blur-sm">
                 <span className="w-3 h-3 bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] rounded-full mr-3 animate-pulse"></span>
-                <span className="text-[#00D4AA] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
+                <span className="text-[#00C49A] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
               </div>
               
               <h1 className="text-6xl text-gray-900 leading-[1.1] tracking-tight lg:text-5xl font-extrabold">
@@ -26,7 +52,10 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-slate-950 mx-[23px]">
+              <Button 
+                onClick={handleBookService}
+                className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-slate-950 mx-[23px]"
+              >
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -40,16 +69,41 @@ const Hero = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
                   <Search className="absolute left-4 top-4 w-5 h-5 text-[#00D4AA]" />
-                  <Input placeholder="What service do you need?" className="pl-12 py-3 border-gray-200 focus:border-[#00D4AA] focus:ring-[#00D4AA]/20 rounded-lg" />
+                  <Input 
+                    placeholder="What service do you need?" 
+                    className="pl-12 py-3 border-gray-200 focus:border-[#00D4AA] focus:ring-[#00D4AA]/20 rounded-lg" 
+                    value={searchService}
+                    onChange={(e) => setSearchService(e.target.value)}
+                  />
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-4 w-5 h-5 text-[#00D4AA]" />
-                  <Input placeholder="Your location" className="pl-12 py-3 border-gray-200 rounded-xl focus:border-[#00D4AA] focus:ring-[#00D4AA]/20" />
+                  <Input 
+                    placeholder="Your location" 
+                    className="pl-12 py-3 border-gray-200 rounded-xl focus:border-[#00D4AA] focus:ring-[#00D4AA]/20" 
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleLocationSubmit()}
+                  />
                 </div>
-                <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] py-3 rounded-xl font-semibold text-slate-950">
+                <Button 
+                  onClick={handleLocationSubmit}
+                  className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] py-3 rounded-xl font-semibold text-slate-950"
+                >
                   Search
                 </Button>
               </div>
+
+              {/* Google Map Integration */}
+              {showMap && location && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Service Area</h3>
+                  <Map location={location} onLocationSelect={handleLocationSelect} />
+                  <p className="text-sm text-gray-600 mt-2">
+                    Please note: You need to add your Google Maps API key for the map to work properly.
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Enhanced Trust Indicators */}
@@ -109,6 +163,8 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default Hero;
