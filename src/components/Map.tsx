@@ -1,6 +1,5 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
 
 interface MapProps {
   location: string;
@@ -13,18 +12,14 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const initMap = async () => {
+    const initMap = () => {
+      if (!window.google || !mapRef.current) {
+        console.log('Google Maps not loaded yet, retrying...');
+        setTimeout(initMap, 100);
+        return;
+      }
+
       try {
-        const loader = new Loader({
-          apiKey: 'YOUR_GOOGLE_MAPS_API_KEY', // User needs to add their API key
-          version: 'weekly',
-          libraries: ['places']
-        });
-
-        const google = await loader.load();
-        
-        if (!mapRef.current) return;
-
         // Initialize map
         const mapInstance = new google.maps.Map(mapRef.current, {
           center: { lat: 23.8315, lng: 91.2868 }, // Default to Agartala
@@ -82,7 +77,19 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
       }
     };
 
-    initMap();
+    // Wait for Google Maps to load
+    if (window.google) {
+      initMap();
+    } else {
+      const checkGoogleMaps = setInterval(() => {
+        if (window.google) {
+          clearInterval(checkGoogleMaps);
+          initMap();
+        }
+      }, 100);
+
+      return () => clearInterval(checkGoogleMaps);
+    }
   }, [location, onLocationSelect]);
 
   if (isLoading) {
