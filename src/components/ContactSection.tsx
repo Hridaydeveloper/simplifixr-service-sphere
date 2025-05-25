@@ -1,13 +1,10 @@
-
 import { Phone, Mail, MessageSquare, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-
 const ContactSection = () => {
-  return (
-    <section id="contact" className="py-20 bg-gray-50">
+  return <section id="contact" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
@@ -59,7 +56,7 @@ const ContactSection = () => {
                   </label>
                   <Textarea placeholder="Tell us more about your requirements" rows={4} />
                 </div>
-                <Button className="w-full bg-[#00F5D4] hover:bg-[#00D4AA] text-white py-3">
+                <Button className="w-full bg-[#00F5D4] hover:bg-[#00D4AA] py-3 text-zinc-950">
                   Send Message
                 </Button>
               </form>
@@ -121,7 +118,7 @@ const ContactSection = () => {
             <div className="bg-white p-6 rounded-2xl shadow-md">
               <h4 className="font-semibold text-gray-900 mb-4">Quick Actions</h4>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start border-[#00F5D4] text-[#00F5D4] hover:bg-[#00F5D4] hover:text-white">
+                <Button variant="outline" className="w-full justify-start border-[#00F5D4] hover:bg-[#00F5D4] text-zinc-950">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   WhatsApp Booking
                 </Button>
@@ -134,8 +131,6 @@ const ContactSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default ContactSection;

@@ -1,13 +1,10 @@
-
 import { Search, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 const Hero = () => {
-  return (
-    <section id="home" className="pt-16 pb-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+  return <section id="home" className="pt-16 pb-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh]">
+        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[85vh] mx-0 px-0">
           <div className="space-y-8 animate-fade-in">
             <div className="space-y-6">
               <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#00D4AA]/20 to-[#00F5D4]/20 rounded-full border border-[#00D4AA]/30 backdrop-blur-sm">
@@ -29,7 +26,7 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] text-white px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+              <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-slate-950">
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -49,7 +46,7 @@ const Hero = () => {
                   <MapPin className="absolute left-4 top-4 w-5 h-5 text-[#00D4AA]" />
                   <Input placeholder="Your location" className="pl-12 py-3 border-gray-200 rounded-xl focus:border-[#00D4AA] focus:ring-[#00D4AA]/20" />
                 </div>
-                <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] text-white py-3 rounded-xl font-semibold">
+                <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] py-3 rounded-xl font-semibold text-slate-950">
                   Search
                 </Button>
               </div>
@@ -112,8 +109,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;

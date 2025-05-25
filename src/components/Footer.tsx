@@ -53,7 +53,7 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
             <div className="space-y-2 text-sm text-gray-400">
-              <p>📞 +91-9876543210</p>
+              <p>🕿 +91-9876543210</p>
               <p>📧 support@simplifixr.com</p>
               <p>📍 Agartala, Tripura</p>
             </div>
