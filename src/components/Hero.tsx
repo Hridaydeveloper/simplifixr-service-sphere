@@ -12,7 +12,7 @@ const Hero = () => {
                 <span className="text-[#00D4AA] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
               </div>
               
-              <h1 className="text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight lg:text-5xl">
+              <h1 className="text-6xl text-gray-900 leading-[1.1] tracking-tight lg:text-5xl font-extrabold">
                 Simplify Your Life,{" "}
                 <span className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] bg-clip-text text-transparent">
                   One Service
