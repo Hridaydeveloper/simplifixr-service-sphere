@@ -1,18 +1,8 @@
-
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
-
 const Footer = () => {
-  const services = [
-    "Home Cleaning", "Plumbing", "Electrical", "AC Repair", 
-    "Painting", "Carpentry", "Home Tutoring", "Salon at Home"
-  ];
-
-  const company = [
-    "About Us", "Careers", "Press", "Blog", "Terms of Service", "Privacy Policy"
-  ];
-
-  return (
-    <footer className="bg-gray-900 text-white">
+  const services = ["Home Cleaning", "Plumbing", "Electrical", "AC Repair", "Painting", "Carpentry", "Home Tutoring", "Salon at Home"];
+  const company = ["About Us", "Careers", "Press", "Blog", "Terms of Service", "Privacy Policy"];
+  return <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -43,11 +33,9 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Popular Services</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {services.map((service, index) => (
-                <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
+              {services.map((service, index) => <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
                   {service}
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -55,11 +43,9 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {company.map((item, index) => (
-                <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
+              {company.map((item, index) => <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
                   {item}
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -87,13 +73,11 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
-            <p>&copy; 2024 Simplifixr. All rights reserved.</p>
+            <p>© 2025 Simplifixr. All rights reserved.</p>
             <p>Made with ❤️ in India</p>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
