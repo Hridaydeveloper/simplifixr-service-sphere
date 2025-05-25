@@ -12,7 +12,7 @@ const Hero = () => {
                 <span className="text-[#00D4AA] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
               </div>
               
-              <h1 className="text-6xl lg:text-7xl font-bold text-gray-900 leading-[1.1] tracking-tight">
+              <h1 className="text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight lg:text-5xl">
                 Simplify Your Life,{" "}
                 <span className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] bg-clip-text text-transparent">
                   One Service
@@ -26,11 +26,11 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-slate-950">
+              <Button className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] hover:from-[#00C49A] hover:to-[#00E5C4] px-10 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-slate-950 mx-[23px]">
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button variant="outline" className="border-2 border-[#00D4AA] text-[#00D4AA] hover:bg-[#00D4AA] hover:text-white px-10 py-4 text-lg font-semibold rounded-xl transition-all duration-300">
+              <Button variant="outline" className="border-2 border-[#00D4AA] hover:bg-[#00D4AA] px-10 py-4 text-lg font-semibold rounded-xl transition-all duration-300 my-0 text-zinc-950 mx-0">
                 Become a Provider
               </Button>
             </div>

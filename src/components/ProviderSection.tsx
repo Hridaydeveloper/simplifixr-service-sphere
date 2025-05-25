@@ -92,9 +92,7 @@ const ProviderSection = () => {
           <Button className="bg-[#00F5D4] hover:bg-[#00D4AA] px-8 py-4 text-lg text-slate-950">
             Start Your Journey Today
           </Button>
-          <p className="text-gray-600 mt-4">
-            Questions? WhatsApp us at +91-9876543210
-          </p>
+          <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXXXXXXX</p>
         </div>
       </div>
     </section>;
