@@ -1,31 +1,61 @@
+
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+
 const Footer = () => {
   const services = ["Home Cleaning", "Plumbing", "Electrical", "AC Repair", "Painting", "Carpentry", "Home Tutoring", "Salon at Home"];
   const company = ["About Us", "Careers", "Press", "Blog", "Terms of Service", "Privacy Policy"];
-  return <footer className="bg-gray-900 text-white">
+
+  const handleSocialClick = (platform: string) => {
+    const urls = {
+      linkedin: "https://www.linkedin.com/company/simplifixr-official/",
+      instagram: "https://www.instagram.com/fixwithsimplifixr/?utm_source=qr&igsh=M2c4cnAzOXNudWtz#",
+      facebook: "#",
+      twitter: "#"
+    };
+    
+    const url = urls[platform as keyof typeof urls];
+    if (url && url !== "#") {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  return (
+    <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-[#00F5D4] to-[#00D4AA] bg-clip-text text-transparent">
+            <div className="text-2xl font-bold bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
               Simplifixr
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               Connecting communities through trusted local services. Dignity in every job, simplicity in every booking.
             </p>
             <div className="flex space-x-4">
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00F5D4] transition-colors cursor-pointer">
+              <button 
+                onClick={() => handleSocialClick('facebook')}
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+              >
                 <Facebook className="w-4 h-4" />
-              </div>
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00F5D4] transition-colors cursor-pointer">
+              </button>
+              <button 
+                onClick={() => handleSocialClick('twitter')}
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+              >
                 <Twitter className="w-4 h-4" />
-              </div>
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00F5D4] transition-colors cursor-pointer">
+              </button>
+              <button 
+                onClick={() => handleSocialClick('instagram')}
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+              >
                 <Instagram className="w-4 h-4" />
-              </div>
-              <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00F5D4] transition-colors cursor-pointer">
+              </button>
+              <button 
+                onClick={() => handleSocialClick('linkedin')}
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+              >
                 <Linkedin className="w-4 h-4" />
-              </div>
+              </button>
             </div>
           </div>
 
@@ -33,9 +63,11 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Popular Services</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {services.map((service, index) => <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
+              {services.map((service, index) => (
+                <li key={index} className="hover:text-[#00C9A7] cursor-pointer transition-colors">
                   {service}
-                </li>)}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -43,9 +75,11 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {company.map((item, index) => <li key={index} className="hover:text-[#00F5D4] cursor-pointer transition-colors">
+              {company.map((item, index) => (
+                <li key={index} className="hover:text-[#00C9A7] cursor-pointer transition-colors">
                   {item}
-                </li>)}
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -78,6 +112,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;

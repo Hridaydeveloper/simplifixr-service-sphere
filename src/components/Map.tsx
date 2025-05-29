@@ -6,9 +6,16 @@ interface MapProps {
   onLocationSelect?: (lat: number, lng: number, address: string) => void;
 }
 
+declare global {
+  interface Window {
+    google: any;
+    initMap?: () => void;
+  }
+}
+
 const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [map, setMap] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +40,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
             {
               featureType: 'water',
               elementType: 'geometry.fill',
-              stylers: [{ color: '#00D4AA' }]
+              stylers: [{ color: '#00B896' }]
             }
           ]
         });
@@ -43,7 +50,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
         // Search for the location if provided
         if (location) {
           const geocoder = new window.google.maps.Geocoder();
-          geocoder.geocode({ address: location }, (results, status) => {
+          geocoder.geocode({ address: location }, (results: any, status: any) => {
             if (status === 'OK' && results && results[0]) {
               const position = results[0].geometry.location;
               mapInstance.setCenter(position);
@@ -55,7 +62,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
                 title: location,
                 icon: {
                   url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                    <svg fill="#00D4AA" height="40" width="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <svg fill="#00B896" height="40" width="40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   `),
@@ -95,7 +102,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
   if (isLoading) {
     return (
       <div className="w-full h-64 bg-gray-100 rounded-xl flex items-center justify-center">
-        <div className="text-[#00C49A] font-medium">Loading map...</div>
+        <div className="text-[#00B896] font-medium">Loading map...</div>
       </div>
     );
   }

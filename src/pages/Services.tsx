@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Search, Filter, Star, Clock, MapPin, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +6,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Sparkles, Wrench, GraduationCap, Heart, Truck, PartyPopper, Car, Smartphone } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const Services = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
+  const locationState = useLocation();
+
+  useEffect(() => {
+    if (locationState.state?.scrollToTop) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [locationState]);
 
   const categories = [
     { id: "all", name: "All Services", icon: null },
@@ -93,14 +101,18 @@ const Services = () => {
       <Navigation />
       
       {/* Header */}
-      <div className="pt-20 pb-8 bg-gradient-to-r from-[#00D4AA] to-[#00F5D4]">
+      <div className="pt-20 pb-8 bg-gradient-to-r from-[#00B896] to-[#00C9A7]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold mb-2 text-gray-950 mx-0 my-[10px]">All Services</h1>
-              <p className="text-white/90 text-lg">Find the perfect service for your needs</p>
+              <h1 className="text-3xl lg:text-4xl font-bold mb-2 text-white">All Services</h1>
+              <p className="text-white/90 text-base lg:text-lg">Find the perfect service for your needs</p>
             </div>
-            <Button variant="outline" onClick={() => window.history.back()} className="border-white text-gray-50 bg-teal-600 hover:bg-teal-500">
+            <Button 
+              variant="outline" 
+              onClick={() => window.history.back()} 
+              className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-[#00B896] transition-all duration-300"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
             </Button>
@@ -167,7 +179,7 @@ const Services = () => {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors flex items-center ${
                       selectedCategory === category.id 
-                        ? 'bg-[#00D4AA] text-white' 
+                        ? 'bg-[#00B896] text-white' 
                         : 'text-gray-700 hover:bg-gray-100'
                     }`}
                   >
@@ -205,13 +217,13 @@ const Services = () => {
                 <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md">
                   <CardContent className="p-6">
                     <div className="text-4xl mb-4">{service.image}</div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#00D4AA] transition-colors">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-[#00B896] transition-colors">
                       {service.name}
                     </h3>
                     
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-semibold text-[#00D4AA]">{service.price}</span>
+                        <span className="font-semibold text-[#00B896]">{service.price}</span>
                         <div className="flex items-center">
                           <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                           <span className="text-gray-600">{service.rating}</span>
@@ -223,7 +235,7 @@ const Services = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-[#00D4AA] hover:bg-[#00C49A] group-hover:scale-105 transition-transform text-zinc-950">
+                    <Button className="w-full bg-[#00B896] hover:bg-[#009e85] group-hover:scale-105 transition-transform text-white">
                       Book Now
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
