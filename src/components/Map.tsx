@@ -21,7 +21,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
 
       try {
         // Initialize map
-        const mapInstance = new google.maps.Map(mapRef.current, {
+        const mapInstance = new window.google.maps.Map(mapRef.current, {
           center: { lat: 23.8315, lng: 91.2868 }, // Default to Agartala
           zoom: 13,
           styles: [
@@ -42,14 +42,14 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
 
         // Search for the location if provided
         if (location) {
-          const geocoder = new google.maps.Geocoder();
+          const geocoder = new window.google.maps.Geocoder();
           geocoder.geocode({ address: location }, (results, status) => {
             if (status === 'OK' && results && results[0]) {
               const position = results[0].geometry.location;
               mapInstance.setCenter(position);
               
               // Add marker
-              new google.maps.Marker({
+              new window.google.maps.Marker({
                 position: position,
                 map: mapInstance,
                 title: location,
@@ -59,7 +59,7 @@ const Map: React.FC<MapProps> = ({ location, onLocationSelect }) => {
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   `),
-                  scaledSize: new google.maps.Size(40, 40)
+                  scaledSize: new window.google.maps.Size(40, 40)
                 }
               });
 
