@@ -1,9 +1,10 @@
 
 import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Footer = () => {
+  const navigate = useNavigate();
   const services = ["Home Cleaning", "Plumbing", "Electrical", "AC Repair", "Painting", "Carpentry", "Home Tutoring", "Salon at Home"];
-  const company = ["About Us", "Careers", "Press", "Blog", "Terms of Service", "Privacy Policy"];
 
   const handleSocialClick = (platform: string) => {
     const urls = {
@@ -19,13 +20,17 @@ const Footer = () => {
     }
   };
 
+  const handleCompanyNavigation = (page: string) => {
+    navigate(`/${page}`);
+  };
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
+            <div className="text-2xl font-bold bg-gradient-to-r from-[#00A085] to-[#00B896] bg-clip-text text-transparent">
               Simplifixr
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -34,25 +39,25 @@ const Footer = () => {
             <div className="flex space-x-4">
               <button 
                 onClick={() => handleSocialClick('facebook')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
               >
                 <Facebook className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('twitter')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
               >
                 <Twitter className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('instagram')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
               >
                 <Instagram className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('linkedin')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00C9A7] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
               >
                 <Linkedin className="w-4 h-4" />
               </button>
@@ -64,7 +69,7 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Popular Services</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               {services.map((service, index) => (
-                <li key={index} className="hover:text-[#00C9A7] cursor-pointer transition-colors">
+                <li key={index} className="hover:text-[#00A085] cursor-pointer transition-colors">
                   {service}
                 </li>
               ))}
@@ -75,11 +80,42 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {company.map((item, index) => (
-                <li key={index} className="hover:text-[#00C9A7] cursor-pointer transition-colors">
-                  {item}
-                </li>
-              ))}
+              <li 
+                onClick={() => handleCompanyNavigation('about-us')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                About Us
+              </li>
+              <li 
+                onClick={() => handleCompanyNavigation('careers')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                Careers
+              </li>
+              <li 
+                onClick={() => handleCompanyNavigation('press')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                Press
+              </li>
+              <li 
+                onClick={() => handleCompanyNavigation('blog')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                Blog
+              </li>
+              <li 
+                onClick={() => handleCompanyNavigation('terms-of-service')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                Terms of Service
+              </li>
+              <li 
+                onClick={() => handleCompanyNavigation('privacy-policy')}
+                className="hover:text-[#00A085] cursor-pointer transition-colors"
+              >
+                Privacy Policy
+              </li>
             </ul>
           </div>
 
