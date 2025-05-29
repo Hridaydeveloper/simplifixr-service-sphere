@@ -11,6 +11,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Blog from "./pages/Blog";
 import Press from "./pages/Press";
+import BecomeProvider from "./pages/BecomeProvider";
 import "./App.css";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/services" element={<Services />} />
+            <Route path="/become-provider" element={<BecomeProvider />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

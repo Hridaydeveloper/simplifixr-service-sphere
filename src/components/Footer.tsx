@@ -22,6 +22,13 @@ const Footer = () => {
 
   const handleCompanyNavigation = (page: string) => {
     navigate(`/${page}`);
+    // Scroll to top of page content
+    setTimeout(() => {
+      window.scrollTo({ 
+        top: 0, 
+        behavior: 'smooth' 
+      });
+    }, 100);
   };
 
   return (
@@ -30,7 +37,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-[#00A085] to-[#00B896] bg-clip-text text-transparent">
+            <div className="text-2xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
               Simplifixr
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
@@ -39,25 +46,25 @@ const Footer = () => {
             <div className="flex space-x-4">
               <button 
                 onClick={() => handleSocialClick('facebook')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
               >
                 <Facebook className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('twitter')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
               >
                 <Twitter className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('instagram')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
               >
                 <Instagram className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('linkedin')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00A085] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
               >
                 <Linkedin className="w-4 h-4" />
               </button>
@@ -69,7 +76,7 @@ const Footer = () => {
             <h3 className="font-semibold mb-4">Popular Services</h3>
             <ul className="space-y-2 text-sm text-gray-400">
               {services.map((service, index) => (
-                <li key={index} className="hover:text-[#00A085] cursor-pointer transition-colors">
+                <li key={index} className="hover:text-[#00B896] cursor-pointer transition-colors">
                   {service}
                 </li>
               ))}
@@ -82,37 +89,37 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-gray-400">
               <li 
                 onClick={() => handleCompanyNavigation('about-us')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 About Us
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('careers')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 Careers
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('press')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 Press
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('blog')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 Blog
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('terms-of-service')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 Terms of Service
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('privacy-policy')}
-                className="hover:text-[#00A085] cursor-pointer transition-colors"
+                className="hover:text-[#00B896] cursor-pointer transition-colors"
               >
                 Privacy Policy
               </li>
