@@ -1,15 +1,18 @@
+
 import { Phone, Mail, MessageSquare, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+
 const ContactSection = () => {
-  return <section id="contact" className="py-20 bg-gray-50">
+  return (
+    <section id="contact" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Get in{" "}
-            <span className="bg-gradient-to-r from-[#00F5D4] to-[#00D4AA] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
               Touch
             </span>
           </h2>
@@ -56,7 +59,7 @@ const ContactSection = () => {
                   </label>
                   <Textarea placeholder="Tell us more about your requirements" rows={4} />
                 </div>
-                <Button className="w-full bg-[#00F5D4] hover:bg-[#00D4AA] py-3 text-zinc-950">
+                <Button className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] py-3 text-white">
                   Send Message
                 </Button>
               </form>
@@ -69,8 +72,8 @@ const ContactSection = () => {
               <h3 className="text-2xl font-semibold text-gray-900 mb-6">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#00F5D4]/10 rounded-xl flex items-center justify-center mr-4">
-                    <Phone className="w-6 h-6 text-[#00F5D4]" />
+                  <div className="w-12 h-12 bg-[#00B896]/10 rounded-xl flex items-center justify-center mr-4">
+                    <Phone className="w-6 h-6 text-[#00B896]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Phone</h4>
@@ -80,8 +83,8 @@ const ContactSection = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#00F5D4]/10 rounded-xl flex items-center justify-center mr-4">
-                    <MessageSquare className="w-6 h-6 text-[#00F5D4]" />
+                  <div className="w-12 h-12 bg-[#00B896]/10 rounded-xl flex items-center justify-center mr-4">
+                    <MessageSquare className="w-6 h-6 text-[#00B896]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">WhatsApp</h4>
@@ -91,8 +94,8 @@ const ContactSection = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#00F5D4]/10 rounded-xl flex items-center justify-center mr-4">
-                    <Mail className="w-6 h-6 text-[#00F5D4]" />
+                  <div className="w-12 h-12 bg-[#00B896]/10 rounded-xl flex items-center justify-center mr-4">
+                    <Mail className="w-6 h-6 text-[#00B896]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Email</h4>
@@ -102,8 +105,8 @@ const ContactSection = () => {
                 </div>
 
                 <div className="flex items-start">
-                  <div className="w-12 h-12 bg-[#00F5D4]/10 rounded-xl flex items-center justify-center mr-4">
-                    <MapPin className="w-6 h-6 text-[#00F5D4]" />
+                  <div className="w-12 h-12 bg-[#00B896]/10 rounded-xl flex items-center justify-center mr-4">
+                    <MapPin className="w-6 h-6 text-[#00B896]" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900">Headquarters</h4>
@@ -118,11 +121,11 @@ const ContactSection = () => {
             <div className="bg-white p-6 rounded-2xl shadow-md">
               <h4 className="font-semibold text-gray-900 mb-4">Quick Actions</h4>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start border-[#00F5D4] hover:bg-[#00F5D4] text-zinc-950">
+                <Button variant="outline" className="w-full justify-start border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]">
                   <MessageSquare className="w-4 h-4 mr-2" />
                   WhatsApp Booking
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]">
                   <Phone className="w-4 h-4 mr-2" />
                   Missed Call Booking
                 </Button>
@@ -131,6 +134,8 @@ const ContactSection = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default ContactSection;

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Camera, MapPin, Clock, Upload, DollarSign, FileText, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -119,61 +118,65 @@ const BecomeProvider = () => {
                   <Camera className="w-5 h-5 text-[#00B896] mr-2" />
                   <h3 className="text-lg font-semibold">Upload Service Images</h3>
                 </div>
-                <p className="text-gray-600 mb-4">Upload up to 5 high-quality images of your service or past work.</p>
+                <p className="text-gray-600 mb-6">Upload up to 5 high-quality images of your service or past work.</p>
                 
                 {images.length > 0 && (
-                  <div className="relative mb-4">
-                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                      <img 
-                        src={images[currentImageIndex]} 
-                        alt={`Service ${currentImageIndex + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    {images.length > 1 && (
-                      <div className="absolute inset-y-0 flex items-center justify-between w-full px-4">
-                        <Button
-                          onClick={prevImage}
-                          variant="outline"
-                          size="icon"
-                          className="bg-white/80 hover:bg-white"
-                        >
-                          <ChevronLeft className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={nextImage}
-                          variant="outline"
-                          size="icon"
-                          className="bg-white/80 hover:bg-white"
-                        >
-                          <ChevronRight className="w-4 h-4" />
-                        </Button>
+                  <div className="relative mb-6">
+                    <div className="relative mb-4">
+                      <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                        <img 
+                          src={images[currentImageIndex]} 
+                          alt={`Service ${currentImageIndex + 1}`}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
-                    )}
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-                      <div className="flex space-x-2">
-                        {images.map((_, index) => (
-                          <div
-                            key={index}
-                            className={`w-2 h-2 rounded-full ${
-                              index === currentImageIndex ? 'bg-[#00B896]' : 'bg-white/60'
-                            }`}
-                          />
-                        ))}
+                      {images.length > 1 && (
+                        <div className="absolute inset-y-0 flex items-center justify-between w-full px-4">
+                          <Button
+                            onClick={prevImage}
+                            variant="outline"
+                            size="icon"
+                            className="bg-white/80 hover:bg-white"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={nextImage}
+                            variant="outline"
+                            size="icon"
+                            className="bg-white/80 hover:bg-white"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                        <div className="flex space-x-2">
+                          {images.map((_, index) => (
+                            <div
+                              key={index}
+                              className={`w-2 h-2 rounded-full ${
+                                index === currentImageIndex ? 'bg-[#00B896]' : 'bg-white/60'
+                              }`}
+                            />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <Input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#00B896] file:text-white hover:file:bg-[#009985]"
-                  disabled={images.length >= 5}
-                />
-                <p className="text-sm text-gray-500 mt-2">{images.length}/5 images uploaded</p>
+                <div className="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#00B896] transition-colors">
+                  <Input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#00B896] file:text-white hover:file:bg-[#009985] file:cursor-pointer cursor-pointer"
+                    disabled={images.length >= 5}
+                  />
+                  <p className="text-sm text-gray-500 mt-3 text-center">{images.length}/5 images uploaded</p>
+                </div>
               </CardContent>
             </Card>
 
@@ -376,14 +379,19 @@ const BecomeProvider = () => {
                   <Upload className="w-5 h-5 text-[#00B896] mr-2" />
                   <h3 className="text-lg font-semibold">Upload Documents (Optional but Recommended)</h3>
                 </div>
-                <p className="text-gray-600 mb-4">Upload ID proof or certifications for faster verification and higher trust.</p>
-                <Input
-                  type="file"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={(e) => setDocuments(Array.from(e.target.files || []))}
-                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#00B896] file:text-white hover:file:bg-[#009985]"
-                />
+                <p className="text-gray-600 mb-6">Upload ID proof or certifications for faster verification and higher trust.</p>
+                <div className="bg-gray-50 p-4 rounded-lg border-2 border-dashed border-gray-300 hover:border-[#00B896] transition-colors">
+                  <Input
+                    type="file"
+                    multiple
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onChange={(e) => setDocuments(Array.from(e.target.files || []))}
+                    className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#00B896] file:text-white hover:file:bg-[#009985] file:cursor-pointer cursor-pointer"
+                  />
+                  <p className="text-sm text-gray-500 mt-3 text-center">
+                    {documents.length > 0 ? `${documents.length} document(s) selected` : 'No documents selected'}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
