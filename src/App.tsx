@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,10 +12,32 @@ import Blog from "./pages/Blog";
 import Press from "./pages/Press";
 import BecomeProvider from "./pages/BecomeProvider";
 import "./App.css";
+import AuthContainer from "./components/auth/AuthContainer";
+import { useState } from "react";
 
 const queryClient = new QueryClient();
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'customer' | 'provider' | 'guest' | null>(null);
+
+  const handleAuthComplete = (role: 'customer' | 'provider' | 'guest') => {
+    setUserRole(role);
+    setIsAuthenticated(true);
+  };
+
+  // Show auth flow if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="min-h-screen bg-background">
+          <AuthContainer onAuthComplete={handleAuthComplete} />
+          <Toaster />
+        </div>
+      </QueryClientProvider>
+    );
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
