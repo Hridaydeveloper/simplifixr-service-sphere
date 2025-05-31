@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -13,50 +14,60 @@ import Press from "./pages/Press";
 import BecomeProvider from "./pages/BecomeProvider";
 import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
-import { useState } from "react";
+import { useAuth } from "./contexts/AuthContext";
 
 const queryClient = new QueryClient();
 
-function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState<'customer' | 'provider' | 'guest' | null>(null);
+function AppContent() {
+  const { user, loading } = useAuth();
 
-  const handleAuthComplete = (role: 'customer' | 'provider' | 'guest') => {
-    setUserRole(role);
-    setIsAuthenticated(true);
-  };
-
-  // Show auth flow if not authenticated
-  if (!isAuthenticated) {
+  // Show loading state while checking authentication
+  if (loading) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-background">
-          <AuthContainer onAuthComplete={handleAuthComplete} />
-          <Toaster />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#00B896] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
-      </QueryClientProvider>
+      </div>
     );
   }
 
+  // Show auth flow if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AuthContainer onAuthComplete={() => {}} />
+      </div>
+    );
+  }
+
+  // Show main app if authenticated
+  return (
+    <Router>
+      <div className="min-h-screen bg-background">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/become-provider" element={<BecomeProvider />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/press" element={<Press />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
+
+function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <div className="min-h-screen bg-background">
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/become-provider" element={<BecomeProvider />} />
-            <Route path="/about-us" element={<AboutUs />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/terms-of-service" element={<TermsOfService />} />
-            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/press" element={<Press />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Toaster />
-        </div>
-      </Router>
+      <AppContent />
+      <Toaster />
     </QueryClientProvider>
   );
 }

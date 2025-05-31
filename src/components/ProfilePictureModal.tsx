@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { profileService } from "@/services/profileService";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 
 interface ProfilePictureModalProps {
   isOpen: boolean;
@@ -22,12 +22,20 @@ const ProfilePictureModal = ({ isOpen, onClose }: ProfilePictureModalProps) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
+        toast({
+          title: "Error",
+          description: "File size must be less than 5MB",
+          variant: "destructive",
+        });
         return;
       }
       
       if (!file.type.startsWith("image/")) {
-        toast.error("Please select an image file");
+        toast({
+          title: "Error",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -46,11 +54,18 @@ const ProfilePictureModal = ({ isOpen, onClose }: ProfilePictureModalProps) => {
       const publicUrl = await profileService.uploadProfilePicture(user.id, selectedFile);
       await profileService.updateProfile(user.id, { profile_picture_url: publicUrl });
       await refreshUser();
-      toast.success("Profile picture updated successfully!");
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully!",
+      });
       onClose();
     } catch (error) {
       console.error("Upload error:", error);
-      toast.error("Failed to upload profile picture");
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
     }
@@ -64,11 +79,18 @@ const ProfilePictureModal = ({ isOpen, onClose }: ProfilePictureModalProps) => {
       await profileService.deleteProfilePicture(user.id);
       await profileService.updateProfile(user.id, { profile_picture_url: null });
       await refreshUser();
-      toast.success("Profile picture removed successfully!");
+      toast({
+        title: "Success",
+        description: "Profile picture removed successfully!",
+      });
       onClose();
     } catch (error) {
       console.error("Remove error:", error);
-      toast.error("Failed to remove profile picture");
+      toast({
+        title: "Error",
+        description: "Failed to remove profile picture",
+        variant: "destructive",
+      });
     } finally {
       setUploading(false);
     }

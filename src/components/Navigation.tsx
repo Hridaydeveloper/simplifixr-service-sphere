@@ -12,19 +12,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfilePictureModal from "./ProfilePictureModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
 
-  // Mock user data - replace with actual user data from context/state
-  const user = {
-    name: "John Doe",
+  // Mock user data for now - will be replaced with real user data
+  const mockUser = {
+    name: user?.user_metadata?.full_name || "User",
     location: "New York, NY",
-    profilePicture: null, // URL when uploaded
-    email: "john@example.com"
+    profilePicture: null,
+    email: user?.email || "user@example.com"
   };
 
   const handleNavClick = (hash: string) => {
@@ -63,11 +65,13 @@ const Navigation = () => {
     }, 100);
   };
 
-  const handleLogout = () => {
-    // Handle logout logic here
-    console.log("Logging out...");
-    // Redirect to home or login page
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -133,9 +137,9 @@ const Navigation = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                     <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.profilePicture || ""} alt={user.name} />
+                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
                       <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white">
-                        {getInitials(user.name)}
+                        {getInitials(mockUser.name)}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -143,16 +147,16 @@ const Navigation = () => {
                 <DropdownMenuContent className="w-64" align="end" forceMount>
                   <div className="flex items-center space-x-2 p-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.profilePicture || ""} alt={user.name} />
+                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
                       <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                        {getInitials(user.name)}
+                        {getInitials(mockUser.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-sm font-medium leading-none">{mockUser.name}</p>
                       <div className="flex items-center text-xs text-muted-foreground">
                         <MapPin className="w-3 h-3 mr-1" />
-                        {user.location}
+                        {mockUser.location}
                       </div>
                     </div>
                   </div>
@@ -226,16 +230,16 @@ const Navigation = () => {
                 <div className="px-3 py-2 border-t border-gray-200">
                   <div className="flex items-center space-x-2 mb-2">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.profilePicture || ""} alt={user.name} />
+                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
                       <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                        {getInitials(user.name)}
+                        {getInitials(mockUser.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-sm font-medium">{mockUser.name}</p>
                       <div className="flex items-center text-xs text-muted-foreground">
                         <MapPin className="w-3 h-3 mr-1" />
-                        {user.location}
+                        {mockUser.location}
                       </div>
                     </div>
                   </div>
@@ -266,8 +270,6 @@ const Navigation = () => {
       <ProfilePictureModal 
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)}
-        currentPhoto={user.profilePicture}
-        userName={user.name}
       />
     </>
   );

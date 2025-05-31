@@ -9,53 +9,73 @@ export interface ProfileData {
 
 export const profileService = {
   async getProfile(userId: string) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error && error.code !== 'PGRST116') throw error;
-    return data;
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    } catch (error) {
+      console.error('Error getting profile:', error);
+      throw error;
+    }
   },
 
   async updateProfile(userId: string, profileData: ProfileData) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .upsert({
-        id: userId,
-        ...profileData,
-        updated_at: new Date().toISOString(),
-      })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert({
+          id: userId,
+          ...profileData,
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
-    return data;
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
   },
 
   async uploadProfilePicture(userId: string, file: File) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}/avatar.${fileExt}`;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${userId}/avatar.${fileExt}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(fileName, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { upsert: true });
 
-    if (uploadError) throw uploadError;
+      if (uploadError) throw uploadError;
 
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(fileName);
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
 
-    return data.publicUrl;
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      throw error;
+    }
   },
 
   async deleteProfilePicture(userId: string) {
-    const { error } = await supabase.storage
-      .from('avatars')
-      .remove([`${userId}/avatar`]);
+    try {
+      const { error } = await supabase.storage
+        .from('avatars')
+        .remove([`${userId}/avatar`]);
 
-    if (error) throw error;
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting profile picture:', error);
+      throw error;
+    }
   }
 };
