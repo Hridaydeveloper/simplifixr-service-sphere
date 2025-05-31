@@ -29,7 +29,7 @@ const AboutSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Empowering the{" "}
-            <span className="bg-gradient-to-r from-[#00F5D4] to-[#00D4AA] bg-clip-text text-teal-400">
+            <span className="bg-gradient-to-r from-[#00F5D4] to-[#00D4AA] bg-clip-text text-teal-500">
               Invisible Workforce
             </span>
           </h2>
