@@ -4,6 +4,8 @@ import { ArrowLeft, MapPin, Eye, EyeOff, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 interface ProviderSignupProps {
   contact: string;
@@ -19,6 +21,8 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
     idProof: null as File | null
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -36,18 +40,56 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setFormData(prev => ({ ...prev, location: 'Auto-detected location' }));
+          toast({
+            title: "Location detected",
+            description: "Location has been auto-detected",
+          });
         },
         (error) => {
           console.log('Location detection failed:', error);
+          toast({
+            title: "Location detection failed",
+            description: "Please enter your location manually",
+            variant: "destructive"
+          });
         }
       );
     }
   };
 
-  const handleSubmit = () => {
-    if (formData.fullName && formData.location && formData.password) {
-      console.log('Provider registration:', { ...formData, contact });
+  const handleSubmit = async () => {
+    if (!formData.fullName || !formData.location || !formData.password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.signUp({
+        email: contact,
+        password: formData.password,
+        fullName: formData.fullName,
+        location: formData.location
+      });
+
+      toast({
+        title: "Success",
+        description: "Provider account created successfully!",
+      });
       onComplete();
+    } catch (error: any) {
+      console.error('Provider registration error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,6 +127,7 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
                 size="sm"
                 onClick={handleAutoDetectLocation}
                 className="px-3"
+                type="button"
               >
                 <MapPin className="w-4 h-4" />
               </Button>
@@ -115,7 +158,7 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Upload ID Proof (Aadhaar or Govt ID)
+              Upload ID Proof (Aadhaar or Govt ID) - Optional
             </label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#00B896] transition-colors">
               <input
@@ -130,7 +173,7 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
                 {formData.idProof ? (
                   <p className="text-sm text-[#00B896] font-medium">{formData.idProof.name}</p>
                 ) : (
-                  <p className="text-sm text-gray-600">Upload ID Proof</p>
+                  <p className="text-sm text-gray-600">Upload ID Proof (Optional)</p>
                 )}
               </label>
             </div>
@@ -139,9 +182,9 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
           <Button 
             onClick={handleSubmit} 
             className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]"
-            disabled={!formData.fullName || !formData.location || !formData.password}
+            disabled={!formData.fullName || !formData.location || !formData.password || loading}
           >
-            Finish Setup
+            {loading ? "Creating Account..." : "Finish Setup"}
           </Button>
         </CardContent>
       </Card>

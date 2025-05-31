@@ -51,7 +51,9 @@ export const authService = {
   },
 
   async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
     if (error) throw error;
   },
 
@@ -59,7 +61,7 @@ export const authService = {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from('otp_verifications')
       .insert({
         email,
@@ -69,13 +71,15 @@ export const authService = {
 
     if (error) throw error;
     
-    // In a real app, you would send this OTP via email
-    console.log(`OTP for ${email}: ${otp}`);
+    // For development, log the OTP to console
+    console.log(`🔐 OTP for ${email}: ${otp}`);
+    console.log(`⏰ Expires at: ${expiresAt.toLocaleString()}`);
+    
     return otp;
   },
 
   async verifyOTP(email: string, otp: string) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('otp_verifications')
       .select('*')
       .eq('email', email)
@@ -89,11 +93,33 @@ export const authService = {
     }
 
     // Mark OTP as verified
-    await (supabase as any)
+    await supabase
       .from('otp_verifications')
       .update({ verified: true })
       .eq('id', data.id);
 
     return true;
+  },
+
+  async checkUserExists(email: string) {
+    // Check if user exists in auth.users
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', email)
+      .single();
+
+    return !!profile;
+  },
+
+  async signInWithOTP(email: string) {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`
+      }
+    });
+
+    if (error) throw error;
   }
 };

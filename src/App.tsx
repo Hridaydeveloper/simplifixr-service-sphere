@@ -21,6 +21,8 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { user, loading } = useAuth();
 
+  console.log('App state - user:', user, 'loading:', loading);
+
   // Show loading state while checking authentication
   if (loading) {
     return (
@@ -37,7 +39,13 @@ function AppContent() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background">
-        <AuthContainer onAuthComplete={() => {}} />
+        <AuthContainer 
+          onAuthComplete={(role) => {
+            console.log('Auth completed with role:', role);
+            // The user state will be updated by the AuthContext
+            // No need to do anything here as the component will re-render
+          }} 
+        />
       </div>
     );
   }

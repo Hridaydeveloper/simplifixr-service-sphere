@@ -9,7 +9,7 @@ export interface ProfileData {
 
 export const profileService = {
   async getProfile(userId: string) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
@@ -20,7 +20,7 @@ export const profileService = {
   },
 
   async updateProfile(userId: string, profileData: ProfileData) {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from('profiles')
       .upsert({
         id: userId,

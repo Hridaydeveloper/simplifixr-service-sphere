@@ -4,6 +4,8 @@ import { ArrowLeft, MapPin, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 interface CustomerSignupProps {
   contact: string;
@@ -18,6 +20,8 @@ const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) =>
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -27,20 +31,58 @@ const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) =>
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // Here you would reverse geocode the coordinates
+          // Simple location detection - in production, use reverse geocoding
           setFormData(prev => ({ ...prev, location: 'Auto-detected location' }));
+          toast({
+            title: "Location detected",
+            description: "Location has been auto-detected",
+          });
         },
         (error) => {
           console.log('Location detection failed:', error);
+          toast({
+            title: "Location detection failed",
+            description: "Please enter your location manually",
+            variant: "destructive"
+          });
         }
       );
     }
   };
 
-  const handleSubmit = () => {
-    if (formData.fullName && formData.location && formData.password) {
-      console.log('Customer registration:', { ...formData, contact });
+  const handleSubmit = async () => {
+    if (!formData.fullName || !formData.location || !formData.password) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.signUp({
+        email: contact,
+        password: formData.password,
+        fullName: formData.fullName,
+        location: formData.location
+      });
+
+      toast({
+        title: "Success",
+        description: "Account created successfully!",
+      });
       onComplete();
+    } catch (error: any) {
+      console.error('Customer registration error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create account. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -81,6 +123,7 @@ const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) =>
                 size="sm"
                 onClick={handleAutoDetectLocation}
                 className="px-3"
+                type="button"
               >
                 <MapPin className="w-4 h-4" />
               </Button>
@@ -112,9 +155,9 @@ const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) =>
           <Button 
             onClick={handleSubmit} 
             className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]"
-            disabled={!formData.fullName || !formData.location || !formData.password}
+            disabled={!formData.fullName || !formData.location || !formData.password || loading}
           >
-            Complete Sign Up
+            {loading ? "Creating Account..." : "Complete Sign Up"}
           </Button>
         </CardContent>
       </Card>

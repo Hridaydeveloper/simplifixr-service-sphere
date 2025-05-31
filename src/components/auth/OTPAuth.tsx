@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useToast } from "@/hooks/use-toast";
+import { authService } from "@/services/authService";
 
 interface OTPAuthProps {
   role: 'customer' | 'provider';
@@ -17,25 +19,98 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
   const [step, setStep] = useState<'contact' | 'otp' | 'forgot'>('contact');
   const [contact, setContact] = useState('');
   const [otp, setOtp] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
-  const handleSendOTP = () => {
-    if (contact.trim()) {
+  const handleSendOTP = async () => {
+    if (!contact.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your email or phone number",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // For demo purposes, we'll use email-based OTP
+      await authService.generateOTP(contact);
       setStep('otp');
-      // Here you would integrate with your OTP service
-      console.log('Sending OTP to:', contact);
+      toast({
+        title: "OTP Sent!",
+        description: `Check your console for the OTP code (development mode)`,
+      });
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send OTP. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleVerifyOTP = () => {
-    if (otp.length === 6) {
-      // Simulate checking if user exists
-      const isExistingUser = Math.random() > 0.5; // Random for demo
+  const handleVerifyOTP = async () => {
+    if (otp.length !== 6) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid 6-digit OTP",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.verifyOTP(contact, otp);
+      
+      // Check if user exists
+      const isExistingUser = await authService.checkUserExists(contact);
       onOTPVerified(contact, isExistingUser);
+      
+      toast({
+        title: "Success",
+        description: "OTP verified successfully!",
+      });
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      toast({
+        title: "Error",
+        description: "Invalid or expired OTP. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleForgotPassword = () => {
-    setStep('forgot');
+  const handleForgotPassword = async () => {
+    if (!contact.trim()) {
+      setStep('forgot');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await authService.resetPassword(contact);
+      toast({
+        title: "Reset Email Sent",
+        description: "Check your email for password reset instructions",
+      });
+      setStep('contact');
+    } catch (error) {
+      console.error('Error sending reset email:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send reset email. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const roleTitle = role === 'customer' ? "Let's Simplify Your Life" : "Grow with Simplifixr";
@@ -64,9 +139,13 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
               value={contact}
               onChange={(e) => setContact(e.target.value)}
             />
-            <Button onClick={handleSendOTP} className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]">
+            <Button 
+              onClick={handleForgotPassword} 
+              className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]"
+              disabled={loading}
+            >
               <Mail className="w-4 h-4 mr-2" />
-              Send OTP
+              {loading ? "Sending..." : "Send Reset Link"}
             </Button>
           </CardContent>
         </Card>
@@ -88,6 +167,9 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
               We've sent a 6-digit code to<br />
               <span className="font-medium">{contact}</span>
             </p>
+            <p className="text-sm text-blue-600 text-center">
+              (Check console for OTP in development mode)
+            </p>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex justify-center">
@@ -105,12 +187,16 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
             <Button 
               onClick={handleVerifyOTP} 
               className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]"
-              disabled={otp.length !== 6}
+              disabled={otp.length !== 6 || loading}
             >
-              Verify OTP
+              {loading ? "Verifying..." : "Verify OTP"}
             </Button>
             <div className="text-center">
-              <Button variant="link" onClick={handleSendOTP}>
+              <Button 
+                variant="link" 
+                onClick={handleSendOTP}
+                disabled={loading}
+              >
                 Resend OTP
               </Button>
             </div>
@@ -139,10 +225,15 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
             placeholder="Phone Number or Email" 
             value={contact}
             onChange={(e) => setContact(e.target.value)}
+            type="email"
           />
-          <Button onClick={handleSendOTP} className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]">
+          <Button 
+            onClick={handleSendOTP} 
+            className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7]"
+            disabled={loading}
+          >
             <Mail className="w-4 h-4 mr-2" />
-            Send OTP
+            {loading ? "Sending..." : "Send OTP"}
           </Button>
           
           <div className="text-center space-y-2 text-sm">

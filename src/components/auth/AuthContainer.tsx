@@ -16,15 +16,19 @@ const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
   const [isExistingUser, setIsExistingUser] = useState(false);
 
   const handleRoleSelect = (role: 'customer' | 'provider' | 'guest') => {
+    console.log('Role selected:', role);
+    
     if (role === 'guest') {
       onAuthComplete('guest');
       return;
     }
+    
     setSelectedRole(role);
     setStep('otp');
   };
 
   const handleOTPVerified = (contact: string, isExisting: boolean) => {
+    console.log('OTP verified for:', contact, 'isExisting:', isExisting);
     setUserContact(contact);
     setIsExistingUser(isExisting);
     
@@ -38,6 +42,7 @@ const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
   };
 
   const handleSignupComplete = () => {
+    console.log('Signup completed for role:', selectedRole);
     onAuthComplete(selectedRole!);
   };
 
@@ -53,6 +58,7 @@ const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
   };
 
   const handleSkipToGuest = () => {
+    console.log('Skipping to guest mode');
     onAuthComplete('guest');
   };
 
