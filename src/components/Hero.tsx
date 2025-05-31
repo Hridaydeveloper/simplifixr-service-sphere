@@ -1,3 +1,4 @@
+
 import { Search, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,9 @@ const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedService, setSelectedService] = useState("");
   const [showMap, setShowMap] = useState(false);
+
   const handleBookService = () => {
     navigate('/services', {
       state: {
@@ -18,22 +21,40 @@ const Hero = () => {
       }
     });
   };
+
   const handleBecomeProvider = () => {
     navigate('/become-provider');
   };
+
+  const handleSearch = () => {
+    // Navigate to services page with search parameters
+    navigate('/services', {
+      state: {
+        searchQuery: selectedService,
+        location: selectedLocation,
+        scrollToTop: true
+      }
+    });
+  };
+
   const handleLocationSearch = () => {
     if (selectedLocation.trim()) {
       setShowMap(true);
     }
   };
+
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
     console.log('Location selected:', {
       lat,
       lng,
       address
     });
+    setSelectedLocation(address);
+    setShowMap(false);
   };
-  return <section id="home" className="pt-20 pb-16 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+
+  return (
+    <section id="home" className="pt-20 pb-16 bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[80vh]">
           <div className="space-y-6 lg:space-y-8 animate-fade-in">
@@ -72,24 +93,36 @@ const Hero = () => {
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
                   <Input 
-                    placeholder={isMobile ? "What service do you need?" : "Services"} 
+                    placeholder={isMobile ? "What service do you need?" : "Search services..."} 
+                    value={selectedService}
+                    onChange={(e) => setSelectedService(e.target.value)}
                     className="pl-12 pr-4 py-4 border-gray-200 focus:border-[#00B896] focus:ring-[#00B896]/20 rounded-lg text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" 
                   />
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
-                  <Input placeholder="Your location" value={selectedLocation} onChange={e => setSelectedLocation(e.target.value)} className="pl-12 pr-4 py-4 border-gray-200 rounded-lg focus:border-[#00B896] focus:ring-[#00B896]/20 text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" />
+                  <Input 
+                    placeholder="Your location" 
+                    value={selectedLocation} 
+                    onChange={(e) => setSelectedLocation(e.target.value)} 
+                    className="pl-12 pr-4 py-4 border-gray-200 rounded-lg focus:border-[#00B896] focus:ring-[#00B896]/20 text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" 
+                  />
                 </div>
-                <Button onClick={handleLocationSearch} className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] py-4 rounded-lg font-semibold text-white text-base transition-all duration-300">
+                <Button 
+                  onClick={handleSearch} 
+                  className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] py-4 rounded-lg font-semibold text-white text-base transition-all duration-300"
+                >
                   Search
                 </Button>
               </div>
             </div>
 
             {/* Show Map when location is searched */}
-            {showMap && selectedLocation && <div className="max-w-2xl">
+            {showMap && selectedLocation && (
+              <div className="max-w-2xl">
                 <Map location={selectedLocation} onLocationSelect={handleLocationSelect} />
-              </div>}
+              </div>
+            )}
 
             {/* Trust Indicators */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-8 text-sm">
@@ -148,7 +181,8 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 
 export default Hero;

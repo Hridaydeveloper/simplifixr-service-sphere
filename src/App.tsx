@@ -53,8 +53,10 @@ function AppContent() {
             if (role === 'guest') {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
+            } else {
+              // For authenticated users, redirect to home page
+              window.location.href = '/';
             }
-            // For authenticated users, the user state will be updated by the AuthContext
           }} 
         />
       </div>

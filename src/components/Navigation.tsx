@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Menu, X, Users, User, MapPin, Camera, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showAuthFlow, setShowAuthFlow] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -82,9 +84,18 @@ const Navigation = () => {
     }, 100);
   };
 
+  const handleLoginClick = () => {
+    // Clear any existing guest mode
+    localStorage.removeItem('guestMode');
+    // Trigger auth flow by reloading the page
+    window.location.reload();
+  };
+
   const handleLogout = async () => {
     try {
       await signOut();
+      // Clear guest mode on logout
+      localStorage.removeItem('guestMode');
       navigate('/');
     } catch (error) {
       console.error("Logout error:", error);
@@ -196,7 +207,11 @@ const Navigation = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant="outline" className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white">
+                <Button 
+                  onClick={handleLoginClick}
+                  variant="outline" 
+                  className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
+                >
                   <User className="w-4 h-4 mr-2" />
                   Login
                 </Button>
@@ -251,8 +266,8 @@ const Navigation = () => {
                     Help Community
                   </Button>
                 </div>
-                {/* Mobile Profile Section */}
-                {user && (
+                {/* Mobile Profile Section or Login */}
+                {user ? (
                   <div className="px-3 py-2 border-t border-gray-200">
                     <div className="flex items-center space-x-2 mb-2">
                       <Avatar className="h-8 w-8">
@@ -286,6 +301,17 @@ const Navigation = () => {
                     <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
                       <LogOut className="w-4 h-4 mr-2" />
                       Logout
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="px-3 py-2 border-t border-gray-200">
+                    <Button 
+                      onClick={handleLoginClick}
+                      variant="outline" 
+                      className="w-full border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
+                    >
+                      <User className="w-4 h-4 mr-2" />
+                      Login
                     </Button>
                   </div>
                 )}
