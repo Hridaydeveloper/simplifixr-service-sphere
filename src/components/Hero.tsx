@@ -4,8 +4,11 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import Map from "./Map";
 import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 const Hero = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [showMap, setShowMap] = useState(false);
   const handleBookService = () => {
@@ -68,7 +71,10 @@ const Hero = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
-                  <Input placeholder="What service do you need?" className="pl-12 pr-4 py-4 border-gray-200 focus:border-[#00B896] focus:ring-[#00B896]/20 rounded-lg text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" />
+                  <Input 
+                    placeholder={isMobile ? "What service do you need?" : "Services"} 
+                    className="pl-12 pr-4 py-4 border-gray-200 focus:border-[#00B896] focus:ring-[#00B896]/20 rounded-lg text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" 
+                  />
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
@@ -144,4 +150,5 @@ const Hero = () => {
       </div>
     </section>;
 };
+
 export default Hero;
