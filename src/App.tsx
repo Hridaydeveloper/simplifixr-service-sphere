@@ -15,13 +15,21 @@ import BecomeProvider from "./pages/BecomeProvider";
 import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
 import { useAuth } from "./contexts/AuthContext";
+import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const [guestMode, setGuestMode] = useState(false);
 
-  console.log('App state - user:', user, 'loading:', loading);
+  // Check for guest mode in localStorage
+  useEffect(() => {
+    const isGuest = localStorage.getItem('guestMode') === 'true';
+    setGuestMode(isGuest);
+  }, []);
+
+  console.log('App state - user:', user, 'loading:', loading, 'guestMode:', guestMode);
 
   // Show loading state while checking authentication
   if (loading) {
@@ -35,22 +43,25 @@ function AppContent() {
     );
   }
 
-  // Show auth flow if not authenticated
-  if (!user) {
+  // Show auth flow if not authenticated and not in guest mode
+  if (!user && !guestMode) {
     return (
       <div className="min-h-screen bg-background">
         <AuthContainer 
           onAuthComplete={(role) => {
             console.log('Auth completed with role:', role);
-            // The user state will be updated by the AuthContext
-            // No need to do anything here as the component will re-render
+            if (role === 'guest') {
+              localStorage.setItem('guestMode', 'true');
+              setGuestMode(true);
+            }
+            // For authenticated users, the user state will be updated by the AuthContext
           }} 
         />
       </div>
     );
   }
 
-  // Show main app if authenticated
+  // Show main app if authenticated or in guest mode
   return (
     <Router>
       <div className="min-h-screen bg-background">

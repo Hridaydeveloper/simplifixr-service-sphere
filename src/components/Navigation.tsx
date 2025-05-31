@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X, Users, User, MapPin, Camera, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,19 +12,37 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ProfilePictureModal from "./ProfilePictureModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { profileService } from "@/services/profileService";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
-  // Mock user data for now - will be replaced with real user data
-  const mockUser = {
-    name: user?.user_metadata?.full_name || "User",
-    location: "New York, NY",
-    profilePicture: null,
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user?.id) {
+        try {
+          const profile = await profileService.getProfile(user.id);
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('Error fetching profile:', error);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
+  // Default user data - use profile data if available, otherwise fallback
+  const userData = {
+    name: userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
+    location: userProfile?.location || user?.user_metadata?.location || "Location not set",
+    profilePicture: userProfile?.profile_picture_url || null,
     email: user?.email || "user@example.com"
   };
 
@@ -133,49 +150,57 @@ const Navigation = () => {
               </Button>
               
               {/* Profile Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white">
-                        {getInitials(mockUser.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64" align="end" forceMount>
-                  <div className="flex items-center space-x-2 p-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                        {getInitials(mockUser.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{mockUser.name}</p>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {mockUser.location}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
+                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white">
+                          {getInitials(userData.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-64" align="end" forceMount>
+                    <div className="flex items-center space-x-2 p-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
+                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
+                          {getInitials(userData.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">{userData.name}</p>
+                        <p className="text-xs text-muted-foreground">{userData.email}</p>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {userData.location}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
-                    <Camera className="w-4 h-4 mr-2" />
-                    Edit / Add Profile Picture
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Settings className="w-4 h-4 mr-2" />
-                    Account Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
+                      <Camera className="w-4 h-4 mr-2" />
+                      Edit / Add Profile Picture
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant="outline" className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white">
+                  <User className="w-4 h-4 mr-2" />
+                  Login
+                </Button>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -227,50 +252,55 @@ const Navigation = () => {
                   </Button>
                 </div>
                 {/* Mobile Profile Section */}
-                <div className="px-3 py-2 border-t border-gray-200">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={mockUser.profilePicture || ""} alt={mockUser.name} />
-                      <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                        {getInitials(mockUser.name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-medium">{mockUser.name}</p>
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <MapPin className="w-3 h-3 mr-1" />
-                        {mockUser.location}
+                {user && (
+                  <div className="px-3 py-2 border-t border-gray-200">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
+                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
+                          {getInitials(userData.name)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{userData.name}</p>
+                        <p className="text-xs text-muted-foreground">{userData.email}</p>
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <MapPin className="w-3 h-3 mr-1" />
+                          {userData.location}
+                        </div>
                       </div>
                     </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full mb-2"
+                      onClick={() => setIsProfileModalOpen(true)}
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      Edit Profile Picture
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full mb-2">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Account Settings
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full mb-2"
-                    onClick={() => setIsProfileModalOpen(true)}
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
-                    Edit Profile Picture
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full mb-2">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Account Settings
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
-                </div>
+                )}
               </div>
             </div>
           )}
         </div>
       </nav>
 
-      <ProfilePictureModal 
-        isOpen={isProfileModalOpen} 
-        onClose={() => setIsProfileModalOpen(false)}
-      />
+      {user && (
+        <ProfilePictureModal 
+          isOpen={isProfileModalOpen} 
+          onClose={() => setIsProfileModalOpen(false)}
+        />
+      )}
     </>
   );
 };
