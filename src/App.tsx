@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -58,14 +58,8 @@ function AppContent() {
             if (role === 'guest') {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
-            } else {
-              // Redirect based on role after successful auth
-              if (role === 'customer') {
-                window.location.href = '/services';
-              } else if (role === 'provider') {
-                window.location.href = '/become-provider';
-              }
             }
+            // Don't redirect here - let the auth state change handle it
           }} 
         />
       </div>
@@ -82,14 +76,8 @@ function AppContent() {
             if (role === 'guest') {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
-            } else {
-              // Redirect based on role after successful auth
-              if (role === 'customer') {
-                window.location.href = '/services';
-              } else if (role === 'provider') {
-                window.location.href = '/become-provider';
-              }
             }
+            // Don't redirect here - let the auth state change handle it
           }} 
         />
       </div>
@@ -99,21 +87,46 @@ function AppContent() {
   // Show main app if authenticated or in guest mode
   return (
     <Router>
-      <div className="min-h-screen bg-background">
-        <Routes>
-          <Route path="/" element={<Index onShowAuth={setAuthFlow} />} />
-          <Route path="/services" element={<Services onShowAuth={setAuthFlow} />} />
-          <Route path="/become-provider" element={<BecomeProvider />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/careers" element={<Careers />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/press" element={<Press />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+      <AppRouter onShowAuth={setAuthFlow} />
     </Router>
+  );
+}
+
+function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void }) {
+  const { user } = useAuth();
+  
+  // Handle redirects after authentication
+  useEffect(() => {
+    if (user) {
+      const userRole = user.user_metadata?.role;
+      const currentPath = window.location.pathname;
+      
+      // Only redirect if we're on the root path to avoid disrupting navigation
+      if (currentPath === '/') {
+        if (userRole === 'customer') {
+          window.location.href = '/services';
+        } else if (userRole === 'provider') {
+          window.location.href = '/become-provider';
+        }
+      }
+    }
+  }, [user]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Routes>
+        <Route path="/" element={<Index onShowAuth={onShowAuth} />} />
+        <Route path="/services" element={<Services onShowAuth={onShowAuth} />} />
+        <Route path="/become-provider" element={<BecomeProvider />} />
+        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/press" element={<Press />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 }
 

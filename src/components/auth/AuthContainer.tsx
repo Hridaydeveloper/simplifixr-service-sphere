@@ -34,7 +34,7 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
     setIsExistingUser(isExisting);
     
     if (isExisting) {
-      // User exists, complete auth
+      // User exists, complete auth immediately
       onAuthComplete(selectedRole!);
     } else {
       // New user, show signup form
@@ -42,9 +42,10 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
     }
   };
 
-  const handleSignupComplete = () => {
-    console.log('Signup completed for role:', selectedRole);
-    onAuthComplete(selectedRole!);
+  const handleSignupComplete = (role: 'customer' | 'provider') => {
+    console.log('Signup completed for role:', role);
+    // Store the role in user metadata for future redirects
+    onAuthComplete(role);
   };
 
   const handleBackToRole = () => {
@@ -84,7 +85,7 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
         <CustomerSignup
           contact={userContact}
           onBack={handleBackToOTP}
-          onComplete={handleSignupComplete}
+          onComplete={() => handleSignupComplete('customer')}
         />
       );
     } else {
@@ -92,7 +93,7 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
         <ProviderSignup
           contact={userContact}
           onBack={handleBackToOTP}
-          onComplete={handleSignupComplete}
+          onComplete={() => handleSignupComplete('provider')}
         />
       );
     }

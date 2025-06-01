@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { ArrowLeft, User, MapPin, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, User, MapPin, Lock, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authService } from "@/services/authService";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerSignupProps {
   contact: string;
@@ -14,27 +15,21 @@ interface CustomerSignupProps {
 }
 
 const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) => {
-  const [fullName, setFullName] = useState('');
-  const [location, setLocation] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [location, setLocation] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = async () => {
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!fullName.trim()) {
       toast({
         title: "Error",
         description: "Please enter your full name",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (password.length < 6) {
-      toast({
-        title: "Error", 
-        description: "Password must be at least 6 characters",
         variant: "destructive",
       });
       return;
@@ -49,113 +44,174 @@ const CustomerSignup = ({ contact, onBack, onComplete }: CustomerSignupProps) =>
       return;
     }
 
-    setLoading(true);
-    try {
-      await authService.signUp({
-        email: contact,
-        password,
-        fullName,
-        location,
-      });
-      
-      toast({
-        title: "Success",
-        description: "Account created successfully! Redirecting...",
-      });
-      
-      // Wait a moment then complete
-      setTimeout(() => {
-        onComplete();
-      }, 1500);
-    } catch (error) {
-      console.error('Signup error:', error);
+    if (password.length < 6) {
       toast({
         title: "Error",
-        description: "Failed to create account. Please try again.",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: contact,
+        password: password,
+        options: {
+          data: {
+            full_name: fullName,
+            location: location,
+            role: 'customer'
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        toast({
+          title: "Account created successfully!",
+          description: "You are being signed in...",
+        });
+
+        // Sign in the user immediately after signup
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: contact,
+          password: password,
+        });
+
+        if (signInError) {
+          console.error('Sign in error:', signInError);
+          // Even if sign in fails, we can still complete the flow
+        }
+
+        // Complete the auth flow
+        onComplete();
+      }
+    } catch (error: any) {
+      console.error('Signup error:', error);
+      toast({
+        title: "Signup Failed",
+        description: error.message || "Failed to create account. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-2 mb-2">
-              <Button variant="ghost" size="sm" onClick={onBack}>
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <CardTitle className="text-xl">Complete Your Profile</CardTitle>
-            </div>
-            <p className="text-sm text-gray-600">
-              Tell us a bit about yourself to get started
-            </p>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+    <div className="min-h-screen bg-gradient-to-br from-[#00B896] to-[#00C9A7] flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex items-center mb-4">
+            <Button variant="ghost" onClick={onBack} className="p-0 h-auto">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <CardTitle className="flex-1 text-2xl font-bold text-gray-900">
+              Complete Your Profile
+            </CardTitle>
+          </div>
+          <p className="text-gray-600">
+            Set up your customer account to start booking services
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Contact</label>
               <Input
-                type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="pl-10"
+                value={contact}
+                disabled
+                className="bg-gray-50"
               />
             </div>
 
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              <Input
-                type="text"
-                placeholder="Your Location (Optional)"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="pl-10"
-              />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Full Name *</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="pl-10"
+                  required
+                />
+              </div>
             </div>
 
-            <div className="relative">
-              <Input
-                type={showPassword ? "text" : "password"}
-                placeholder="Create Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5 text-gray-400" />
-                ) : (
-                  <Eye className="w-5 h-5 text-gray-400" />
-                )}
-              </button>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Location</label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="City, State"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
 
-            <Input
-              type="password"
-              placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Password *</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Confirm Password *</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="pl-10 pr-10"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
 
             <Button
-              onClick={handleSignup}
-              disabled={loading}
-              className="w-full bg-[#00B896] hover:bg-[#009985]"
+              type="submit"
+              className="w-full bg-[#00B896] hover:bg-[#009985] text-white"
+              disabled={isLoading}
             >
-              {loading ? 'Creating Account...' : 'Complete Registration'}
+              {isLoading ? "Creating Account..." : "Complete Registration"}
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };
