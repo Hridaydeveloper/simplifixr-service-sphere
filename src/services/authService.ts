@@ -6,16 +6,12 @@ export interface SignUpData {
   password: string;
   fullName: string;
   location?: string;
+  role?: 'customer' | 'provider';
 }
 
 export interface SignInData {
   email: string;
   password: string;
-}
-
-export interface OTPData {
-  email: string;
-  otp: string;
 }
 
 export const authService = {
@@ -27,6 +23,7 @@ export const authService = {
         data: {
           full_name: data.fullName,
           location: data.location,
+          role: data.role,
         }
       }
     });
@@ -57,14 +54,14 @@ export const authService = {
     if (error) throw error;
   },
 
-  async generateOTP(email: string) {
+  async sendOTP(contact: string, role: 'customer' | 'provider') {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     const { error } = await supabase
       .from('otp_verifications')
       .insert({
-        email,
+        email: contact,
         otp_code: otp,
         expires_at: expiresAt.toISOString(),
       });
@@ -72,17 +69,17 @@ export const authService = {
     if (error) throw error;
     
     // For development, log the OTP to console
-    console.log(`🔐 OTP for ${email}: ${otp}`);
+    console.log(`🔐 OTP for ${contact}: ${otp}`);
     console.log(`⏰ Expires at: ${expiresAt.toLocaleString()}`);
     
     return otp;
   },
 
-  async verifyOTP(email: string, otp: string) {
+  async verifyOTP(contact: string, otp: string) {
     const { data, error } = await supabase
       .from('otp_verifications')
       .select('*')
-      .eq('email', email)
+      .eq('email', contact)
       .eq('otp_code', otp)
       .eq('verified', false)
       .gt('expires_at', new Date().toISOString())
@@ -98,11 +95,17 @@ export const authService = {
       .update({ verified: true })
       .eq('id', data.id);
 
-    return true;
+    // Check if user already exists
+    const { data: existingUser } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', contact)
+      .single();
+
+    return !!existingUser;
   },
 
   async checkUserExists(email: string) {
-    // Check if user exists in auth.users
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')

@@ -22,6 +22,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut, refreshUser } = useAuth();
@@ -29,33 +30,46 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
   // Check if user is a guest
   const isGuest = !user && localStorage.getItem('guestMode') === 'true';
 
-  // Fetch user profile data and refresh when user changes
+  // Fetch user profile data when user changes
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user?.id) {
+        setProfileLoading(true);
         try {
-          // Refresh user data first
+          // First refresh user data to get latest metadata
           await refreshUser();
+          
+          // Then fetch profile from database
           const profile = await profileService.getProfile(user.id);
           setUserProfile(profile);
+          console.log('Fetched user profile:', profile);
         } catch (error) {
           console.error('Error fetching profile:', error);
+          // If profile doesn't exist, use user metadata
+          setUserProfile(null);
+        } finally {
+          setProfileLoading(false);
         }
       } else {
         setUserProfile(null);
       }
     };
 
-    fetchUserProfile();
+    if (user) {
+      fetchUserProfile();
+    }
   }, [user, refreshUser]);
 
-  // Default user data - use profile data if available, otherwise fallback
+  // Default user data - use profile data if available, otherwise fallback to user metadata
   const userData = {
     name: userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
     location: userProfile?.location || user?.user_metadata?.location || "Location not set",
     profilePicture: userProfile?.profile_picture_url || null,
-    email: user?.email || "user@example.com"
+    email: user?.email || "user@example.com",
+    role: user?.user_metadata?.role || "customer"
   };
+
+  console.log('Navigation - user:', user, 'profile:', userProfile, 'userData:', userData);
 
   const handleNavClick = (hash: string) => {
     if (location.pathname === '/') {
@@ -249,7 +263,6 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
             </div>
           </div>
 
-          {/* Mobile Navigation */}
           {isMenuOpen && (
             <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg">
               <div className="px-2 pt-2 pb-3 space-y-1">

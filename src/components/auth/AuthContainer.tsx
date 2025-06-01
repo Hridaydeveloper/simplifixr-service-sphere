@@ -1,9 +1,7 @@
 
 import { useState } from "react";
 import RoleSelection from "./RoleSelection";
-import OTPAuth from "./OTPAuth";
-import CustomerSignup from "./CustomerSignup";
-import ProviderSignup from "./ProviderSignup";
+import EmailPasswordAuth from "./EmailPasswordAuth";
 
 interface AuthContainerProps {
   onAuthComplete: (role: 'customer' | 'provider' | 'guest') => void;
@@ -11,10 +9,7 @@ interface AuthContainerProps {
 }
 
 const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
-  const [step, setStep] = useState<'role' | 'otp' | 'signup'>(defaultRole ? 'otp' : 'role');
   const [selectedRole, setSelectedRole] = useState<'customer' | 'provider' | null>(defaultRole || null);
-  const [userContact, setUserContact] = useState('');
-  const [isExistingUser, setIsExistingUser] = useState(false);
 
   const handleRoleSelect = (role: 'customer' | 'provider' | 'guest') => {
     console.log('Role selected:', role);
@@ -25,38 +20,15 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
     }
     
     setSelectedRole(role);
-    setStep('otp');
   };
 
-  const handleOTPVerified = (contact: string, isExisting: boolean) => {
-    console.log('OTP verified for:', contact, 'isExisting:', isExisting);
-    setUserContact(contact);
-    setIsExistingUser(isExisting);
-    
-    if (isExisting) {
-      // User exists, complete auth immediately
-      onAuthComplete(selectedRole!);
-    } else {
-      // New user, show signup form
-      setStep('signup');
-    }
-  };
-
-  const handleSignupComplete = (role: 'customer' | 'provider') => {
-    console.log('Signup completed for role:', role);
-    // Store the role in user metadata for future redirects
+  const handleAuthComplete = (role: 'customer' | 'provider') => {
+    console.log('Auth completed for role:', role);
     onAuthComplete(role);
   };
 
   const handleBackToRole = () => {
-    setStep('role');
     setSelectedRole(null);
-    setUserContact('');
-    setIsExistingUser(false);
-  };
-
-  const handleBackToOTP = () => {
-    setStep('otp');
   };
 
   const handleSkipToGuest = () => {
@@ -64,39 +36,19 @@ const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
     onAuthComplete('guest');
   };
 
-  if (step === 'role' && !defaultRole) {
+  if (!selectedRole && !defaultRole) {
     return <RoleSelection onRoleSelect={handleRoleSelect} />;
   }
 
-  if (step === 'otp' && selectedRole) {
+  if (selectedRole) {
     return (
-      <OTPAuth
+      <EmailPasswordAuth
         role={selectedRole}
         onBack={defaultRole ? undefined : handleBackToRole}
-        onOTPVerified={handleOTPVerified}
+        onAuthComplete={handleAuthComplete}
         onSkip={handleSkipToGuest}
       />
     );
-  }
-
-  if (step === 'signup' && selectedRole) {
-    if (selectedRole === 'customer') {
-      return (
-        <CustomerSignup
-          contact={userContact}
-          onBack={handleBackToOTP}
-          onComplete={() => handleSignupComplete('customer')}
-        />
-      );
-    } else {
-      return (
-        <ProviderSignup
-          contact={userContact}
-          onBack={handleBackToOTP}
-          onComplete={() => handleSignupComplete('provider')}
-        />
-      );
-    }
   }
 
   return null;
