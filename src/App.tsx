@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -61,8 +61,11 @@ function AppContent() {
             if (role === 'guest') {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
+            } else {
+              // Clear guest mode if user logs in
+              localStorage.removeItem('guestMode');
+              setGuestMode(false);
             }
-            // Don't redirect here - let the auth state change handle it
           }} 
         />
       </div>
@@ -79,8 +82,11 @@ function AppContent() {
             if (role === 'guest') {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
+            } else {
+              // Clear guest mode if user logs in
+              localStorage.removeItem('guestMode');
+              setGuestMode(false);
             }
-            // Don't redirect here - let the auth state change handle it
           }} 
         />
       </div>
@@ -96,25 +102,6 @@ function AppContent() {
 }
 
 function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void }) {
-  const { user } = useAuth();
-  
-  // Handle redirects after authentication
-  useEffect(() => {
-    if (user) {
-      const userRole = user.user_metadata?.role;
-      const currentPath = window.location.pathname;
-      
-      // Only redirect if we're on the root path to avoid disrupting navigation
-      if (currentPath === '/') {
-        if (userRole === 'customer') {
-          window.location.href = '/services';
-        } else if (userRole === 'provider') {
-          window.location.href = '/become-provider';
-        }
-      }
-    }
-  }, [user]);
-
   return (
     <div className="min-h-screen bg-background">
       <Routes>

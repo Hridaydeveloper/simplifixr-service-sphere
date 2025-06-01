@@ -38,10 +38,13 @@ const EmailPasswordAuth = ({ role, onBack, onAuthComplete, onSkip }: EmailPasswo
     try {
       if (isLogin) {
         // Login
-        await authService.signIn({
+        const authData = await authService.signIn({
           email: formData.email,
           password: formData.password,
         });
+        
+        console.log('Login successful:', authData);
+        
         toast({
           title: "Login Successful",
           description: "Welcome back!",
@@ -57,7 +60,16 @@ const EmailPasswordAuth = ({ role, onBack, onAuthComplete, onSkip }: EmailPasswo
           return;
         }
 
-        await authService.signUp({
+        if (formData.password.length < 6) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Password must be at least 6 characters long.",
+          });
+          return;
+        }
+
+        const authData = await authService.signUp({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
@@ -65,14 +77,18 @@ const EmailPasswordAuth = ({ role, onBack, onAuthComplete, onSkip }: EmailPasswo
           role: role,
         });
         
+        console.log('Signup successful:', authData);
+        
         toast({
           title: "Account Created",
-          description: "Your account has been created successfully!",
+          description: "Your account has been created successfully! Please check your email to verify your account.",
         });
       }
       
+      // Complete the auth flow
       onAuthComplete(role);
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         variant: "destructive",
         title: "Error",

@@ -36,10 +36,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
       if (user?.id) {
         setProfileLoading(true);
         try {
-          // First refresh user data to get latest metadata
-          await refreshUser();
-          
-          // Then fetch profile from database
+          console.log('Fetching profile for user:', user.id);
           const profile = await profileService.getProfile(user.id);
           setUserProfile(profile);
           console.log('Fetched user profile:', profile);
@@ -58,7 +55,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
     if (user) {
       fetchUserProfile();
     }
-  }, [user, refreshUser]);
+  }, [user]);
 
   // Default user data - use profile data if available, otherwise fallback to user metadata
   const userData = {
