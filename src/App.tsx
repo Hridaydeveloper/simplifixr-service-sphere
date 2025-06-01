@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Services from "./pages/Services";
 import NotFound from "./pages/NotFound";
@@ -22,6 +23,7 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { user, loading } = useAuth();
   const [guestMode, setGuestMode] = useState(false);
+  const [authFlow, setAuthFlow] = useState<{ show: boolean; role?: 'customer' | 'provider' }>({ show: false });
 
   // Check for guest mode in localStorage
   useEffect(() => {
@@ -43,6 +45,33 @@ function AppContent() {
     );
   }
 
+  // Show auth flow if explicitly requested
+  if (authFlow.show) {
+    return (
+      <div className="min-h-screen bg-background">
+        <AuthContainer 
+          defaultRole={authFlow.role}
+          onAuthComplete={(role) => {
+            console.log('Auth completed with role:', role);
+            setAuthFlow({ show: false });
+            
+            if (role === 'guest') {
+              localStorage.setItem('guestMode', 'true');
+              setGuestMode(true);
+            } else {
+              // Redirect based on role after successful auth
+              if (role === 'customer') {
+                window.location.href = '/services';
+              } else if (role === 'provider') {
+                window.location.href = '/become-provider';
+              }
+            }
+          }} 
+        />
+      </div>
+    );
+  }
+
   // Show auth flow if not authenticated and not in guest mode
   if (!user && !guestMode) {
     return (
@@ -54,8 +83,12 @@ function AppContent() {
               localStorage.setItem('guestMode', 'true');
               setGuestMode(true);
             } else {
-              // For authenticated users, redirect to home page
-              window.location.href = '/';
+              // Redirect based on role after successful auth
+              if (role === 'customer') {
+                window.location.href = '/services';
+              } else if (role === 'provider') {
+                window.location.href = '/become-provider';
+              }
             }
           }} 
         />
@@ -68,8 +101,8 @@ function AppContent() {
     <Router>
       <div className="min-h-screen bg-background">
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/services" element={<Services />} />
+          <Route path="/" element={<Index onShowAuth={setAuthFlow} />} />
+          <Route path="/services" element={<Services onShowAuth={setAuthFlow} />} />
           <Route path="/become-provider" element={<BecomeProvider />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/careers" element={<Careers />} />
@@ -87,8 +120,10 @@ function AppContent() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppContent />
-      <Toaster />
+      <AuthProvider>
+        <AppContent />
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

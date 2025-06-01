@@ -1,8 +1,15 @@
+
 import { Home, Wrench, GraduationCap, Heart, Truck, PartyPopper, Sparkles, Car, Smartphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-const ServicesGrid = () => {
+
+interface ServicesGridProps {
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+}
+
+const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
   const navigate = useNavigate();
+  
   const services = [{
     icon: Sparkles,
     title: "Cleaning & Sanitation",
@@ -44,9 +51,11 @@ const ServicesGrid = () => {
     description: "Mobile, laptop & electronics repair",
     color: "bg-indigo-50 text-indigo-600"
   }];
+  
   const handleServiceClick = () => {
     navigate('/services');
   };
+  
   return <section id="services" className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -85,4 +94,5 @@ const ServicesGrid = () => {
       </div>
     </section>;
 };
+
 export default ServicesGrid;

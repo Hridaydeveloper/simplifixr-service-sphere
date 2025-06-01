@@ -3,9 +3,18 @@ import { CheckCircle, DollarSign, Users, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
-const ProviderSection = () => {
+interface ProviderSectionProps {
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+}
+
+const ProviderSection = ({ onShowAuth }: ProviderSectionProps) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Check if user is a guest
+  const isGuest = !user && localStorage.getItem('guestMode') === 'true';
 
   const benefits = [{
     icon: Users,
@@ -44,7 +53,14 @@ const ProviderSection = () => {
   }];
 
   const handleBecomeProvider = () => {
-    navigate('/become-provider');
+    if (isGuest) {
+      // Show auth flow for provider
+      if (onShowAuth) {
+        onShowAuth({ show: true, role: 'provider' });
+      }
+    } else {
+      navigate('/become-provider');
+    }
   };
 
   return (

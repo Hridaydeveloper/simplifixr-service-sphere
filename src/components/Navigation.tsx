@@ -15,14 +15,20 @@ import ProfilePictureModal from "./ProfilePictureModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { profileService } from "@/services/profileService";
 
-const Navigation = () => {
+interface NavigationProps {
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+}
+
+const Navigation = ({ onShowAuth }: NavigationProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [showAuthFlow, setShowAuthFlow] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+
+  // Check if user is a guest
+  const isGuest = !user && localStorage.getItem('guestMode') === 'true';
 
   // Fetch user profile data
   useEffect(() => {
@@ -85,10 +91,14 @@ const Navigation = () => {
   };
 
   const handleLoginClick = () => {
-    // Clear any existing guest mode
-    localStorage.removeItem('guestMode');
-    // Trigger auth flow by reloading the page
-    window.location.reload();
+    if (onShowAuth) {
+      onShowAuth({ show: true });
+    } else {
+      // Clear any existing guest mode
+      localStorage.removeItem('guestMode');
+      // Trigger auth flow by reloading the page
+      window.location.reload();
+    }
   };
 
   const handleLogout = async () => {
@@ -160,7 +170,7 @@ const Navigation = () => {
                 Help Community
               </Button>
               
-              {/* Profile Dropdown */}
+              {/* Profile Dropdown or Login Button */}
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

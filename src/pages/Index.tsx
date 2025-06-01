@@ -12,14 +12,18 @@ import ProviderSection from "@/components/ProviderSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
-const Index = () => {
+interface IndexProps {
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+}
+
+const Index = ({ onShowAuth }: IndexProps) => {
   return (
     <div className="min-h-screen bg-white">
-      <Navigation />
+      <Navigation onShowAuth={onShowAuth} />
       <Hero />
-      <ServicesGrid />
+      <ServicesGrid onShowAuth={onShowAuth} />
       <AboutSection />
-      <ProviderSection />
+      <ProviderSection onShowAuth={onShowAuth} />
       <ContactSection />
       <Footer />
     </div>

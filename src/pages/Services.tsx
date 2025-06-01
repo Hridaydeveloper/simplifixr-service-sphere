@@ -7,13 +7,23 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Sparkles, Wrench, GraduationCap, Heart, Truck, PartyPopper, Car, Smartphone } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
-const Services = () => {
+interface ServicesProps {
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+}
+
+const Services = ({ onShowAuth }: ServicesProps) => {
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
   const locationState = useLocation();
+
+  // Check if user is a guest
+  const isGuest = !user && localStorage.getItem('guestMode') === 'true';
 
   useEffect(() => {
     if (locationState.state?.scrollToTop) {
@@ -32,6 +42,8 @@ const Services = () => {
     { id: "automotive", name: "Automotive", icon: Car },
     { id: "device", name: "Device Repair", icon: Smartphone }
   ];
+
+  // ... keep existing code (allServices array)
 
   const allServices = [
     // Cleaning & Sanitation
@@ -96,9 +108,24 @@ const Services = () => {
     setShowFilters(true);
   };
 
+  const handleBookService = () => {
+    if (isGuest) {
+      // Show auth flow for customer
+      if (onShowAuth) {
+        onShowAuth({ show: true, role: 'customer' });
+      }
+    } else {
+      // Handle booking for authenticated users
+      toast({
+        title: "Booking Service",
+        description: "Service booking functionality will be implemented soon!",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation />
+      <Navigation onShowAuth={onShowAuth} />
       
       {/* Header */}
       <div className="pt-20 pb-8 bg-gradient-to-r from-[#00B896] to-[#00C9A7]">
@@ -235,7 +262,10 @@ const Services = () => {
                       </div>
                     </div>
 
-                    <Button className="w-full bg-[#00B896] hover:bg-[#009e85] group-hover:scale-105 transition-transform text-white">
+                    <Button 
+                      onClick={handleBookService}
+                      className="w-full bg-[#00B896] hover:bg-[#009e85] group-hover:scale-105 transition-transform text-white"
+                    >
                       Book Now
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

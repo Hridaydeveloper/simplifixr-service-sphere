@@ -7,11 +7,12 @@ import ProviderSignup from "./ProviderSignup";
 
 interface AuthContainerProps {
   onAuthComplete: (role: 'customer' | 'provider' | 'guest') => void;
+  defaultRole?: 'customer' | 'provider';
 }
 
-const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
-  const [step, setStep] = useState<'role' | 'otp' | 'signup'>('role');
-  const [selectedRole, setSelectedRole] = useState<'customer' | 'provider' | null>(null);
+const AuthContainer = ({ onAuthComplete, defaultRole }: AuthContainerProps) => {
+  const [step, setStep] = useState<'role' | 'otp' | 'signup'>(defaultRole ? 'otp' : 'role');
+  const [selectedRole, setSelectedRole] = useState<'customer' | 'provider' | null>(defaultRole || null);
   const [userContact, setUserContact] = useState('');
   const [isExistingUser, setIsExistingUser] = useState(false);
 
@@ -62,7 +63,7 @@ const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
     onAuthComplete('guest');
   };
 
-  if (step === 'role') {
+  if (step === 'role' && !defaultRole) {
     return <RoleSelection onRoleSelect={handleRoleSelect} />;
   }
 
@@ -70,7 +71,7 @@ const AuthContainer = ({ onAuthComplete }: AuthContainerProps) => {
     return (
       <OTPAuth
         role={selectedRole}
-        onBack={handleBackToRole}
+        onBack={defaultRole ? undefined : handleBackToRole}
         onOTPVerified={handleOTPVerified}
         onSkip={handleSkipToGuest}
       />
