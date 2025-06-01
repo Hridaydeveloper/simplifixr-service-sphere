@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react";
-import { Menu, X, Users, User, MapPin, Camera, Settings, LogOut } from "lucide-react";
+import { Menu, X, Users, User, MapPin, Camera, Settings, LogOut, ShoppingBag, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -25,26 +24,30 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, refreshUser } = useAuth();
 
   // Check if user is a guest
   const isGuest = !user && localStorage.getItem('guestMode') === 'true';
 
-  // Fetch user profile data
+  // Fetch user profile data and refresh when user changes
   useEffect(() => {
     const fetchUserProfile = async () => {
       if (user?.id) {
         try {
+          // Refresh user data first
+          await refreshUser();
           const profile = await profileService.getProfile(user.id);
           setUserProfile(profile);
         } catch (error) {
           console.error('Error fetching profile:', error);
         }
+      } else {
+        setUserProfile(null);
       }
     };
 
     fetchUserProfile();
-  }, [user]);
+  }, [user, refreshUser]);
 
   // Default user data - use profile data if available, otherwise fallback
   const userData = {
@@ -145,6 +148,12 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
                 Explore services
               </button>
               <button 
+                onClick={() => handlePageNavigation('/shop')} 
+                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
+              >
+                Shop
+              </button>
+              <button 
                 onClick={() => handleNavClick('#about')} 
                 className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
               >
@@ -165,8 +174,12 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              <Button variant="outline" className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white font-semibold">
-                <Users className="w-4 h-4 mr-2" />
+              <Button 
+                onClick={() => handlePageNavigation('/help-community')} 
+                variant="outline" 
+                className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white font-semibold"
+              >
+                <Heart className="w-4 h-4 mr-2" />
                 Help Community
               </Button>
               
@@ -253,6 +266,12 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
                   Explore services
                 </button>
                 <button 
+                  onClick={() => handlePageNavigation('/shop')} 
+                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
+                >
+                  Shop
+                </button>
+                <button 
                   onClick={() => handleNavClick('#about')} 
                   className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
                 >
@@ -271,8 +290,12 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
                   Help & Support
                 </button>
                 <div className="px-3 py-2">
-                  <Button variant="outline" className="w-full border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white">
-                    <Users className="w-4 h-4 mr-2" />
+                  <Button 
+                    onClick={() => handlePageNavigation('/help-community')} 
+                    variant="outline" 
+                    className="w-full border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
+                  >
+                    <Heart className="w-4 h-4 mr-2" />
                     Help Community
                   </Button>
                 </div>

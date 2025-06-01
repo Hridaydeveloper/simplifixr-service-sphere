@@ -13,6 +13,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Blog from "./pages/Blog";
 import Press from "./pages/Press";
 import BecomeProvider from "./pages/BecomeProvider";
+import ProviderRegistration from "./pages/ProviderRegistration";
+import Shop from "./pages/Shop";
+import HelpCommunity from "./pages/HelpCommunity";
 import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
 import { useAuth } from "./contexts/AuthContext";
@@ -118,6 +121,9 @@ function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; rol
         <Route path="/" element={<Index onShowAuth={onShowAuth} />} />
         <Route path="/services" element={<Services onShowAuth={onShowAuth} />} />
         <Route path="/become-provider" element={<BecomeProvider />} />
+        <Route path="/provider-registration" element={<ProviderRegistration />} />
+        <Route path="/shop" element={<Shop />} />
+        <Route path="/help-community" element={<HelpCommunity />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
