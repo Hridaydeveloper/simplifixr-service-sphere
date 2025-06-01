@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,7 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
   const handleVerifyOTP = async () => {
     setLoading(true);
     try {
-      const isExistingUser = await authService.verifyOTP(contact, otp, role);
+      const isExistingUser = await authService.verifyOTP(contact, otp);
       toast({
         title: "OTP Verified",
         description: "Your OTP has been successfully verified.",
