@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-
 const BecomeProvider = () => {
   const navigate = useNavigate();
-
   const benefits = [{
     icon: Users,
     title: "Digital Identity",
@@ -24,7 +22,6 @@ const BecomeProvider = () => {
     title: "Verified Badge",
     description: "Build trust with customers through our verification system"
   }];
-
   const steps = [{
     step: "01",
     title: "Register",
@@ -42,15 +39,13 @@ const BecomeProvider = () => {
     title: "Start Earning",
     description: "Receive bookings and grow your business"
   }];
-
-  return (
-    <div className="min-h-screen bg-white">
+  return <div className="min-h-screen bg-white">
       <Navigation />
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+            <h1 className="text-4xl font-bold text-gray-900 mb-6 md:text-4xl">
               Got a Skill or Service to Offer?{" "}
               <span className="bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
                 Join Simplifixr
@@ -61,11 +56,7 @@ const BecomeProvider = () => {
               Join thousands of professionals earning on their own terms. No commission fees, 
               direct payments, and complete control over your business.
             </p>
-            <Button 
-              onClick={() => navigate('/provider-registration')}
-              className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950"
-              size="lg"
-            >
+            <Button onClick={() => navigate('/provider-registration')} className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950" size="lg">
               Start Registration
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
@@ -73,8 +64,7 @@ const BecomeProvider = () => {
 
           {/* Benefits */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {benefits.map((benefit, index) => (
-              <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
+            {benefits.map((benefit, index) => <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <benefit.icon className="w-6 h-6 text-[#00C9A7]" />
@@ -86,8 +76,7 @@ const BecomeProvider = () => {
                     {benefit.description}
                   </p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
 
           {/* Steps */}
@@ -96,8 +85,7 @@ const BecomeProvider = () => {
               How to Get Started
             </h3>
             <div className="grid md:grid-cols-4 gap-8">
-              {steps.map((item, index) => (
-                <div key={index} className="text-center">
+              {steps.map((item, index) => <div key={index} className="text-center">
                   <div className="w-16 h-16 bg-[#00C9A7] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                     {item.step}
                   </div>
@@ -107,8 +95,7 @@ const BecomeProvider = () => {
                   <p className="text-gray-600 text-sm">
                     {item.description}
                   </p>
-                </div>
-              ))}
+                </div>)}
             </div>
           </div>
 
@@ -120,18 +107,13 @@ const BecomeProvider = () => {
             <p className="text-gray-600 mb-6">
               Complete our simple registration process and start earning within 24 hours
             </p>
-            <Button 
-              onClick={() => navigate('/provider-registration')}
-              className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950"
-            >
+            <Button onClick={() => navigate('/provider-registration')} className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950">
               Complete Registration
             </Button>
             <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default BecomeProvider;
