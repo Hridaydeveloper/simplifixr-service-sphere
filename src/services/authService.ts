@@ -32,10 +32,14 @@ export const authService = {
 
       if (signUpError) throw signUpError;
 
-      // If signup is successful, send custom confirmation email
+      // If signup is successful and user needs email confirmation, send custom confirmation email
       if (authData.user && !authData.user.email_confirmed_at) {
         try {
-          const confirmationUrl = `${window.location.origin}/auth/confirm?token=${authData.user.id}`;
+          // Generate a proper confirmation URL - this should point to your app's confirmation handler
+          const confirmationUrl = `${window.location.origin}/auth/confirm?token=${authData.user.id}&email=${encodeURIComponent(data.email)}`;
+          
+          console.log('Sending confirmation email to:', data.email);
+          console.log('Confirmation URL:', confirmationUrl);
           
           const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-confirmation-email', {
             body: {
@@ -47,18 +51,19 @@ export const authService = {
 
           if (emailError) {
             console.error('Failed to send confirmation email:', emailError);
-            // Don't throw error here, user is still created
+            throw new Error('Failed to send confirmation email. Please try again.');
           } else {
-            console.log('Confirmation email sent successfully');
+            console.log('Confirmation email sent successfully:', emailResult);
           }
         } catch (emailError) {
           console.error('Error sending confirmation email:', emailError);
-          // Don't throw error here, user is still created
+          throw new Error('Failed to send confirmation email. Please try again.');
         }
       }
 
       return authData;
     } catch (error) {
+      console.error('SignUp error:', error);
       throw error;
     }
   },
