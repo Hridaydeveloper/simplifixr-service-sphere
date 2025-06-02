@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, Phone, Eye, EyeOff, User, Briefcase } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Eye, EyeOff, User, Briefcase, CheckCircle } from "lucide-react";
 import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -17,7 +16,7 @@ interface ComprehensiveAuthProps {
 
 type AuthMethod = 'email' | 'phone';
 type AuthMode = 'login' | 'signup';
-type AuthStep = 'method' | 'credentials' | 'otp' | 'details';
+type AuthStep = 'method' | 'credentials' | 'otp' | 'details' | 'email-sent';
 
 const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: ComprehensiveAuthProps) => {
   const [selectedRole, setSelectedRole] = useState<'customer' | 'provider'>(role || 'customer');
@@ -126,11 +125,11 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           role: selectedRole,
         });
         
+        setCurrentStep('email-sent');
         toast({
           title: "Account Created",
           description: "Please check your email to verify your account.",
         });
-        onAuthComplete(selectedRole);
       } else {
         // Phone or Email OTP flow
         await authService.sendOTP(contact, selectedRole);
@@ -213,6 +212,45 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
       setLoading(false);
     }
   };
+
+  const renderEmailSentConfirmation = () => (
+    <div className="space-y-6 text-center">
+      <div className="flex justify-center">
+        <CheckCircle className="w-16 h-16 text-green-500" />
+      </div>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+        <p className="text-gray-600 mb-4">
+          We've sent a confirmation email to <strong>{formData.email}</strong>
+        </p>
+        <p className="text-sm text-gray-500">
+          Please check your email and click the confirmation link to activate your account.
+        </p>
+      </div>
+      
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-sm text-blue-800">
+          <strong>Don't see the email?</strong> Check your spam folder or wait a few minutes for delivery.
+        </p>
+      </div>
+
+      <Button
+        onClick={() => setCurrentStep('credentials')}
+        variant="outline"
+        className="w-full"
+      >
+        Try Different Email
+      </Button>
+
+      <Button
+        onClick={() => onAuthComplete('guest')}
+        variant="link"
+        className="w-full text-gray-600"
+      >
+        Continue as Guest
+      </Button>
+    </div>
+  );
 
   const renderMethodSelection = () => (
     <div className="space-y-6">
@@ -502,6 +540,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
                   if (currentStep === 'credentials') setCurrentStep('method');
                   else if (currentStep === 'otp') setCurrentStep('credentials');
                   else if (currentStep === 'details') setCurrentStep('otp');
+                  else if (currentStep === 'email-sent') setCurrentStep('credentials');
                 }}
                 className="mr-3 p-1"
               >
@@ -525,6 +564,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           {currentStep === 'credentials' && renderCredentialsForm()}
           {currentStep === 'otp' && renderOTPVerification()}
           {currentStep === 'details' && renderDetailsForm()}
+          {currentStep === 'email-sent' && renderEmailSentConfirmation()}
         </div>
       </div>
     </div>

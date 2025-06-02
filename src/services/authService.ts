@@ -16,24 +16,51 @@ export interface SignInData {
 
 export const authService = {
   async signUp(data: SignUpData) {
-    // Get the current origin for proper redirect
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { data: authData, error } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: data.fullName,
-          location: data.location,
-          role: data.role,
+    try {
+      // First, sign up the user
+      const { data: authData, error: signUpError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            full_name: data.fullName,
+            location: data.location,
+            role: data.role,
+          }
+        }
+      });
+
+      if (signUpError) throw signUpError;
+
+      // If signup is successful, send custom confirmation email
+      if (authData.user && !authData.user.email_confirmed_at) {
+        try {
+          const confirmationUrl = `${window.location.origin}/auth/confirm?token=${authData.user.id}`;
+          
+          const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-confirmation-email', {
+            body: {
+              email: data.email,
+              confirmationUrl: confirmationUrl,
+              fullName: data.fullName
+            }
+          });
+
+          if (emailError) {
+            console.error('Failed to send confirmation email:', emailError);
+            // Don't throw error here, user is still created
+          } else {
+            console.log('Confirmation email sent successfully');
+          }
+        } catch (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          // Don't throw error here, user is still created
         }
       }
-    });
 
-    if (error) throw error;
-    return authData;
+      return authData;
+    } catch (error) {
+      throw error;
+    }
   },
 
   async signIn(data: SignInData) {
@@ -52,7 +79,7 @@ export const authService = {
   },
 
   async resetPassword(email: string) {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/auth/reset-password`;
     
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: redirectUrl
