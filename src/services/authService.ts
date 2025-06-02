@@ -16,10 +16,14 @@ export interface SignInData {
 
 export const authService = {
   async signUp(data: SignUpData) {
+    // Get the current origin for proper redirect
+    const redirectUrl = `${window.location.origin}/`;
+    
     const { data: authData, error } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           full_name: data.fullName,
           location: data.location,
@@ -48,8 +52,10 @@ export const authService = {
   },
 
   async resetPassword(email: string) {
+    const redirectUrl = `${window.location.origin}/`;
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`
+      redirectTo: redirectUrl
     });
     if (error) throw error;
   },
@@ -116,10 +122,12 @@ export const authService = {
   },
 
   async signInWithOTP(email: string) {
+    const redirectUrl = `${window.location.origin}/`;
+    
     const { error } = await supabase.auth.signInWithOtp({
       email: email,
       options: {
-        emailRedirectTo: `${window.location.origin}/`
+        emailRedirectTo: redirectUrl
       }
     });
 

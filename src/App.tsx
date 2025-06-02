@@ -26,7 +26,7 @@ const queryClient = new QueryClient();
 function AppContent() {
   const { user, loading } = useAuth();
   const [guestMode, setGuestMode] = useState(false);
-  const [authFlow, setAuthFlow] = useState<{ show: boolean; role?: 'customer' | 'provider' }>({ show: false });
+  const [authFlow, setAuthFlow] = useState<{ show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }>({ show: false });
 
   // Check for guest mode in localStorage
   useEffect(() => {
@@ -39,21 +39,22 @@ function AppContent() {
   // Show loading state while checking authentication
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 to-[#00C9A7]/5 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[#00B896] mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#00B896] mx-auto"></div>
+          <p className="mt-4 text-gray-600 text-lg">Loading Simplifixr...</p>
         </div>
       </div>
     );
   }
 
-  // Show auth flow if explicitly requested
-  if (authFlow.show) {
+  // Show auth flow if explicitly requested OR if not authenticated and not in guest mode
+  if (authFlow.show || (!user && !guestMode)) {
     return (
       <div className="min-h-screen bg-background">
         <AuthContainer 
           defaultRole={authFlow.role}
+          fromBooking={authFlow.fromBooking}
           onAuthComplete={(role) => {
             console.log('Auth completed with role:', role);
             setAuthFlow({ show: false });
@@ -66,26 +67,10 @@ function AppContent() {
               localStorage.removeItem('guestMode');
               setGuestMode(false);
             }
-          }} 
-        />
-      </div>
-    );
-  }
-
-  // Show auth flow if not authenticated and not in guest mode
-  if (!user && !guestMode) {
-    return (
-      <div className="min-h-screen bg-background">
-        <AuthContainer 
-          onAuthComplete={(role) => {
-            console.log('Auth completed with role:', role);
-            if (role === 'guest') {
-              localStorage.setItem('guestMode', 'true');
-              setGuestMode(true);
-            } else {
-              // Clear guest mode if user logs in
-              localStorage.removeItem('guestMode');
-              setGuestMode(false);
+          }}
+          onBack={() => {
+            if (authFlow.fromBooking) {
+              setAuthFlow({ show: false });
             }
           }} 
         />
@@ -101,7 +86,7 @@ function AppContent() {
   );
 }
 
-function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void }) {
+function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void }) {
   return (
     <div className="min-h-screen bg-background">
       <Routes>

@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
 interface ServicesProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void;
 }
 
 const Services = ({ onShowAuth }: ServicesProps) => {
@@ -42,8 +42,6 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     { id: "automotive", name: "Automotive", icon: Car },
     { id: "device", name: "Device Repair", icon: Smartphone }
   ];
-
-  // ... keep existing code (allServices array)
 
   const allServices = [
     // Cleaning & Sanitation
@@ -109,10 +107,10 @@ const Services = ({ onShowAuth }: ServicesProps) => {
   };
 
   const handleBookService = () => {
-    if (isGuest) {
-      // Show auth flow for customer
+    if (isGuest || !user) {
+      // Show auth flow for customer with fromBooking flag
       if (onShowAuth) {
-        onShowAuth({ show: true, role: 'customer' });
+        onShowAuth({ show: true, role: 'customer', fromBooking: true });
       }
     } else {
       // Handle booking for authenticated users
