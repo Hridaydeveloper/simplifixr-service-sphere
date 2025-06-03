@@ -1,10 +1,13 @@
-import { CheckCircle, DollarSign, Users, Smartphone, ArrowRight } from "lucide-react";
+
+import { CheckCircle, DollarSign, Users, Smartphone, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+
 const BecomeProvider = () => {
   const navigate = useNavigate();
+  
   const benefits = [{
     icon: Users,
     title: "Digital Identity",
@@ -22,6 +25,7 @@ const BecomeProvider = () => {
     title: "Verified Badge",
     description: "Build trust with customers through our verification system"
   }];
+  
   const steps = [{
     step: "01",
     title: "Register",
@@ -39,10 +43,24 @@ const BecomeProvider = () => {
     title: "Start Earning",
     description: "Receive bookings and grow your business"
   }];
-  return <div className="min-h-screen bg-white">
+
+  return (
+    <div className="min-h-screen bg-white">
       <Navigation />
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header with Back to Home Button */}
+          <div className="flex items-center justify-between mb-8">
+            <Button 
+              onClick={() => navigate('/')}
+              variant="outline" 
+              className="border-2 border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white transition-all duration-300"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
+
           {/* Hero Section */}
           <div className="text-center mb-16">
             <h1 className="text-4xl font-bold text-gray-900 mb-6 md:text-4xl">
@@ -64,7 +82,8 @@ const BecomeProvider = () => {
 
           {/* Benefits */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {benefits.map((benefit, index) => <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
+            {benefits.map((benefit, index) => (
+              <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
                     <benefit.icon className="w-6 h-6 text-[#00C9A7]" />
@@ -76,7 +95,8 @@ const BecomeProvider = () => {
                     {benefit.description}
                   </p>
                 </CardContent>
-              </Card>)}
+              </Card>
+            ))}
           </div>
 
           {/* Steps */}
@@ -85,7 +105,8 @@ const BecomeProvider = () => {
               How to Get Started
             </h3>
             <div className="grid md:grid-cols-4 gap-8">
-              {steps.map((item, index) => <div key={index} className="text-center">
+              {steps.map((item, index) => (
+                <div key={index} className="text-center">
                   <div className="w-16 h-16 bg-[#00C9A7] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                     {item.step}
                   </div>
@@ -95,7 +116,8 @@ const BecomeProvider = () => {
                   <p className="text-gray-600 text-sm">
                     {item.description}
                   </p>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -114,6 +136,8 @@ const BecomeProvider = () => {
           </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default BecomeProvider;

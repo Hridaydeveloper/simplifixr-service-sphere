@@ -6,6 +6,7 @@ import { ArrowLeft, Mail, Phone, Eye, EyeOff, User, Briefcase, CheckCircle } fro
 import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { useNavigate } from "react-router-dom";
 
 interface ComprehensiveAuthProps {
   role?: 'customer' | 'provider';
@@ -27,6 +28,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState('');
   const [contactValue, setContactValue] = useState('');
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -96,6 +98,17 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           title: "Login Successful",
           description: "Welcome back!",
         });
+
+        // Redirect based on user role
+        const userRole = authData.user?.user_metadata?.role || selectedRole;
+        setTimeout(() => {
+          if (userRole === 'provider') {
+            navigate('/become-provider');
+          } else {
+            navigate('/services');
+          }
+        }, 1000);
+        
         onAuthComplete(selectedRole);
       } else if (authMethod === 'email' && authMode === 'signup') {
         // Email signup with password
@@ -173,6 +186,16 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           title: "Login Successful",
           description: "Welcome back!",
         });
+        
+        // Redirect based on role
+        setTimeout(() => {
+          if (selectedRole === 'provider') {
+            navigate('/become-provider');
+          } else {
+            navigate('/services');
+          }
+        }, 1000);
+        
         onAuthComplete(selectedRole);
       } else {
         // New user, need more details
@@ -200,6 +223,16 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         title: "Account Created",
         description: "Welcome to Simplifixr!",
       });
+      
+      // Redirect based on role
+      setTimeout(() => {
+        if (selectedRole === 'provider') {
+          navigate('/become-provider');
+        } else {
+          navigate('/services');
+        }
+      }, 1000);
+      
       onAuthComplete(selectedRole);
     } catch (error: any) {
       console.error('Signup completion error:', error);

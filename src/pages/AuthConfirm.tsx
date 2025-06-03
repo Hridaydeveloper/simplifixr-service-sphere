@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { profileService } from '@/services/profileService';
 
 const AuthConfirm = () => {
   const [searchParams] = useSearchParams();
@@ -39,17 +40,38 @@ const AuthConfirm = () => {
             });
           } else if (data.user) {
             console.log('Email confirmed successfully for user:', data.user.email);
+            
+            // Create profile if it doesn't exist
+            try {
+              const existingProfile = await profileService.getProfile(data.user.id);
+              if (!existingProfile) {
+                console.log('Creating profile for confirmed user:', data.user.id);
+                await profileService.createProfile(data.user.id, {
+                  full_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
+                  location: data.user.user_metadata?.location || '',
+                  role: data.user.user_metadata?.role || 'customer'
+                });
+              }
+            } catch (profileError) {
+              console.error('Error creating profile:', profileError);
+            }
+
             setStatus('success');
-            setMessage('Your email has been confirmed successfully! You can now sign in to your account.');
+            setMessage('Your email has been confirmed successfully! Redirecting you now...');
             toast({
               title: "Email Confirmed",
               description: "Your account has been verified successfully!",
             });
             
-            // Redirect to home page after 3 seconds
+            // Redirect based on user role
+            const userRole = data.user.user_metadata?.role || 'customer';
             setTimeout(() => {
-              navigate('/');
-            }, 3000);
+              if (userRole === 'provider') {
+                navigate('/become-provider');
+              } else {
+                navigate('/services');
+              }
+            }, 2000);
           }
         } else {
           setStatus('error');
@@ -82,12 +104,21 @@ const AuthConfirm = () => {
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Email Confirmed!</h1>
               <p className="text-gray-600 mb-6">{message}</p>
-              <Button 
-                onClick={() => navigate('/')}
-                className="bg-[#00B896] hover:bg-[#00A085] text-white"
-              >
-                Continue to Simplifixr
-              </Button>
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => navigate('/services')}
+                  className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+                >
+                  Go to Services
+                </Button>
+                <Button 
+                  onClick={() => navigate('/become-provider')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  Become a Provider
+                </Button>
+              </div>
             </>
           )}
           

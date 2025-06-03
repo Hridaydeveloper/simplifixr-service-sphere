@@ -48,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     location: session.user.user_metadata?.location || '',
                     role: session.user.user_metadata?.role || 'customer'
                   });
+                  console.log('Profile created successfully');
                 }
               } catch (error) {
                 console.error('Error handling user profile:', error);
@@ -86,6 +87,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   location: session.user.user_metadata?.location || '',
                   role: session.user.user_metadata?.role || 'customer'
                 });
+                console.log('Profile created for signed in user');
+              } else {
+                console.log('Profile already exists for user:', session.user.id);
               }
             } catch (error) {
               console.error('Error creating profile on sign in:', error);
@@ -104,6 +108,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Sign out error:', error);
       }
+      // Clear guest mode on logout
+      localStorage.removeItem('guestMode');
     } catch (error) {
       console.error('Error during sign out:', error);
     }
