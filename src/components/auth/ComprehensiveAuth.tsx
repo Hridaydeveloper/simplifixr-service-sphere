@@ -118,7 +118,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           return;
         }
 
-        await authService.signUp({
+        const { user } = await authService.signUp({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
@@ -126,11 +126,13 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           role: selectedRole,
         });
         
-        setCurrentStep('email-sent');
-        toast({
-          title: "Account Created",
-          description: "Please check your email to verify your account.",
-        });
+        if (user) {
+          toast({
+            title: "Account Created",
+            description: "Welcome to Simplifixr!",
+          });
+          onAuthComplete(selectedRole);
+        }
       } else {
         // Phone or Email OTP flow
         await authService.sendOTP(contact, selectedRole);

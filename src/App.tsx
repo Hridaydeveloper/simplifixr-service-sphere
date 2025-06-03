@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -80,14 +81,14 @@ function AppContent() {
       <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 to-[#00C9A7]/5 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-[#00B896] mx-auto"></div>
-          <p className="mt-4 text-gray-600 text-lg">Checking authentication...</p>
+          <p className="mt-4 text-gray-600 text-lg">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show auth flow if explicitly requested OR if not authenticated and not in guest mode
-  if (authFlow.show || (!user && !guestMode)) {
+  // Show auth flow if explicitly requested from services page
+  if (authFlow.show) {
     return (
       <Router>
         <div className="min-h-screen bg-background">
@@ -108,9 +109,7 @@ function AppContent() {
               }
             }}
             onBack={() => {
-              if (authFlow.fromBooking) {
-                setAuthFlow({ show: false });
-              }
+              setAuthFlow({ show: false });
             }} 
           />
         </div>
@@ -118,7 +117,7 @@ function AppContent() {
     );
   }
 
-  // Show main app if authenticated or in guest mode
+  // Show main app - authenticated users or guest mode users see the full app
   return (
     <Router>
       <AppRouter onShowAuth={setAuthFlow} />

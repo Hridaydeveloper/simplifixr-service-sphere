@@ -27,14 +27,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const createProfileIfNeeded = async (user: User) => {
     try {
-      if (!user.email_confirmed_at) {
-        console.log('User email not confirmed yet, skipping profile creation');
-        return;
-      }
-
+      console.log('Creating profile for user:', user.id);
       const existingProfile = await profileService.getProfile(user.id);
       if (!existingProfile) {
-        console.log('Creating profile for user:', user.id);
         await profileService.createProfile(user.id, {
           full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
           location: user.user_metadata?.location || '',
@@ -50,7 +45,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    // Get initial session
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state changed:', event, session?.user?.email || 'none');
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      // Clear guest mode when user logs in
+      if (session?.user) {
+        localStorage.removeItem('guestMode');
+        
+        // Create profile for new users
+        if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
+          setTimeout(() => {
+            createProfileIfNeeded(session.user);
+          }, 0);
+        }
+      }
+    });
+
+    // Then get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -60,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.log('Initial session user:', session?.user?.email || 'none');
           setUser(session?.user ?? null);
           
-          // Create profile if user exists and email is confirmed
+          // Create profile if user exists
           if (session?.user) {
             await createProfileIfNeeded(session.user);
           }
@@ -73,23 +87,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     getInitialSession();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user?.email || 'none');
-      setUser(session?.user ?? null);
-      setLoading(false);
-      
-      // Clear guest mode when user logs in
-      if (session?.user) {
-        localStorage.removeItem('guestMode');
-        
-        // Handle profile creation for confirmed users
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await createProfileIfNeeded(session.user);
-        }
-      }
-    });
 
     return () => subscription.unsubscribe();
   }, []);

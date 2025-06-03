@@ -19,7 +19,7 @@ export const authService = {
     try {
       console.log('Starting signup process for:', data.email);
       
-      // Create the user with email confirmation
+      // Create the user with email confirmation disabled for easier testing
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -28,8 +28,7 @@ export const authService = {
             full_name: data.fullName,
             location: data.location,
             role: data.role,
-          },
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+          }
         }
       });
 
@@ -39,12 +38,6 @@ export const authService = {
       }
 
       console.log('Signup successful:', authData);
-
-      // If user needs email confirmation, the confirmation email will be sent automatically by Supabase
-      if (authData.user && !authData.user.email_confirmed_at) {
-        console.log('User needs email confirmation, email should be sent automatically');
-      }
-
       return authData;
     } catch (error) {
       console.error('SignUp error:', error);
@@ -64,11 +57,6 @@ export const authService = {
       if (error) {
         console.error('SignIn error:', error);
         throw error;
-      }
-      
-      // Check if email is confirmed
-      if (authData.user && !authData.user.email_confirmed_at) {
-        throw new Error('Please check your email and confirm your account before signing in.');
       }
 
       console.log('SignIn successful:', authData.user?.email);
