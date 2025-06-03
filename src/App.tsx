@@ -16,6 +16,7 @@ import BecomeProvider from "./pages/BecomeProvider";
 import ProviderRegistration from "./pages/ProviderRegistration";
 import Shop from "./pages/Shop";
 import HelpCommunity from "./pages/HelpCommunity";
+import AuthConfirm from "./pages/AuthConfirm";
 import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
 import { useAuth } from "./contexts/AuthContext";
@@ -102,6 +103,7 @@ function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; rol
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/press" element={<Press />} />
+        <Route path="/auth/confirm" element={<AuthConfirm />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

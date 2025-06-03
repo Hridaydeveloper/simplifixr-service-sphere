@@ -26,38 +26,35 @@ export const authService = {
             full_name: data.fullName,
             location: data.location,
             role: data.role,
-          }
+          },
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
 
       if (signUpError) throw signUpError;
 
-      // If signup is successful and user needs email confirmation, send custom confirmation email
+      // If signup is successful and user needs email confirmation
       if (authData.user && !authData.user.email_confirmed_at) {
         try {
-          // Generate a proper confirmation URL - this should point to your app's confirmation handler
-          const confirmationUrl = `${window.location.origin}/auth/confirm?token=${authData.user.id}&email=${encodeURIComponent(data.email)}`;
-          
           console.log('Sending confirmation email to:', data.email);
-          console.log('Confirmation URL:', confirmationUrl);
           
           const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-confirmation-email', {
             body: {
               email: data.email,
-              confirmationUrl: confirmationUrl,
+              confirmationUrl: `${window.location.origin}/auth/confirm?token_hash=${authData.user.id}&type=signup&email=${encodeURIComponent(data.email)}`,
               fullName: data.fullName
             }
           });
 
           if (emailError) {
             console.error('Failed to send confirmation email:', emailError);
-            throw new Error('Failed to send confirmation email. Please try again.');
+            throw new Error('Account created but failed to send confirmation email. Please check your email or contact support.');
           } else {
             console.log('Confirmation email sent successfully:', emailResult);
           }
         } catch (emailError) {
           console.error('Error sending confirmation email:', emailError);
-          throw new Error('Failed to send confirmation email. Please try again.');
+          throw new Error('Account created but failed to send confirmation email. Please try again.');
         }
       }
 
@@ -69,13 +66,24 @@ export const authService = {
   },
 
   async signIn(data: SignInData) {
-    const { data: authData, error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+    try {
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
 
-    if (error) throw error;
-    return authData;
+      if (error) throw error;
+      
+      // Check if email is confirmed
+      if (authData.user && !authData.user.email_confirmed_at) {
+        throw new Error('Please check your email and confirm your account before signing in.');
+      }
+
+      return authData;
+    } catch (error) {
+      console.error('SignIn error:', error);
+      throw error;
+    }
   },
 
   async signOut() {
@@ -164,5 +172,11 @@ export const authService = {
     });
 
     if (error) throw error;
+  },
+
+  async refreshSession() {
+    const { data, error } = await supabase.auth.refreshSession();
+    if (error) throw error;
+    return data;
   }
 };

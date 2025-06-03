@@ -28,6 +28,17 @@ const handler = async (req: Request): Promise<Response> => {
     console.log(`Attempting to send email to: ${email}`);
     console.log(`Confirmation URL: ${confirmationUrl}`);
 
+    // Validate required fields
+    if (!email || !confirmationUrl) {
+      throw new Error('Missing required fields: email or confirmationUrl');
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Invalid email format');
+    }
+
     const emailResponse = await resend.emails.send({
       from: "Simplifixr <noreply@simplifixr.com>",
       to: [email],
@@ -45,12 +56,12 @@ const handler = async (req: Request): Promise<Response> => {
             </h2>
             
             <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-              Thank you for joining Simplifixr! We're excited to have you on board. To get started and secure your account, please confirm your email address.
+              Thank you for joining Simplifixr! We're excited to have you on board. To get started and secure your account, please confirm your email address by clicking the button below.
             </p>
             
             <div style="text-align: center; margin: 35px 0;">
               <a href="${confirmationUrl}" 
-                 style="background: #00B896; color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
+                 style="background: linear-gradient(135deg, #00B896, #00C9A7); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
                 Confirm My Email Address
               </a>
             </div>
@@ -59,7 +70,7 @@ const handler = async (req: Request): Promise<Response> => {
               <p style="margin: 0; font-size: 14px; color: #2d3748;">
                 <strong>Need help?</strong> If the button doesn't work, copy and paste this link into your browser:
               </p>
-              <p style="margin: 10px 0 0 0; font-size: 14px; color: #4a5568; word-break: break-all;">
+              <p style="margin: 10px 0 0 0; font-size: 14px; color: #4a5568; word-break: break-all; background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">
                 ${confirmationUrl}
               </p>
             </div>

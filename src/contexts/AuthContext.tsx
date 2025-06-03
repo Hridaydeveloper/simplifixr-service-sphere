@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { profileService } from '@/services/profileService';
 
 interface AuthContextType {
   user: User | null;
@@ -34,6 +35,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setUser(session?.user ?? null);
           console.log('Initial session user:', session?.user);
+          
+          // Create profile if user exists but profile doesn't
+          if (session?.user && session.user.email_confirmed_at) {
+            setTimeout(async () => {
+              try {
+                const existingProfile = await profileService.getProfile(session.user.id);
+                if (!existingProfile) {
+                  console.log('Creating profile for new user:', session.user.id);
+                  await profileService.createProfile(session.user.id, {
+                    full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                    location: session.user.user_metadata?.location || '',
+                    role: session.user.user_metadata?.role || 'customer'
+                  });
+                }
+              } catch (error) {
+                console.error('Error handling user profile:', error);
+              }
+            }, 0);
+          }
         }
       } catch (error) {
         console.error('Error in getSession:', error);
@@ -53,6 +73,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Clear guest mode when user logs in
       if (session?.user) {
         localStorage.removeItem('guestMode');
+        
+        // Handle profile creation for new confirmed users
+        if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
+          setTimeout(async () => {
+            try {
+              const existingProfile = await profileService.getProfile(session.user.id);
+              if (!existingProfile) {
+                console.log('Creating profile for newly signed in user:', session.user.id);
+                await profileService.createProfile(session.user.id, {
+                  full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+                  location: session.user.user_metadata?.location || '',
+                  role: session.user.user_metadata?.role || 'customer'
+                });
+              }
+            } catch (error) {
+              console.error('Error creating profile on sign in:', error);
+            }
+          }, 0);
+        }
       }
     });
 
