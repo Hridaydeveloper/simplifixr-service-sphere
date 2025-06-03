@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Mail, Phone, Eye, EyeOff, User, Briefcase, CheckCircle } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Eye, EyeOff, User, Briefcase, CheckCircle, Smartphone, AtSign } from "lucide-react";
 import { authService } from "@/services/authService";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { useNavigate } from "react-router-dom";
 
 interface ComprehensiveAuthProps {
   role?: 'customer' | 'provider';
@@ -28,7 +27,6 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState('');
   const [contactValue, setContactValue] = useState('');
-  const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -89,7 +87,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
     try {
       if (authMethod === 'email' && authMode === 'login') {
         // Email login with password
-        const authData = await authService.signIn({
+        await authService.signIn({
           email: formData.email,
           password: formData.password,
         });
@@ -98,16 +96,6 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           title: "Login Successful",
           description: "Welcome back!",
         });
-
-        // Redirect based on user role
-        const userRole = authData.user?.user_metadata?.role || selectedRole;
-        setTimeout(() => {
-          if (userRole === 'provider') {
-            navigate('/become-provider');
-          } else {
-            navigate('/services');
-          }
-        }, 1000);
         
         onAuthComplete(selectedRole);
       } else if (authMethod === 'email' && authMode === 'signup') {
@@ -130,7 +118,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           return;
         }
 
-        const authData = await authService.signUp({
+        await authService.signUp({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
@@ -187,15 +175,6 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           description: "Welcome back!",
         });
         
-        // Redirect based on role
-        setTimeout(() => {
-          if (selectedRole === 'provider') {
-            navigate('/become-provider');
-          } else {
-            navigate('/services');
-          }
-        }, 1000);
-        
         onAuthComplete(selectedRole);
       } else {
         // New user, need more details
@@ -224,15 +203,6 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         description: "Welcome to Simplifixr!",
       });
       
-      // Redirect based on role
-      setTimeout(() => {
-        if (selectedRole === 'provider') {
-          navigate('/become-provider');
-        } else {
-          navigate('/services');
-        }
-      }, 1000);
-      
       onAuthComplete(selectedRole);
     } catch (error: any) {
       console.error('Signup completion error:', error);
@@ -249,7 +219,9 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const renderEmailSentConfirmation = () => (
     <div className="space-y-6 text-center">
       <div className="flex justify-center">
-        <CheckCircle className="w-16 h-16 text-green-500" />
+        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+          <CheckCircle className="w-12 h-12 text-green-600" />
+        </div>
       </div>
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
@@ -288,65 +260,83 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const renderMethodSelection = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Simplifixr</h2>
-        <p className="text-gray-600">Choose your authentication method</p>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent mb-3">
+          Welcome to Simplifixr
+        </h2>
+        <p className="text-gray-600">Choose how you'd like to continue</p>
       </div>
 
       {!role && (
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-gray-700">I am a:</p>
+        <div className="space-y-4">
+          <p className="text-sm font-medium text-gray-700 text-center">I am a:</p>
           <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => setSelectedRole('customer')}
-              className={`p-4 rounded-lg border-2 transition-all ${
+              className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                 selectedRole === 'customer'
-                  ? 'border-[#00B896] bg-[#00B896]/5 text-[#00B896]'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-[#00B896] bg-gradient-to-br from-[#00B896]/10 to-[#00C9A7]/10 text-[#00B896] shadow-lg'
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
               }`}
             >
-              <User className="w-6 h-6 mx-auto mb-2" />
-              <div className="font-medium">Customer</div>
-              <div className="text-xs text-gray-500">Looking for services</div>
+              <User className="w-8 h-8 mx-auto mb-2" />
+              <div className="font-semibold">Customer</div>
+              <div className="text-xs text-gray-500 mt-1">Looking for services</div>
             </button>
             <button
               onClick={() => setSelectedRole('provider')}
-              className={`p-4 rounded-lg border-2 transition-all ${
+              className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                 selectedRole === 'provider'
-                  ? 'border-[#00B896] bg-[#00B896]/5 text-[#00B896]'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-[#00B896] bg-gradient-to-br from-[#00B896]/10 to-[#00C9A7]/10 text-[#00B896] shadow-lg'
+                  : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
               }`}
             >
-              <Briefcase className="w-6 h-6 mx-auto mb-2" />
-              <div className="font-medium">Provider</div>
-              <div className="text-xs text-gray-500">Offering services</div>
+              <Briefcase className="w-8 h-8 mx-auto mb-2" />
+              <div className="font-semibold">Provider</div>
+              <div className="text-xs text-gray-500 mt-1">Offering services</div>
             </button>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button
-          onClick={() => handleMethodSelect('email')}
-          variant="outline"
-          className="h-16 flex-col space-y-2 border-2 hover:border-[#00B896] hover:text-[#00B896]"
-        >
-          <Mail className="w-6 h-6" />
-          <span className="font-medium">Email</span>
-        </Button>
-        <Button
-          onClick={() => handleMethodSelect('phone')}
-          variant="outline"
-          className="h-16 flex-col space-y-2 border-2 hover:border-[#00B896] hover:text-[#00B896]"
-        >
-          <Phone className="w-6 h-6" />
-          <span className="font-medium">Phone</span>
-        </Button>
+      <div className="space-y-3">
+        <p className="text-sm font-medium text-gray-700 text-center">Choose your login method:</p>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => handleMethodSelect('email')}
+            variant="outline"
+            className="h-20 flex-col space-y-2 border-2 hover:border-[#00B896] hover:text-[#00B896] hover:bg-[#00B896]/5 transition-all duration-300 group"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-[#00B896]/10 flex items-center justify-center transition-colors">
+              <AtSign className="w-5 h-5" />
+            </div>
+            <span className="font-semibold">Email</span>
+          </Button>
+          <Button
+            onClick={() => handleMethodSelect('phone')}
+            variant="outline"
+            className="h-20 flex-col space-y-2 border-2 hover:border-[#00B896] hover:text-[#00B896] hover:bg-[#00B896]/5 transition-all duration-300 group"
+          >
+            <div className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-[#00B896]/10 flex items-center justify-center transition-colors">
+              <Smartphone className="w-5 h-5" />
+            </div>
+            <span className="font-semibold">Phone</span>
+          </Button>
+        </div>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-gray-200" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-500">Or</span>
+        </div>
       </div>
 
       <Button
         onClick={() => onAuthComplete('guest')}
-        variant="link"
-        className="w-full text-gray-600"
+        variant="ghost"
+        className="w-full text-gray-600 hover:text-gray-800 hover:bg-gray-50"
       >
         Continue as Guest
       </Button>
@@ -359,39 +349,48 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           {authMode === 'login' ? 'Welcome Back' : 'Create Account'}
         </h2>
-        <p className="text-gray-600">
-          {authMethod === 'email' ? 'Email' : 'Phone'} {authMode === 'login' ? 'Login' : 'Signup'}
-        </p>
+        <div className="flex items-center justify-center space-x-2 text-gray-600">
+          {authMethod === 'email' ? (
+            <AtSign className="w-4 h-4" />
+          ) : (
+            <Smartphone className="w-4 h-4" />
+          )}
+          <span>
+            {authMethod === 'email' ? 'Email' : 'Phone'} {authMode === 'login' ? 'Login' : 'Signup'}
+          </span>
+        </div>
       </div>
 
       <form onSubmit={handleCredentialsSubmit} className="space-y-4">
         {authMode === 'signup' && (
           <>
             <div>
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">Full Name</Label>
               <Input
                 id="fullName"
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => handleInputChange('fullName', e.target.value)}
+                className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
                 required
               />
             </div>
             <div>
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location" className="text-sm font-medium text-gray-700">Location</Label>
               <Input
                 id="location"
                 type="text"
                 value={formData.location}
                 onChange={(e) => handleInputChange('location', e.target.value)}
                 placeholder="City, State"
+                className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
               />
             </div>
           </>
         )}
 
         <div>
-          <Label htmlFor="contact">
+          <Label htmlFor="contact" className="text-sm font-medium text-gray-700">
             {authMethod === 'email' ? 'Email Address' : 'Phone Number'}
           </Label>
           <Input
@@ -400,6 +399,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
             value={authMethod === 'email' ? formData.email : formData.phone}
             onChange={(e) => handleInputChange(authMethod, e.target.value)}
             placeholder={authMethod === 'email' ? 'Enter your email' : 'Enter 10-digit phone number'}
+            className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
             required
           />
         </div>
@@ -407,13 +407,14 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         {authMethod === 'email' && (
           <>
             <div>
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
+              <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
+              <div className="relative mt-1">
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
+                  className="border-gray-300 focus:border-[#00B896] focus:ring-[#00B896] pr-10"
                   required
                 />
                 <Button
@@ -421,7 +422,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 h-8 w-8"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -430,12 +431,13 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
 
             {authMode === 'signup' && (
               <div>
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirm Password</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                  className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
                   required
                 />
               </div>
@@ -446,10 +448,13 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+          className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#00A085] hover:to-[#00B896] text-white font-semibold py-3 transition-all duration-300"
         >
           {loading ? (
-            authMode === 'login' ? 'Signing In...' : 'Creating Account...'
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>{authMode === 'login' ? 'Signing In...' : 'Creating Account...'}</span>
+            </div>
           ) : (
             authMethod === 'email' ? (authMode === 'login' ? 'Sign In' : 'Create Account') : 'Send OTP'
           )}
@@ -462,7 +467,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           <button
             type="button"
             onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
-            className="text-[#00B896] hover:underline font-medium"
+            className="text-[#00B896] hover:text-[#00A085] font-semibold underline-offset-4 hover:underline transition-all"
           >
             {authMode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
@@ -474,9 +479,16 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const renderOTPVerification = () => (
     <div className="space-y-6">
       <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-[#00B896]/10 to-[#00C9A7]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          {authMethod === 'email' ? (
+            <Mail className="w-8 h-8 text-[#00B896]" />
+          ) : (
+            <Phone className="w-8 h-8 text-[#00B896]" />
+          )}
+        </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Verify Your {authMethod === 'email' ? 'Email' : 'Phone'}</h2>
         <p className="text-gray-600">
-          Enter the 6-digit code sent to {contactValue}
+          Enter the 6-digit code sent to <span className="font-semibold text-[#00B896]">{contactValue}</span>
         </p>
       </div>
 
@@ -488,12 +500,12 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
             maxLength={6}
           >
             <InputOTPGroup>
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
+              <InputOTPSlot index={0} className="border-gray-300 focus:border-[#00B896]" />
+              <InputOTPSlot index={1} className="border-gray-300 focus:border-[#00B896]" />
+              <InputOTPSlot index={2} className="border-gray-300 focus:border-[#00B896]" />
+              <InputOTPSlot index={3} className="border-gray-300 focus:border-[#00B896]" />
+              <InputOTPSlot index={4} className="border-gray-300 focus:border-[#00B896]" />
+              <InputOTPSlot index={5} className="border-gray-300 focus:border-[#00B896]" />
             </InputOTPGroup>
           </InputOTP>
         </div>
@@ -501,9 +513,16 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         <Button
           type="submit"
           disabled={loading || otp.length !== 6}
-          className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+          className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#00A085] hover:to-[#00B896] text-white font-semibold py-3 transition-all duration-300 disabled:opacity-50"
         >
-          {loading ? 'Verifying...' : 'Verify OTP'}
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Verifying...</span>
+            </div>
+          ) : (
+            'Verify OTP'
+          )}
         </Button>
       </form>
 
@@ -511,7 +530,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         <Button
           variant="link"
           onClick={() => setCurrentStep('credentials')}
-          className="text-gray-600"
+          className="text-gray-600 hover:text-[#00B896]"
         >
           Change {authMethod === 'email' ? 'email' : 'phone number'}
         </Button>
@@ -522,47 +541,59 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
   const renderDetailsForm = () => (
     <div className="space-y-6">
       <div className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-br from-[#00B896]/10 to-[#00C9A7]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <User className="w-8 h-8 text-[#00B896]" />
+        </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Complete Your Profile</h2>
         <p className="text-gray-600">Just a few more details to get started</p>
       </div>
 
       <form onSubmit={handleCompleteSignup} className="space-y-4">
         <div>
-          <Label htmlFor="fullName">Full Name</Label>
+          <Label htmlFor="fullName" className="text-sm font-medium text-gray-700">Full Name</Label>
           <Input
             id="fullName"
             type="text"
             value={formData.fullName}
             onChange={(e) => handleInputChange('fullName', e.target.value)}
+            className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
             required
           />
         </div>
         <div>
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="location" className="text-sm font-medium text-gray-700">Location</Label>
           <Input
             id="location"
             type="text"
             value={formData.location}
             onChange={(e) => handleInputChange('location', e.target.value)}
             placeholder="City, State"
+            className="mt-1 border-gray-300 focus:border-[#00B896] focus:ring-[#00B896]"
           />
         </div>
 
         <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+          className="w-full bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#00A085] hover:to-[#00B896] text-white font-semibold py-3 transition-all duration-300"
         >
-          {loading ? 'Creating Account...' : 'Complete Signup'}
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Creating Account...</span>
+            </div>
+          ) : (
+            'Complete Signup'
+          )}
         </Button>
       </form>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 to-[#00C9A7]/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 via-white to-[#00C9A7]/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
           {/* Header with back button */}
           <div className="flex items-center mb-6">
             {(onBack || currentStep !== 'method') && (
@@ -575,19 +606,25 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
                   else if (currentStep === 'details') setCurrentStep('otp');
                   else if (currentStep === 'email-sent') setCurrentStep('credentials');
                 }}
-                className="mr-3 p-1"
+                className="mr-3 p-1 hover:bg-gray-100 rounded-full"
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
             )}
             <div className="flex items-center">
-              {selectedRole === 'customer' ? (
-                <User className="w-6 h-6 text-[#00B896] mr-2" />
-              ) : (
-                <Briefcase className="w-6 h-6 text-[#00B896] mr-2" />
-              )}
-              <span className="text-lg font-semibold text-gray-900">
-                {selectedRole === 'customer' ? 'Customer' : 'Provider'}
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
+                selectedRole === 'customer' 
+                  ? 'bg-blue-100 text-blue-600' 
+                  : 'bg-orange-100 text-orange-600'
+              }`}>
+                {selectedRole === 'customer' ? (
+                  <User className="w-4 h-4" />
+                ) : (
+                  <Briefcase className="w-4 h-4" />
+                )}
+              </div>
+              <span className="text-lg font-semibold text-gray-900 capitalize">
+                {selectedRole}
               </span>
             </div>
           </div>
