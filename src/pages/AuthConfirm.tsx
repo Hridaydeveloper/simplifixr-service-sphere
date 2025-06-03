@@ -17,13 +17,14 @@ const AuthConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
+        // Get the token_hash and type from URL params (Supabase format)
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
-        const email = searchParams.get('email');
-
-        console.log('Confirming email with params:', { token_hash, type, email });
+        
+        console.log('Auth confirm params:', { token_hash, type });
 
         if (token_hash && type) {
+          // Use Supabase's verifyOtp method for email confirmation
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
@@ -32,39 +33,34 @@ const AuthConfirm = () => {
           if (error) {
             console.error('Email confirmation error:', error);
             setStatus('error');
-            setMessage(error.message || 'Failed to confirm email. The link may be expired or invalid.');
+            setMessage('Failed to confirm email. The link may be expired or invalid.');
             toast({
               variant: "destructive",
               title: "Confirmation Failed",
-              description: error.message || 'Failed to confirm email. Please try again.',
+              description: error.message,
             });
-          } else if (data.user) {
+            return;
+          }
+
+          if (data.user) {
             console.log('Email confirmed successfully for user:', data.user.email);
             
-            // Create profile if it doesn't exist
-            try {
-              const existingProfile = await profileService.getProfile(data.user.id);
-              if (!existingProfile) {
-                console.log('Creating profile for confirmed user:', data.user.id);
-                await profileService.createProfile(data.user.id, {
-                  full_name: data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User',
-                  location: data.user.user_metadata?.location || '',
-                  role: data.user.user_metadata?.role || 'customer'
-                });
-              }
-            } catch (profileError) {
-              console.error('Error creating profile:', profileError);
-            }
-
+            // Wait a moment for the auth state to update
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
             setStatus('success');
-            setMessage('Your email has been confirmed successfully! Redirecting you now...');
+            setMessage('Your email has been confirmed successfully!');
+            
             toast({
               title: "Email Confirmed",
               description: "Your account has been verified successfully!",
             });
-            
-            // Redirect based on user role
+
+            // Get the user's role from metadata to determine redirect
             const userRole = data.user.user_metadata?.role || 'customer';
+            console.log('User role for redirect:', userRole);
+            
+            // Redirect based on user role after 2 seconds
             setTimeout(() => {
               if (userRole === 'provider') {
                 navigate('/become-provider');
@@ -74,6 +70,8 @@ const AuthConfirm = () => {
             }, 2000);
           }
         } else {
+          // Handle the old format or missing params
+          console.log('No token_hash found, checking for other params');
           setStatus('error');
           setMessage('Invalid confirmation link. Please check your email for the correct link.');
         }
@@ -104,21 +102,7 @@ const AuthConfirm = () => {
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Email Confirmed!</h1>
               <p className="text-gray-600 mb-6">{message}</p>
-              <div className="space-y-3">
-                <Button 
-                  onClick={() => navigate('/services')}
-                  className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
-                >
-                  Go to Services
-                </Button>
-                <Button 
-                  onClick={() => navigate('/become-provider')}
-                  variant="outline"
-                  className="w-full"
-                >
-                  Become a Provider
-                </Button>
-              </div>
+              <p className="text-sm text-gray-500">Redirecting you now...</p>
             </>
           )}
           

@@ -17,7 +17,9 @@ export interface SignInData {
 export const authService = {
   async signUp(data: SignUpData) {
     try {
-      // First, sign up the user
+      console.log('Starting signup process for:', data.email);
+      
+      // Create the user with email confirmation
       const { data: authData, error: signUpError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -31,31 +33,16 @@ export const authService = {
         }
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('Signup error:', signUpError);
+        throw signUpError;
+      }
 
-      // If signup is successful and user needs email confirmation
+      console.log('Signup successful:', authData);
+
+      // If user needs email confirmation, the confirmation email will be sent automatically by Supabase
       if (authData.user && !authData.user.email_confirmed_at) {
-        try {
-          console.log('Sending confirmation email to:', data.email);
-          
-          const { data: emailResult, error: emailError } = await supabase.functions.invoke('send-confirmation-email', {
-            body: {
-              email: data.email,
-              confirmationUrl: `${window.location.origin}/auth/confirm?token_hash=${authData.user.id}&type=signup&email=${encodeURIComponent(data.email)}`,
-              fullName: data.fullName
-            }
-          });
-
-          if (emailError) {
-            console.error('Failed to send confirmation email:', emailError);
-            throw new Error('Account created but failed to send confirmation email. Please check your email or contact support.');
-          } else {
-            console.log('Confirmation email sent successfully:', emailResult);
-          }
-        } catch (emailError) {
-          console.error('Error sending confirmation email:', emailError);
-          throw new Error('Account created but failed to send confirmation email. Please try again.');
-        }
+        console.log('User needs email confirmation, email should be sent automatically');
       }
 
       return authData;
@@ -67,18 +54,24 @@ export const authService = {
 
   async signIn(data: SignInData) {
     try {
+      console.log('Signing in user:', data.email);
+      
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('SignIn error:', error);
+        throw error;
+      }
       
       // Check if email is confirmed
       if (authData.user && !authData.user.email_confirmed_at) {
         throw new Error('Please check your email and confirm your account before signing in.');
       }
 
+      console.log('SignIn successful:', authData.user?.email);
       return authData;
     } catch (error) {
       console.error('SignIn error:', error);

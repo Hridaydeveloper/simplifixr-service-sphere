@@ -25,6 +25,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const createProfileIfNeeded = async (user: User) => {
+    try {
+      if (!user.email_confirmed_at) {
+        console.log('User email not confirmed yet, skipping profile creation');
+        return;
+      }
+
+      const existingProfile = await profileService.getProfile(user.id);
+      if (!existingProfile) {
+        console.log('Creating profile for user:', user.id);
+        await profileService.createProfile(user.id, {
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+          location: user.user_metadata?.location || '',
+          role: user.user_metadata?.role || 'customer'
+        });
+        console.log('Profile created successfully');
+      } else {
+        console.log('Profile already exists for user:', user.id);
+      }
+    } catch (error) {
+      console.error('Error handling user profile:', error);
+    }
+  };
+
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
@@ -33,27 +57,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (error) {
           console.error('Error getting session:', error);
         } else {
+          console.log('Initial session user:', session?.user?.email || 'none');
           setUser(session?.user ?? null);
-          console.log('Initial session user:', session?.user);
           
-          // Create profile if user exists but profile doesn't
-          if (session?.user && session.user.email_confirmed_at) {
-            setTimeout(async () => {
-              try {
-                const existingProfile = await profileService.getProfile(session.user.id);
-                if (!existingProfile) {
-                  console.log('Creating profile for new user:', session.user.id);
-                  await profileService.createProfile(session.user.id, {
-                    full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                    location: session.user.user_metadata?.location || '',
-                    role: session.user.user_metadata?.role || 'customer'
-                  });
-                  console.log('Profile created successfully');
-                }
-              } catch (error) {
-                console.error('Error handling user profile:', error);
-              }
-            }, 0);
+          // Create profile if user exists and email is confirmed
+          if (session?.user) {
+            await createProfileIfNeeded(session.user);
           }
         }
       } catch (error) {
@@ -67,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event, session?.user);
+      console.log('Auth state changed:', event, session?.user?.email || 'none');
       setUser(session?.user ?? null);
       setLoading(false);
       
@@ -75,26 +84,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         localStorage.removeItem('guestMode');
         
-        // Handle profile creation for new confirmed users
-        if (event === 'SIGNED_IN' && session.user.email_confirmed_at) {
-          setTimeout(async () => {
-            try {
-              const existingProfile = await profileService.getProfile(session.user.id);
-              if (!existingProfile) {
-                console.log('Creating profile for newly signed in user:', session.user.id);
-                await profileService.createProfile(session.user.id, {
-                  full_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
-                  location: session.user.user_metadata?.location || '',
-                  role: session.user.user_metadata?.role || 'customer'
-                });
-                console.log('Profile created for signed in user');
-              } else {
-                console.log('Profile already exists for user:', session.user.id);
-              }
-            } catch (error) {
-              console.error('Error creating profile on sign in:', error);
-            }
-          }, 0);
+        // Handle profile creation for confirmed users
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          await createProfileIfNeeded(session.user);
         }
       }
     });
