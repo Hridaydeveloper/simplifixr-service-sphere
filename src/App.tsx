@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -21,7 +20,7 @@ import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
 import { useAuth } from "./contexts/AuthContext";
 import { useState, useEffect } from "react";
-import { Loader2, Settings, Gear } from "lucide-react";
+import { Loader2, Settings, Cog } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -56,7 +55,7 @@ function AppContent() {
           <div className="relative mb-6">
             <Settings className="w-20 h-20 text-[#00B896] mx-auto animate-spin" style={{ animationDuration: '3s' }} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Gear className="w-8 h-8 text-[#00C9A7] animate-pulse" />
+              <Cog className="w-8 h-8 text-[#00C9A7] animate-pulse" />
             </div>
           </div>
           <div className="space-y-2">
