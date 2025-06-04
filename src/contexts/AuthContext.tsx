@@ -55,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         localStorage.removeItem('guestMode');
         
-        // Create profile for new users
-        if (event === 'SIGNED_IN' || event === 'SIGNED_UP') {
+        // Create profile for new users when they sign in
+        if (event === 'SIGNED_IN') {
           setTimeout(() => {
             createProfileIfNeeded(session.user);
           }, 0);
