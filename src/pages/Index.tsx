@@ -12,35 +12,42 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface IndexProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
+  hasShownPopup?: boolean;
+  setHasShownPopup?: (value: boolean) => void;
 }
 
-const Index = ({ onShowAuth }: IndexProps) => {
+const Index = ({ onShowAuth, hasShownPopup, setHasShownPopup }: IndexProps) => {
   const { user } = useAuth();
   const [showLoginPopup, setShowLoginPopup] = useState(false);
 
-  // Show login popup on first visit if user is not authenticated
+  // Show login popup on first visit if user is not authenticated and hasn't seen popup
   useEffect(() => {
-    const hasSeenPopup = localStorage.getItem('hasSeenLoginPopup');
     const isGuest = localStorage.getItem('guestMode') === 'true';
     
-    if (!user && !hasSeenPopup && !isGuest) {
-      // Show popup after a short delay
+    if (!user && !hasShownPopup && !isGuest) {
+      // Show popup after a short delay, but only once
       const timer = setTimeout(() => {
         setShowLoginPopup(true);
       }, 2000);
       
       return () => clearTimeout(timer);
     }
-  }, [user]);
+  }, [user, hasShownPopup]);
 
   const handlePopupClose = () => {
     setShowLoginPopup(false);
     localStorage.setItem('hasSeenLoginPopup', 'true');
+    if (setHasShownPopup) {
+      setHasShownPopup(true);
+    }
   };
 
   const handleSkip = () => {
     localStorage.setItem('guestMode', 'true');
     localStorage.setItem('hasSeenLoginPopup', 'true');
+    if (setHasShownPopup) {
+      setHasShownPopup(true);
+    }
   };
 
   const handleAuthComplete = (role: 'customer' | 'provider' | 'guest') => {
@@ -51,6 +58,9 @@ const Index = ({ onShowAuth }: IndexProps) => {
       localStorage.removeItem('guestMode');
     }
     localStorage.setItem('hasSeenLoginPopup', 'true');
+    if (setHasShownPopup) {
+      setHasShownPopup(true);
+    }
   };
 
   return (

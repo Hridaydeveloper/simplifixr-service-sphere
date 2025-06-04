@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -30,11 +29,14 @@ function AppContent() {
   const [guestMode, setGuestMode] = useState(false);
   const [authFlow, setAuthFlow] = useState<{ show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }>({ show: false });
   const [initialLoading, setInitialLoading] = useState(true);
+  const [hasShownPopup, setHasShownPopup] = useState(false);
 
-  // Check for guest mode in localStorage
+  // Check for guest mode and popup state
   useEffect(() => {
     const isGuest = localStorage.getItem('guestMode') === 'true';
+    const hasSeenPopup = localStorage.getItem('hasSeenLoginPopup') === 'true';
     setGuestMode(isGuest);
+    setHasShownPopup(hasSeenPopup);
   }, []);
 
   // Initial loading animation - always show for 1 second
@@ -107,6 +109,10 @@ function AppContent() {
                 localStorage.removeItem('guestMode');
                 setGuestMode(false);
               }
+              
+              // Mark popup as seen
+              localStorage.setItem('hasSeenLoginPopup', 'true');
+              setHasShownPopup(true);
             }}
             onBack={() => {
               setAuthFlow({ show: false });
@@ -120,16 +126,33 @@ function AppContent() {
   // Show main app - authenticated users or guest mode users see the full app
   return (
     <Router>
-      <AppRouter onShowAuth={setAuthFlow} />
+      <AppRouter onShowAuth={setAuthFlow} hasShownPopup={hasShownPopup} setHasShownPopup={setHasShownPopup} />
     </Router>
   );
 }
 
-function AppRouter({ onShowAuth }: { onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void }) {
+function AppRouter({ 
+  onShowAuth, 
+  hasShownPopup, 
+  setHasShownPopup 
+}: { 
+  onShowAuth: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void;
+  hasShownPopup: boolean;
+  setHasShownPopup: (value: boolean) => void;
+}) {
   return (
     <div className="min-h-screen bg-background">
       <Routes>
-        <Route path="/" element={<Index onShowAuth={onShowAuth} />} />
+        <Route 
+          path="/" 
+          element={
+            <Index 
+              onShowAuth={onShowAuth} 
+              hasShownPopup={hasShownPopup}
+              setHasShownPopup={setHasShownPopup}
+            />
+          } 
+        />
         <Route path="/services" element={<Services onShowAuth={onShowAuth} />} />
         <Route path="/become-provider" element={<BecomeProvider />} />
         <Route path="/provider-registration" element={<ProviderRegistration />} />

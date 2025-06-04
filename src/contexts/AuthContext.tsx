@@ -45,22 +45,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event, session?.user?.email || 'none');
+      
+      if (!mounted) return;
+
       setUser(session?.user ?? null);
-      setLoading(false);
       
       // Clear guest mode when user logs in
       if (session?.user) {
         localStorage.removeItem('guestMode');
         
-        // Create profile for new users when they sign in
+        // Create profile for authenticated users
         if (event === 'SIGNED_IN') {
           setTimeout(() => {
-            createProfileIfNeeded(session.user);
+            if (mounted) {
+              createProfileIfNeeded(session.user);
+            }
           }, 0);
         }
+      }
+      
+      if (mounted) {
+        setLoading(false);
       }
     });
 
@@ -72,28 +82,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           console.error('Error getting session:', error);
         } else {
           console.log('Initial session user:', session?.user?.email || 'none');
-          setUser(session?.user ?? null);
-          
-          // Create profile if user exists
-          if (session?.user) {
-            await createProfileIfNeeded(session.user);
+          if (mounted) {
+            setUser(session?.user ?? null);
+            
+            // Create profile if user exists
+            if (session?.user) {
+              setTimeout(() => {
+                if (mounted) {
+                  createProfileIfNeeded(session.user);
+                }
+              }, 0);
+            }
           }
         }
       } catch (error) {
         console.error('Error in getSession:', error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     getInitialSession();
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       if (error) {
         console.error('Sign out error:', error);
       }
