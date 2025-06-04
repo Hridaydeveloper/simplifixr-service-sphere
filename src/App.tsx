@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -113,6 +114,9 @@ function AppContent() {
               // Mark popup as seen
               localStorage.setItem('hasSeenLoginPopup', 'true');
               setHasShownPopup(true);
+              
+              // Force reload to show main app properly
+              window.location.reload();
             }}
             onBack={() => {
               setAuthFlow({ show: false });

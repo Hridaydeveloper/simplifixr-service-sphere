@@ -48,6 +48,7 @@ const Index = ({ onShowAuth, hasShownPopup, setHasShownPopup }: IndexProps) => {
     if (setHasShownPopup) {
       setHasShownPopup(true);
     }
+    setShowLoginPopup(false); // Close popup immediately when skipping
   };
 
   const handleAuthComplete = (role: 'customer' | 'provider' | 'guest') => {
@@ -61,6 +62,7 @@ const Index = ({ onShowAuth, hasShownPopup, setHasShownPopup }: IndexProps) => {
     if (setHasShownPopup) {
       setHasShownPopup(true);
     }
+    setShowLoginPopup(false); // Close popup after auth completion
   };
 
   return (

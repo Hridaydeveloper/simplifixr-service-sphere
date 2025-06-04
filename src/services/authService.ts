@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export interface SignUpData {
@@ -105,18 +104,22 @@ export const authService = {
           .eq('phone', contact);
       }
 
-      // Store OTP in database
-      const insertData: any = {
-        otp_code: otp,
-        expires_at: expiresAt.toISOString(),
-        verified: false
-      };
-
-      if (contactType === 'email') {
-        insertData.email = contact;
-      } else {
-        insertData.phone = contact;
-      }
+      // Store OTP in database - fix the type issue by being explicit
+      const insertData = contactType === 'email' 
+        ? {
+            email: contact,
+            phone: null,
+            otp_code: otp,
+            expires_at: expiresAt.toISOString(),
+            verified: false
+          }
+        : {
+            email: null,
+            phone: contact,
+            otp_code: otp,
+            expires_at: expiresAt.toISOString(),
+            verified: false
+          };
 
       const { error: insertError } = await supabase
         .from('otp_verifications')

@@ -118,7 +118,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           return;
         }
 
-        const { user } = await authService.signUp({
+        const result = await authService.signUp({
           email: formData.email,
           password: formData.password,
           fullName: formData.fullName,
@@ -126,7 +126,15 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           role: selectedRole,
         });
         
-        if (user) {
+        if (result.user && !result.user.email_confirmed_at) {
+          // Email confirmation required
+          setCurrentStep('email-sent');
+          toast({
+            title: "Confirmation Email Sent",
+            description: "Please check your email to confirm your account.",
+          });
+        } else {
+          // Account created and confirmed
           toast({
             title: "Account Created",
             description: "Welcome to Simplifixr!",
@@ -171,7 +179,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
       
       if (result.userExists) {
         // User exists, log them in
-        await authService.signInWithOTP(contactValue);
+        await authService.completeOTPAuth(contactValue, authMethod);
         toast({
           title: "Login Successful",
           description: "Welcome back!",
@@ -199,7 +207,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
     setLoading(true);
 
     try {
-      await authService.signInWithOTP(contactValue);
+      await authService.completeOTPAuth(contactValue, authMethod, formData.fullName, formData.location);
       toast({
         title: "Account Created",
         description: "Welcome to Simplifixr!",
