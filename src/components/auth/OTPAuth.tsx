@@ -31,7 +31,7 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
   const handleSendOTP = async () => {
     setLoading(true);
     try {
-      await authService.sendOTP(contact, role);
+      await authService.sendOTP(contact, 'phone', role);
       setStep('otp');
       setCountdown(60); // Set countdown timer to 60 seconds
       toast({
@@ -52,12 +52,12 @@ const OTPAuth = ({ role, onBack, onOTPVerified, onSkip }: OTPAuthProps) => {
   const handleVerifyOTP = async () => {
     setLoading(true);
     try {
-      const isExistingUser = await authService.verifyOTP(contact, otp);
+      const result = await authService.verifyOTP(contact, 'phone', otp);
       toast({
         title: "OTP Verified",
         description: "Your OTP has been successfully verified.",
       });
-      onOTPVerified(contact, isExistingUser);
+      onOTPVerified(contact, result.userExists);
     } catch (error: any) {
       toast({
         variant: "destructive",

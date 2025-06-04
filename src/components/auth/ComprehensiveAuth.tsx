@@ -135,7 +135,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
         }
       } else {
         // Phone or Email OTP flow
-        await authService.sendOTP(contact, selectedRole);
+        await authService.sendOTP(contact, authMethod, selectedRole);
         setCurrentStep('otp');
         toast({
           title: "OTP Sent",
@@ -167,9 +167,9 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
 
     setLoading(true);
     try {
-      const userExists = await authService.verifyOTP(contactValue, otp);
+      const result = await authService.verifyOTP(contactValue, authMethod, otp);
       
-      if (userExists) {
+      if (result.userExists) {
         // User exists, log them in
         await authService.signInWithOTP(contactValue);
         toast({
