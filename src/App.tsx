@@ -17,6 +17,7 @@ import ProviderRegistration from "./pages/ProviderRegistration";
 import Shop from "./pages/Shop";
 import HelpCommunity from "./pages/HelpCommunity";
 import AuthConfirm from "./pages/AuthConfirm";
+import Profile from "./pages/Profile";
 import "./App.css";
 import AuthContainer from "./components/auth/AuthContainer";
 import { useAuth } from "./contexts/AuthContext";
@@ -158,6 +159,7 @@ function AppRouter({
           } 
         />
         <Route path="/services" element={<Services onShowAuth={onShowAuth} />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/become-provider" element={<BecomeProvider />} />
         <Route path="/provider-registration" element={<ProviderRegistration />} />
         <Route path="/shop" element={<Shop />} />

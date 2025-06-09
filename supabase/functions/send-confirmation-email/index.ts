@@ -25,7 +25,7 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { email, confirmationUrl, fullName }: ConfirmationEmailRequest = await req.json();
 
-    console.log(`Attempting to send email to: ${email}`);
+    console.log(`Attempting to send confirmation email to: ${email}`);
     console.log(`Confirmation URL: ${confirmationUrl}`);
 
     // Validate required fields

@@ -1,376 +1,177 @@
-import { useState, useEffect } from "react";
-import { Menu, X, Users, User, MapPin, Camera, Settings, LogOut, ShoppingBag, Heart } from "lucide-react";
+
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ProfilePictureModal from "./ProfilePictureModal";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { profileService } from "@/services/profileService";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface NavigationProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
 }
 
 const Navigation = ({ onShowAuth }: NavigationProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<any>(null);
-  const [profileLoading, setProfileLoading] = useState(false);
-  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { user, signOut, refreshUser } = useAuth();
+  const isGuest = localStorage.getItem('guestMode') === 'true';
 
-  // Check if user is a guest
-  const isGuest = !user && localStorage.getItem('guestMode') === 'true';
-
-  // Fetch user profile data when user changes
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (user?.id) {
-        setProfileLoading(true);
-        try {
-          console.log('Fetching profile for user:', user.id);
-          const profile = await profileService.getProfile(user.id);
-          setUserProfile(profile);
-          console.log('Fetched user profile:', profile);
-        } catch (error) {
-          console.error('Error fetching profile:', error);
-          // If profile doesn't exist, use user metadata
-          setUserProfile(null);
-        } finally {
-          setProfileLoading(false);
-        }
-      } else {
-        setUserProfile(null);
-      }
-    };
-
-    if (user) {
-      fetchUserProfile();
-    }
-  }, [user]);
-
-  // Default user data - use profile data if available, otherwise fallback to user metadata
-  const userData = {
-    name: userProfile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User",
-    location: userProfile?.location || user?.user_metadata?.location || "Location not set",
-    profilePicture: userProfile?.profile_picture_url || null,
-    email: user?.email || "user@example.com",
-    role: user?.user_metadata?.role || "customer"
-  };
-
-  console.log('Navigation - user:', user, 'profile:', userProfile, 'userData:', userData);
-
-  const handleNavClick = (hash: string) => {
-    if (location.pathname === '/') {
-      const element = document.querySelector(hash) as HTMLElement;
-      if (element) {
-        const offsetTop = element.offsetTop - 70;
-        window.scrollTo({ 
-          top: offsetTop, 
-          behavior: 'smooth' 
-        });
-      }
-    } else {
-      navigate(`/${hash}`);
-      setTimeout(() => {
-        const element = document.querySelector(hash) as HTMLElement;
-        if (element) {
-          const offsetTop = element.offsetTop - 70;
-          window.scrollTo({ 
-            top: offsetTop, 
-            behavior: 'smooth' 
-          });
-        }
-      }, 100);
-    }
-    setIsMenuOpen(false);
-  };
-
-  const handlePageNavigation = (path: string) => {
-    navigate(path);
-    setTimeout(() => {
-      window.scrollTo({ 
-        top: 0, 
-        behavior: 'smooth' 
-      });
-    }, 100);
-  };
-
-  const handleLoginClick = () => {
+  const handleSignIn = () => {
     if (onShowAuth) {
       onShowAuth({ show: true });
+    }
+  };
+
+  const handleBecomeProvider = () => {
+    if (onShowAuth) {
+      onShowAuth({ show: true, role: 'provider' });
     } else {
-      // Clear any existing guest mode
-      localStorage.removeItem('guestMode');
-      // Trigger auth flow by reloading the page
-      window.location.reload();
+      navigate('/become-provider');
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      // Clear guest mode on logout
-      localStorage.removeItem('guestMode');
-      navigate('/');
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
+
+  const navItems = [
+    { name: "Services", href: "/services" },
+    { name: "About Us", href: "/about-us" },
+    { name: "Shop", href: "/shop" },
+    { name: "Help", href: "/help-community" },
+  ];
 
   return (
-    <>
-      <nav className="fixed top-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <button 
-                onClick={() => handlePageNavigation('/')}
-                className="text-2xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent drop-shadow-sm cursor-pointer"
-              >
-                Simplifixr
-              </button>
+    <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#00B896] to-[#00C9A7] rounded-lg flex items-center justify-center">
+              <Settings className="w-5 h-5 text-white" />
             </div>
+            <span className="text-xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
+              Simplifixr
+            </span>
+          </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <button 
-                onClick={() => handleNavClick('#home')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium"
               >
-                Home
-              </button>
-              <button 
-                onClick={() => handleNavClick('#services')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
-              >
-                Explore services
-              </button>
-              <button 
-                onClick={() => handlePageNavigation('/shop')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
-              >
-                Shop
-              </button>
-              <button 
-                onClick={() => handleNavClick('#about')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
-              >
-                Why simplifixr?
-              </button>
-              <button 
-                onClick={() => handleNavClick('#provider')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
-              >
-                Earn with us
-              </button>
-              <button 
-                onClick={() => handleNavClick('#contact')} 
-                className="text-gray-700 hover:text-[#00B896] transition-colors font-medium"
-              >
-                Help & Support
-              </button>
-            </div>
+                {item.name}
+              </Link>
+            ))}
+          </div>
 
-            <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                onClick={() => handlePageNavigation('/help-community')} 
-                variant="outline" 
-                className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white font-semibold"
-              >
-                <Heart className="w-4 h-4 mr-2" />
-                Help Community
-              </Button>
-              
-              {/* Profile Dropdown or Login Button */}
-              {user ? (
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">
+                  Welcome, {user.email?.split('@')[0]}!
+                </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
-                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white">
-                          {getInitials(userData.name)}
-                        </AvatarFallback>
-                      </Avatar>
+                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                      <User className="w-4 h-4" />
+                      <span>Account</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-64" align="end" forceMount>
-                    <div className="flex items-center space-x-2 p-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
-                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                          {getInitials(userData.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userData.name}</p>
-                        <p className="text-xs text-muted-foreground">{userData.email}</p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {userData.location}
-                        </div>
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setIsProfileModalOpen(true)}>
-                      <Camera className="w-4 h-4 mr-2" />
-                      Edit / Add Profile Picture
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleProfileClick}>
+                      <User className="w-4 h-4 mr-2" />
+                      Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Account Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="w-4 h-4 mr-2" />
-                      Logout
+                      Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
-                <Button 
-                  onClick={handleLoginClick}
-                  variant="outline" 
-                  className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
-                >
-                  <User className="w-4 h-4 mr-2" />
-                  Login
+              </div>
+            ) : isGuest ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-600">Guest Mode</span>
+                <Button onClick={handleSignIn} variant="outline" size="sm">
+                  Sign In
                 </Button>
-              )}
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden">
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700 hover:text-[#00B896] transition-colors">
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </button>
-            </div>
+                <Button onClick={handleBecomeProvider} className="bg-[#00B896] hover:bg-[#00A085] text-white" size="sm">
+                  Become Provider
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Button onClick={handleSignIn} variant="outline" size="sm">
+                  Sign In
+                </Button>
+                <Button onClick={handleBecomeProvider} className="bg-[#00B896] hover:bg-[#00A085] text-white" size="sm">
+                  Become Provider
+                </Button>
+              </div>
+            )}
           </div>
 
-          {isMenuOpen && (
-            <div className="md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg">
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <button 
-                  onClick={() => handleNavClick('#home')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Home
-                </button>
-                <button 
-                  onClick={() => handleNavClick('#services')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Explore services
-                </button>
-                <button 
-                  onClick={() => handlePageNavigation('/shop')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Shop
-                </button>
-                <button 
-                  onClick={() => handleNavClick('#about')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Why simplifixr?
-                </button>
-                <button 
-                  onClick={() => handleNavClick('#provider')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Earn with us
-                </button>
-                <button 
-                  onClick={() => handleNavClick('#contact')} 
-                  className="block w-full text-left px-3 py-2 text-gray-700 hover:text-[#00B896] font-medium"
-                >
-                  Help & Support
-                </button>
-                <div className="px-3 py-2">
-                  <Button 
-                    onClick={() => handlePageNavigation('/help-community')} 
-                    variant="outline" 
-                    className="w-full border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
+          {/* Mobile Menu */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <nav className="flex flex-col space-y-4 mt-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2"
+                    onClick={() => setIsOpen(false)}
                   >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Help Community
-                  </Button>
-                </div>
-                {/* Mobile Profile Section or Login */}
-                {user ? (
-                  <div className="px-3 py-2 border-t border-gray-200">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={userData.profilePicture || ""} alt={userData.name} />
-                        <AvatarFallback className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white text-xs">
-                          {getInitials(userData.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{userData.name}</p>
-                        <p className="text-xs text-muted-foreground">{userData.email}</p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <MapPin className="w-3 h-3 mr-1" />
-                          {userData.location}
-                        </div>
+                    {item.name}
+                  </Link>
+                ))}
+                <div className="border-t pt-4 space-y-2">
+                  {user ? (
+                    <>
+                      <div className="text-sm text-gray-600 py-2">
+                        Welcome, {user.email?.split('@')[0]}!
                       </div>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full mb-2"
-                      onClick={() => setIsProfileModalOpen(true)}
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      Edit Profile Picture
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full mb-2">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Account Settings
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="px-3 py-2 border-t border-gray-200">
-                    <Button 
-                      onClick={handleLoginClick}
-                      variant="outline" 
-                      className="w-full border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
-                    >
-                      <User className="w-4 h-4 mr-2" />
-                      Login
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+                      <Button onClick={handleProfileClick} variant="outline" className="w-full justify-start">
+                        <User className="w-4 h-4 mr-2" />
+                        Profile
+                      </Button>
+                      <Button onClick={handleSignOut} variant="outline" className="w-full justify-start">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button onClick={handleSignIn} variant="outline" className="w-full">
+                        Sign In
+                      </Button>
+                      <Button onClick={handleBecomeProvider} className="w-full bg-[#00B896] hover:bg-[#00A085] text-white">
+                        Become Provider
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
-      </nav>
-
-      {user && (
-        <ProfilePictureModal 
-          isOpen={isProfileModalOpen} 
-          onClose={() => setIsProfileModalOpen(false)}
-        />
-      )}
-    </>
+      </div>
+    </nav>
   );
 };
 
