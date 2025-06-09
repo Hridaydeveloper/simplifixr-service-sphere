@@ -1,23 +1,8 @@
+
 import { supabase } from '@/integrations/supabase/client';
-
-export interface SignUpData {
-  email: string;
-  password: string;
-  fullName: string;
-  location?: string;
-  role?: 'customer' | 'provider';
-}
-
-export interface SignInData {
-  email: string;
-  password: string;
-}
-
-export interface OTPVerificationData {
-  contact: string;
-  contactType: 'email' | 'phone';
-  role: 'customer' | 'provider';
-}
+import { otpAuth } from './auth/otpAuth';
+import { emailPasswordAuth } from './auth/emailPasswordAuth';
+import type { SignUpData, SignInData } from './auth/types';
 
 export const authService = {
   // Clean up any existing auth state
@@ -37,253 +22,32 @@ export const authService = {
     });
   },
 
-  // Traditional email/password sign in
+  // Traditional email/password authentication
   async signIn(data: SignInData) {
-    try {
-      console.log('Signing in with email:', data.email);
-      
-      const { data: authData, error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) throw error;
-
-      return authData;
-    } catch (error) {
-      console.error('Error in signIn:', error);
-      throw error;
-    }
+    return emailPasswordAuth.signIn(data);
   },
 
-  // Traditional email/password sign up
   async signUp(data: SignUpData) {
-    try {
-      console.log('Signing up with email:', data.email);
-      
-      const { data: authData, error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: data.fullName,
-            location: data.location,
-            role: data.role
-          }
-        }
-      });
-
-      if (error) throw error;
-
-      return authData;
-    } catch (error) {
-      console.error('Error in signUp:', error);
-      throw error;
-    }
+    return emailPasswordAuth.signUp(data);
   },
 
+  // OTP authentication methods
   async sendOTP(contact: string, contactType: 'email' | 'phone', role: 'customer' | 'provider') {
-    try {
-      console.log(`Sending OTP to ${contactType}: ${contact}`);
-      
-      // Generate 6-digit OTP
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-      // Clear any existing OTP for this contact
-      if (contactType === 'email') {
-        await supabase
-          .from('otp_verifications')
-          .delete()
-          .eq('email', contact);
-      } else {
-        await supabase
-          .from('otp_verifications')
-          .delete()
-          .eq('phone', contact);
-      }
-
-      // Store OTP in database - fix the TypeScript error by using separate objects
-      let insertData;
-      if (contactType === 'email') {
-        insertData = {
-          email: contact,
-          phone: null,
-          otp_code: otp,
-          expires_at: expiresAt.toISOString(),
-          verified: false
-        };
-      } else {
-        insertData = {
-          email: null,
-          phone: contact,
-          otp_code: otp,
-          expires_at: expiresAt.toISOString(),
-          verified: false
-        };
-      }
-
-      const { error: insertError } = await supabase
-        .from('otp_verifications')
-        .insert(insertData);
-
-      if (insertError) {
-        console.error('Error storing OTP:', insertError);
-        throw insertError;
-      }
-
-      if (contactType === 'email') {
-        // Send email OTP using Resend
-        const { error: emailError } = await supabase.functions.invoke('send-otp-email', {
-          body: {
-            email: contact,
-            otp: otp,
-            type: 'login'
-          }
-        });
-
-        if (emailError) {
-          console.error('Error sending email OTP:', emailError);
-          throw emailError;
-        }
-      } else {
-        // For phone OTP, log to console for development
-        console.log(`📱 SMS OTP for ${contact}: ${otp}`);
-        console.log(`⏰ Expires at: ${expiresAt.toLocaleString()}`);
-      }
-
-      return { success: true, otp }; // Return OTP for development logging
-    } catch (error) {
-      console.error('Error in sendOTP:', error);
-      throw error;
-    }
+    return otpAuth.sendOTP(contact, contactType, role);
   },
 
   async verifyOTP(contact: string, contactType: 'email' | 'phone', otp: string) {
-    try {
-      console.log(`Verifying OTP for ${contactType}: ${contact}, OTP: ${otp}`);
-
-      // Find valid OTP
-      const { data: otpRecord, error: findError } = await supabase
-        .from('otp_verifications')
-        .select('*')
-        .eq(contactType, contact)
-        .eq('otp_code', otp)
-        .eq('verified', false)
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (findError || !otpRecord) {
-        console.error('Invalid or expired OTP:', findError);
-        throw new Error('Invalid or expired OTP. Please request a new one.');
-      }
-
-      // Mark OTP as verified
-      const { error: updateError } = await supabase
-        .from('otp_verifications')
-        .update({ verified: true })
-        .eq('id', otpRecord.id);
-
-      if (updateError) {
-        console.error('Error updating OTP:', updateError);
-        throw updateError;
-      }
-
-      // Check if user already exists in profiles
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', contactType === 'email' ? contact : `phone:${contact}`)
-        .single();
-
-      console.log('OTP verified successfully. User exists:', !!existingProfile);
-      return {
-        verified: true,
-        userExists: !!existingProfile,
-        role: 'customer',
-        contact,
-        contactType
-      };
-    } catch (error) {
-      console.error('Error in verifyOTP:', error);
-      throw error;
-    }
+    return otpAuth.verifyOTP(contact, contactType, otp);
   },
 
   async completeOTPAuth(contact: string, contactType: 'email' | 'phone', fullName?: string, location?: string) {
-    try {
-      console.log(`Completing OTP auth for ${contactType}: ${contact}`);
-
-      // Clean up auth state first
-      await this.cleanupAuthState();
-
-      if (contactType === 'email') {
-        // For email, use magic link
-        const { error } = await supabase.auth.signInWithOtp({
-          email: contact,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: fullName,
-              location: location
-            }
-          }
-        });
-
-        if (error) throw error;
-      } else {
-        // For phone, create a temporary user (you might want to implement proper phone auth)
-        const tempPassword = Math.random().toString(36).substring(2, 15);
-        const { data, error } = await supabase.auth.signUp({
-          email: `${contact.replace(/\D/g, '')}@tempphone.local`,
-          password: tempPassword,
-          options: {
-            data: {
-              full_name: fullName,
-              phone: contact,
-              location: location
-            }
-          }
-        });
-
-        if (error) throw error;
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error in completeOTPAuth:', error);
-      throw error;
-    }
+    // Clean up auth state first
+    await this.cleanupAuthState();
+    return otpAuth.completeOTPAuth(contact, contactType, fullName, location);
   },
 
-  // Sign in with OTP (magic link style)
   async signInWithOTP(contact: string) {
-    try {
-      console.log('Signing in with OTP for contact:', contact);
-      
-      if (contact.includes('@')) {
-        // Email OTP
-        const { error } = await supabase.auth.signInWithOtp({
-          email: contact,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`
-          }
-        });
-        
-        if (error) throw error;
-      } else {
-        // Phone - use a workaround for now
-        console.log('Phone sign-in completed for:', contact);
-      }
-
-      return { success: true };
-    } catch (error) {
-      console.error('Error in signInWithOTP:', error);
-      throw error;
-    }
+    return otpAuth.signInWithOTP(contact);
   },
 
   async signOut() {
@@ -320,3 +84,6 @@ export const authService = {
     }
   }
 };
+
+// Re-export types for backward compatibility
+export type { SignUpData, SignInData };

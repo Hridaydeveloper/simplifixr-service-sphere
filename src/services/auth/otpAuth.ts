@@ -24,25 +24,22 @@ export const otpAuth = {
           .eq('phone', contact);
       }
 
-      // Store OTP in database - fix the TypeScript error by using explicit object
-      let insertData;
-      if (contactType === 'email') {
-        insertData = {
-          email: contact,
-          phone: null,
-          otp_code: otp,
-          expires_at: expiresAt.toISOString(),
-          verified: false
-        };
-      } else {
-        insertData = {
-          email: null,
-          phone: contact,
-          otp_code: otp,
-          expires_at: expiresAt.toISOString(),
-          verified: false
-        };
-      }
+      // Store OTP in database
+      const insertData = contactType === 'email' 
+        ? {
+            email: contact,
+            phone: null,
+            otp_code: otp,
+            expires_at: expiresAt.toISOString(),
+            verified: false
+          }
+        : {
+            email: null,
+            phone: contact,
+            otp_code: otp,
+            expires_at: expiresAt.toISOString(),
+            verified: false
+          };
 
       const { error: insertError } = await supabase
         .from('otp_verifications')
@@ -71,6 +68,9 @@ export const otpAuth = {
         // For phone OTP, log to console for development
         console.log(`📱 SMS OTP for ${contact}: ${otp}`);
         console.log(`⏰ Expires at: ${expiresAt.toLocaleString()}`);
+        
+        // In a production environment, you would integrate with an SMS service like Twilio here
+        // For now, we'll show the OTP in the console for testing
       }
 
       return { success: true, otp }; // Return OTP for development logging
