@@ -104,22 +104,25 @@ export const authService = {
           .eq('phone', contact);
       }
 
-      // Store OTP in database - fix the type issue by being explicit
-      const insertData = contactType === 'email' 
-        ? {
-            email: contact,
-            phone: null,
-            otp_code: otp,
-            expires_at: expiresAt.toISOString(),
-            verified: false
-          }
-        : {
-            email: null,
-            phone: contact,
-            otp_code: otp,
-            expires_at: expiresAt.toISOString(),
-            verified: false
-          };
+      // Store OTP in database - fix the TypeScript error by using separate objects
+      let insertData;
+      if (contactType === 'email') {
+        insertData = {
+          email: contact,
+          phone: null,
+          otp_code: otp,
+          expires_at: expiresAt.toISOString(),
+          verified: false
+        };
+      } else {
+        insertData = {
+          email: null,
+          phone: contact,
+          otp_code: otp,
+          expires_at: expiresAt.toISOString(),
+          verified: false
+        };
+      }
 
       const { error: insertError } = await supabase
         .from('otp_verifications')
