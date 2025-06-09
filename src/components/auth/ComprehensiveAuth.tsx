@@ -89,10 +89,12 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
     try {
       if (authMethod === 'email' && authMode === 'login') {
         // Email login with password
-        await authService.signIn({
+        const result = await authService.signIn({
           email: formData.email,
           password: formData.password,
         });
+        
+        console.log('Email login result:', result);
         
         toast({
           title: "Login Successful",
@@ -120,6 +122,8 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           return;
         }
 
+        console.log('Starting email signup process...');
+        
         const result = await authService.signUp({
           email: formData.email,
           password: formData.password,
@@ -128,12 +132,14 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           role: selectedRole,
         });
         
+        console.log('Email signup result:', result);
+        
         if (result.user && !result.user.email_confirmed_at) {
           // Email confirmation required
           setCurrentStep('email-sent');
           toast({
             title: "Confirmation Email Sent",
-            description: "Please check your email to confirm your account.",
+            description: `Please check your email (${formData.email}) to confirm your account.`,
           });
         } else {
           // Account created and confirmed
@@ -144,12 +150,15 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           onAuthComplete(selectedRole);
         }
       } else {
-        // Phone or Email OTP flow
-        await authService.sendOTP(contact, authMethod, selectedRole);
+        // Phone OTP flow
+        console.log('Starting phone OTP flow...');
+        const result = await authService.sendOTP(contact, authMethod, selectedRole);
+        console.log('OTP sent result:', result);
+        
         setCurrentStep('otp');
         toast({
           title: "OTP Sent",
-          description: `We've sent a verification code to your ${authMethod}.`,
+          description: `We've sent a verification code to your ${authMethod}. ${authMethod === 'phone' ? 'Check the console for the OTP code.' : ''}`,
         });
       }
     } catch (error: any) {
@@ -177,7 +186,9 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
 
     setLoading(true);
     try {
+      console.log('Verifying OTP...');
       const result = await authService.verifyOTP(contactValue, authMethod, otp);
+      console.log('OTP verification result:', result);
       
       if (result.userExists) {
         // User exists, log them in
@@ -209,6 +220,7 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
     setLoading(true);
 
     try {
+      console.log('Completing signup...');
       await authService.completeOTPAuth(contactValue, authMethod, formData.fullName, formData.location);
       toast({
         title: "Account Created",
