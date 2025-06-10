@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, User, Briefcase } from "lucide-react";
@@ -335,6 +334,9 @@ const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: Compre
           {currentStep === 'email-sent' && (
             <EmailSentConfirmation
               email={formData.email}
+              fullName={formData.fullName}
+              location={formData.location}
+              role={selectedRole}
               onTryDifferentEmail={() => setCurrentStep('credentials')}
               onContinueAsGuest={() => onAuthComplete('guest')}
             />

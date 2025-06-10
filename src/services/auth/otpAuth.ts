@@ -1,9 +1,37 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { generateOTP, getOTPExpiry } from './utils';
+
+interface OTPResult {
+  success: boolean;
+  otp?: string;
+}
+
+interface VerifyOTPResult {
+  verified: boolean;
+  userExists: boolean;
+  role: string;
+  contact: string;
+  contactType: string;
+}
+
+interface CompleteAuthResult {
+  success: boolean;
+}
+
+// Generate 6-digit OTP
+const generateOTP = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+// Get OTP expiry time (10 minutes from now)
+const getOTPExpiry = (): Date => {
+  const expiry = new Date();
+  expiry.setMinutes(expiry.getMinutes() + 10);
+  return expiry;
+};
 
 export const otpAuth = {
-  async sendOTP(contact: string, contactType: 'email' | 'phone', role: 'customer' | 'provider') {
+  async sendOTP(contact: string, contactType: 'email' | 'phone', role: 'customer' | 'provider'): Promise<OTPResult> {
     try {
       console.log(`Sending OTP to ${contactType}: ${contact}`);
       
@@ -80,7 +108,7 @@ export const otpAuth = {
     }
   },
 
-  async verifyOTP(contact: string, contactType: 'email' | 'phone', otp: string) {
+  async verifyOTP(contact: string, contactType: 'email' | 'phone', otp: string): Promise<VerifyOTPResult> {
     try {
       console.log(`Verifying OTP for ${contactType}: ${contact}, OTP: ${otp}`);
 
@@ -133,7 +161,7 @@ export const otpAuth = {
     }
   },
 
-  async completeOTPAuth(contact: string, contactType: 'email' | 'phone', fullName?: string, location?: string) {
+  async completeOTPAuth(contact: string, contactType: 'email' | 'phone', fullName?: string, location?: string): Promise<CompleteAuthResult> {
     try {
       console.log(`Completing OTP auth for ${contactType}: ${contact}`);
 
@@ -177,7 +205,7 @@ export const otpAuth = {
   },
 
   // Sign in with OTP (magic link style)
-  async signInWithOTP(contact: string) {
+  async signInWithOTP(contact: string): Promise<CompleteAuthResult> {
     try {
       console.log('Signing in with OTP for contact:', contact);
       
