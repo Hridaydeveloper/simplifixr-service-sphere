@@ -1,346 +1,310 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Briefcase } from "lucide-react";
-import { authService } from "@/services/authService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import MethodSelection from "./MethodSelection";
-import CredentialsForm from "./CredentialsForm";
-import OTPVerification from "./OTPVerification";
-import DetailsForm from "./DetailsForm";
+import { useNavigate } from "react-router-dom";
+import { Mail, User, Lock, MapPin } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import EmailSentConfirmation from "./EmailSentConfirmation";
 
 interface ComprehensiveAuthProps {
-  role?: 'customer' | 'provider';
+  onComplete: (role: 'customer' | 'provider' | 'guest') => void;
   onBack?: () => void;
-  onAuthComplete: (role: 'customer' | 'provider' | 'guest') => void;
+  defaultRole?: 'customer' | 'provider';
   fromBooking?: boolean;
 }
 
-type AuthMethod = 'email' | 'phone';
-type AuthMode = 'login' | 'signup';
-type AuthStep = 'method' | 'credentials' | 'otp' | 'details' | 'email-sent';
-
-const ComprehensiveAuth = ({ role, onBack, onAuthComplete, fromBooking }: ComprehensiveAuthProps) => {
-  const [selectedRole, setSelectedRole] = useState<'customer' | 'provider'>(role || 'customer');
-  const [authMethod, setAuthMethod] = useState<AuthMethod>('email');
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
-  const [currentStep, setCurrentStep] = useState<AuthStep>('method');
-  const [loading, setLoading] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [contactValue, setContactValue] = useState('');
-  
+const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromBooking = false }: ComprehensiveAuthProps) => {
+  const [step, setStep] = useState<'role-selection' | 'details' | 'email-sent'>('role-selection');
+  const [role, setRole] = useState<'customer' | 'provider'>(defaultRole);
   const [formData, setFormData] = useState({
-    email: '',
-    phone: '',
-    password: '',
     fullName: '',
-    location: '',
-    confirmPassword: ''
+    email: '',
+    password: '',
+    location: ''
   });
-
+  const [loading, setLoading] = useState(false);
+  const { signUp, signIn } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (field === 'email' || field === 'phone') {
-      setContactValue(value);
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const validateInput = () => {
-    if (authMethod === 'email') {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(formData.email)) {
-        toast({
-          variant: "destructive",
-          title: "Invalid Email",
-          description: "Please enter a valid email address.",
-        });
-        return false;
-      }
-    } else {
-      const phoneRegex = /^[6-9]\d{9}$/;
-      if (!phoneRegex.test(formData.phone)) {
-        toast({
-          variant: "destructive",
-          title: "Invalid Phone",
-          description: "Please enter a valid 10-digit phone number.",
-        });
-        return false;
-      }
-    }
-    return true;
+  const handleRoleSelect = (value: 'customer' | 'provider') => {
+    setRole(value);
+    setStep('details');
   };
 
-  const handleMethodSelect = (method: AuthMethod) => {
-    setAuthMethod(method);
-    setCurrentStep('credentials');
-  };
-
-  const handleCredentialsSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateInput()) return;
-
+  const handleSubmit = async () => {
     setLoading(true);
-    const contact = authMethod === 'email' ? formData.email : formData.phone;
-    setContactValue(contact);
-
     try {
-      if (authMethod === 'email' && authMode === 'login') {
-        // Email login with password
-        const result = await authService.signIn({
+      if (role === 'customer') {
+        // Customer Signup
+        const { error } = await signUp({
           email: formData.email,
           password: formData.password,
+          options: {
+            data: {
+              full_name: formData.fullName,
+              location: formData.location,
+              role: 'customer'
+            },
+            emailRedirectTo: `${window.location.origin}/auth/confirm`
+          }
         });
-        
-        console.log('Email login result:', result);
-        
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        });
-        
-        onAuthComplete(selectedRole);
-      } else if (authMethod === 'email' && authMode === 'signup') {
-        // Email signup with password
-        if (formData.password !== formData.confirmPassword) {
+
+        if (error) {
+          console.error("Customer signup error:", error);
           toast({
             variant: "destructive",
-            title: "Error",
-            description: "Passwords do not match.",
-          });
-          return;
-        }
-
-        if (formData.password.length < 6) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Password must be at least 6 characters long.",
-          });
-          return;
-        }
-
-        console.log('Starting email signup process...');
-        
-        const result = await authService.signUp({
-          email: formData.email,
-          password: formData.password,
-          fullName: formData.fullName,
-          location: formData.location,
-          role: selectedRole,
-        });
-        
-        console.log('Email signup result:', result);
-        
-        if (result.user && !result.user.email_confirmed_at) {
-          // Email confirmation required
-          setCurrentStep('email-sent');
-          toast({
-            title: "Confirmation Email Sent",
-            description: `Please check your email (${formData.email}) to confirm your account.`,
+            title: "Signup failed",
+            description: error.message,
           });
         } else {
-          // Account created and confirmed
           toast({
-            title: "Account Created",
-            description: "Welcome to Simplifixr!",
+            title: "Signup successful",
+            description: "Please check your email to confirm your account.",
           });
-          onAuthComplete(selectedRole);
+          setStep('email-sent');
         }
       } else {
-        // Phone OTP flow
-        console.log('Starting phone OTP flow...');
-        const result = await authService.sendOTP(contact, authMethod, selectedRole);
-        console.log('OTP sent result:', result);
-        
-        setCurrentStep('otp');
-        toast({
-          title: "OTP Sent",
-          description: `We've sent a verification code to your ${authMethod}. ${authMethod === 'phone' ? 'Check the console for the OTP code.' : ''}`,
-        });
+        // Provider Onboarding - Redirect to registration page
+        navigate('/provider-registration', { state: { ...formData } });
+        return;
       }
     } catch (error: any) {
-      console.error('Auth error:', error);
+      console.error("Signup error:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message || "An error occurred during authentication.",
+        title: "Signup failed",
+        description: error.message || "An error occurred during signup.",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleOTPVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (otp.length !== 6) {
-      toast({
-        variant: "destructive",
-        title: "Invalid OTP",
-        description: "Please enter the complete 6-digit code.",
-      });
-      return;
-    }
-
+  const handleSignIn = async () => {
     setLoading(true);
     try {
-      console.log('Verifying OTP...');
-      const result = await authService.verifyOTP(contactValue, authMethod, otp);
-      console.log('OTP verification result:', result);
-      
-      if (result.userExists) {
-        // User exists, log them in
-        await authService.completeOTPAuth(contactValue, authMethod);
+      const { error } = await signIn({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (error) {
+        console.error("Signin error:", error);
         toast({
-          title: "Login Successful",
-          description: "Welcome back!",
+          variant: "destructive",
+          title: "Signin failed",
+          description: error.message,
         });
-        
-        onAuthComplete(selectedRole);
       } else {
-        // New user, need more details
-        setCurrentStep('details');
+        toast({
+          title: "Signin successful",
+          description: "You have successfully signed in.",
+        });
+        onComplete(role);
       }
     } catch (error: any) {
-      console.error('OTP verification error:', error);
+      console.error("Signin error:", error);
       toast({
         variant: "destructive",
-        title: "Verification Failed",
-        description: error.message || "Invalid or expired OTP. Please try again.",
+        title: "Signin failed",
+        description: error.message || "An error occurred during signin.",
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleCompleteSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      console.log('Completing signup...');
-      await authService.completeOTPAuth(contactValue, authMethod, formData.fullName, formData.location);
-      toast({
-        title: "Account Created",
-        description: "Welcome to Simplifixr!",
-      });
-      
-      onAuthComplete(selectedRole);
-    } catch (error: any) {
-      console.error('Signup completion error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to complete signup.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleBackNavigation = () => {
-    if (currentStep === 'method') {
-      onBack?.();
-    } else if (currentStep === 'credentials') {
-      setCurrentStep('method');
-    } else if (currentStep === 'otp') {
-      setCurrentStep('credentials');
-    } else if (currentStep === 'details') {
-      setCurrentStep('otp');
-    } else if (currentStep === 'email-sent') {
-      setCurrentStep('credentials');
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 via-white to-[#00C9A7]/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
-          {/* Header with back button */}
-          <div className="flex items-center mb-6">
-            {(onBack || currentStep !== 'method') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBackNavigation}
-                className="mr-3 p-1 hover:bg-gray-100 rounded-full"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-            )}
-            <div className="flex items-center">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                selectedRole === 'customer' 
-                  ? 'bg-blue-100 text-blue-600' 
-                  : 'bg-orange-100 text-orange-600'
-              }`}>
-                {selectedRole === 'customer' ? (
-                  <User className="w-4 h-4" />
-                ) : (
-                  <Briefcase className="w-4 h-4" />
-                )}
-              </div>
-              <span className="text-lg font-semibold text-gray-900 capitalize">
-                {selectedRole}
-              </span>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 to-[#00C9A7]/5 flex flex-col">
+      <div className="py-8 px-4">
+        {onBack && (
+          <Button variant="ghost" onClick={onBack}>
+            Back
+          </Button>
+        )}
+      </div>
 
-          {/* Content based on current step */}
-          {currentStep === 'method' && (
-            <MethodSelection
-              selectedRole={selectedRole}
-              setSelectedRole={setSelectedRole}
-              onMethodSelect={handleMethodSelect}
-              onAuthComplete={onAuthComplete}
-              role={role}
-            />
-          )}
-          
-          {currentStep === 'credentials' && (
-            <CredentialsForm
-              authMethod={authMethod}
-              authMode={authMode}
-              formData={formData}
-              loading={loading}
-              onInputChange={handleInputChange}
-              onSubmit={handleCredentialsSubmit}
-              onModeChange={setAuthMode}
-            />
-          )}
-          
-          {currentStep === 'otp' && (
-            <OTPVerification
-              authMethod={authMethod}
-              contactValue={contactValue}
-              otp={otp}
-              loading={loading}
-              onOTPChange={setOtp}
-              onSubmit={handleOTPVerify}
-              onChangeContact={() => setCurrentStep('credentials')}
-            />
-          )}
-          
-          {currentStep === 'details' && (
-            <DetailsForm
-              formData={formData}
-              loading={loading}
-              onInputChange={handleInputChange}
-              onSubmit={handleCompleteSignup}
-            />
-          )}
-          
-          {currentStep === 'email-sent' && (
-            <EmailSentConfirmation
-              email={formData.email}
-              fullName={formData.fullName}
-              location={formData.location}
-              role={selectedRole}
-              onTryDifferentEmail={() => setCurrentStep('credentials')}
-              onContinueAsGuest={() => onAuthComplete('guest')}
-            />
-          )}
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="shadow-2xl border-0">
+            <CardContent className="p-8">
+              {step === 'role-selection' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-center">
+                    Join as a Customer or Provider?
+                  </h2>
+                  <p className="text-muted-foreground text-center">
+                    Select your role to continue.
+                  </p>
+                  <div className="grid gap-4">
+                    <Button size="lg" className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={() => handleRoleSelect('customer')}>
+                      I'm a Customer
+                    </Button>
+                    <Button size="lg" variant="outline" onClick={() => handleRoleSelect('provider')}>
+                      I'm a Service Provider
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {step === 'details' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-center">
+                    {role === 'customer' ? 'Create Customer Account' : 'Create Provider Account'}
+                  </h2>
+                  <p className="text-muted-foreground text-center">
+                    Enter your details to create an account.
+                  </p>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName">Full Name</Label>
+                      <Input
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Enter your full name"
+                        type="text"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="location">Location</Label>
+                      <Input
+                        id="location"
+                        name="location"
+                        placeholder="Enter your location"
+                        type="text"
+                        value={formData.location}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <Button disabled={loading} className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={handleSubmit}>
+                      {role === 'customer' ? 'Sign Up' : 'Continue as Provider'}
+                    </Button>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t text-center">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Already have an account?
+                    </p>
+                    <Button variant="link" onClick={() => setStep('signin')}>
+                      Sign In
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {step === 'signin' && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold text-center">
+                    Sign In
+                  </h2>
+                  <p className="text-muted-foreground text-center">
+                    Enter your email and password to sign in.
+                  </p>
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        placeholder="Enter your email"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Password</Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <Button disabled={loading} className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={handleSignIn}>
+                      Sign In
+                    </Button>
+                  </div>
+
+                  <div className="mt-6 pt-6 border-t text-center">
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Don't have an account?
+                    </p>
+                    <Button variant="link" onClick={() => setStep('details')}>
+                      Create Account
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {step === 'email-sent' && (
+                <EmailSentConfirmation
+                  email={formData.email}
+                  onTryDifferentEmail={() => setStep('details')}
+                  onContinueAsGuest={() => {
+                    console.log('Continuing as guest from email confirmation');
+                    onComplete('guest');
+                  }}
+                  fullName={formData.fullName}
+                  location={formData.location}
+                  role={role}
+                />
+              )}
+
+              {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
+                <div className="mt-6 pt-6 border-t text-center">
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Need service urgently?
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      console.log('Continuing as guest from booking flow');
+                      onComplete('guest');
+                    }}
+                    className="w-full"
+                  >
+                    Continue for Now
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

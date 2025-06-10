@@ -39,6 +39,10 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
     navigate('/profile');
   };
 
+  const handleSettingsClick = () => {
+    navigate('/settings');
+  };
+
   const navItems = [
     { name: "Services", href: "/services" },
     { name: "About Us", href: "/about-us" },
@@ -47,7 +51,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
   ];
 
   return (
-    <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
+    <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 dark:bg-gray-900/95 dark:border-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -66,7 +70,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium"
+                className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896]"
               >
                 {item.name}
               </Link>
@@ -77,7 +81,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-300">
                   Welcome, {user.email?.split('@')[0]}!
                 </span>
                 <DropdownMenu>
@@ -87,10 +91,14 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
                       <span>Account</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                     <DropdownMenuItem onClick={handleProfileClick}>
                       <User className="w-4 h-4 mr-2" />
                       Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSettingsClick}>
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="w-4 h-4 mr-2" />
@@ -101,7 +109,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
               </div>
             ) : isGuest ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600">Guest Mode</span>
+                <span className="text-sm text-gray-600 dark:text-gray-300">Guest Mode</span>
                 <Button onClick={handleSignIn} variant="outline" size="sm">
                   Sign In
                 </Button>
@@ -121,34 +129,38 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
             )}
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Increased hamburger button size */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="sm">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="lg" className="p-3">
+                <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white dark:bg-gray-900">
               <nav className="flex flex-col space-y-4 mt-4">
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2"
+                    className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2 dark:text-gray-300"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.name}
                   </Link>
                 ))}
-                <div className="border-t pt-4 space-y-2">
+                <div className="border-t pt-4 space-y-2 dark:border-gray-700">
                   {user ? (
                     <>
-                      <div className="text-sm text-gray-600 py-2">
+                      <div className="text-sm text-gray-600 py-2 dark:text-gray-300">
                         Welcome, {user.email?.split('@')[0]}!
                       </div>
                       <Button onClick={handleProfileClick} variant="outline" className="w-full justify-start">
                         <User className="w-4 h-4 mr-2" />
                         Profile
+                      </Button>
+                      <Button onClick={handleSettingsClick} variant="outline" className="w-full justify-start">
+                        <Settings className="w-4 h-4 mr-2" />
+                        Settings
                       </Button>
                       <Button onClick={handleSignOut} variant="outline" className="w-full justify-start">
                         <LogOut className="w-4 h-4 mr-2" />
