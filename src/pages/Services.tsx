@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Search, Filter, Star, Clock, MapPin, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -195,8 +194,8 @@ const Services = ({ onShowAuth }: ServicesProps) => {
   };
 
   const handleBookService = (service: any) => {
-    if (isGuest || !user) {
-      // Show "Continue for Now" option in auth flow
+    if (!user && !isGuest) {
+      // Show auth with "Continue for Now" option
       if (onShowAuth) {
         onShowAuth({ show: true, role: 'customer', fromBooking: true });
       }
@@ -209,6 +208,22 @@ const Services = ({ onShowAuth }: ServicesProps) => {
         } 
       });
     }
+  };
+
+  const handleContinueAsGuest = (service: any) => {
+    // Set guest mode
+    localStorage.setItem('guestMode', 'true');
+    // Navigate to service providers
+    navigate('/service-providers', { 
+      state: { 
+        serviceName: service.name,
+        serviceCategory: service.category 
+      } 
+    });
+    toast({
+      title: "Browsing as Guest",
+      description: "You can explore services. Sign up to book appointments.",
+    });
   };
 
   return (
@@ -353,13 +368,25 @@ const Services = ({ onShowAuth }: ServicesProps) => {
                       </div>
                     </div>
 
-                    <Button 
-                      onClick={() => handleBookService(service)}
-                      className="w-full bg-primary hover:bg-primary/90 group-hover:scale-105 transition-transform"
-                    >
-                      Find Providers
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
+                    <div className="space-y-2">
+                      <Button 
+                        onClick={() => handleBookService(service)}
+                        className="w-full bg-primary hover:bg-primary/90 group-hover:scale-105 transition-transform"
+                      >
+                        Find Providers
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                      
+                      {!user && !isGuest && (
+                        <Button 
+                          onClick={() => handleContinueAsGuest(service)}
+                          variant="outline"
+                          className="w-full text-sm"
+                        >
+                          Continue for Now
+                        </Button>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}

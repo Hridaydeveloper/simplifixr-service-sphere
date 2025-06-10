@@ -2,14 +2,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
-import { Mail, User, Lock, MapPin } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft } from "lucide-react";
+import RoleSelection from "./RoleSelection";
+import DetailsForm from "./DetailsForm";
 import EmailSentConfirmation from "./EmailSentConfirmation";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 interface ComprehensiveAuthProps {
   onComplete: (role: 'customer' | 'provider' | 'guest') => void;
@@ -24,290 +22,188 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: '',
-    location: ''
+    location: '',
+    password: ''
   });
-  const [loading, setLoading] = useState(false);
+
   const { signUp, signIn } = useAuth();
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleRoleSelect = (value: 'customer' | 'provider') => {
-    setRole(value);
+  const handleRoleSelect = (selectedRole: 'customer' | 'provider') => {
+    setRole(selectedRole);
     setStep('details');
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleFormSubmit = async (data: typeof formData, isSignIn: boolean = false) => {
     try {
-      if (role === 'customer') {
-        // Customer Signup
+      setFormData(data);
+      
+      if (isSignIn) {
+        const { error } = await signIn({
+          email: data.email,
+          password: data.password
+        });
+
+        if (error) {
+          toast({
+            title: "Sign In Failed",
+            description: error.message,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in."
+        });
+        
+        onComplete(role);
+      } else {
         const { error } = await signUp({
-          email: formData.email,
-          password: formData.password,
+          email: data.email,
+          password: data.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/auth/confirm`,
             data: {
-              full_name: formData.fullName,
-              location: formData.location,
-              role: 'customer'
-            },
-            emailRedirectTo: `${window.location.origin}/auth/confirm`
+              full_name: data.fullName,
+              location: data.location,
+              role: role
+            }
           }
         });
 
         if (error) {
-          console.error("Customer signup error:", error);
+          if (error.message.includes('already registered')) {
+            toast({
+              title: "Account exists",
+              description: "This email is already registered. Try signing in instead.",
+              variant: "destructive"
+            });
+            return;
+          }
+          
           toast({
-            variant: "destructive",
-            title: "Signup failed",
+            title: "Sign Up Failed",
             description: error.message,
+            variant: "destructive"
           });
-        } else {
-          toast({
-            title: "Signup successful",
-            description: "Please check your email to confirm your account.",
-          });
-          setStep('email-sent');
+          return;
         }
-      } else {
-        // Provider Onboarding - Redirect to registration page
-        navigate('/provider-registration', { state: { ...formData } });
-        return;
+
+        setStep('email-sent');
       }
-    } catch (error: any) {
-      console.error("Signup error:", error);
+    } catch (error) {
+      console.error('Auth error:', error);
       toast({
-        variant: "destructive",
-        title: "Signup failed",
-        description: error.message || "An error occurred during signup.",
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive"
       });
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleSignIn = async () => {
-    setLoading(true);
-    try {
-      const { error } = await signIn({
-        email: formData.email,
-        password: formData.password,
-      });
+  const handleContinueAsGuest = () => {
+    localStorage.setItem('guestMode', 'true');
+    toast({
+      title: "Browsing as Guest",
+      description: "You can explore services. Sign up to book appointments.",
+    });
+    onComplete('guest');
+  };
 
-      if (error) {
-        console.error("Signin error:", error);
-        toast({
-          variant: "destructive",
-          title: "Signin failed",
-          description: error.message,
-        });
-      } else {
-        toast({
-          title: "Signin successful",
-          description: "You have successfully signed in.",
-        });
-        onComplete(role);
-      }
-    } catch (error: any) {
-      console.error("Signin error:", error);
-      toast({
-        variant: "destructive",
-        title: "Signin failed",
-        description: error.message || "An error occurred during signin.",
-      });
-    } finally {
-      setLoading(false);
+  const handleBack = () => {
+    if (step === 'details') {
+      setStep('role-selection');
+    } else if (onBack) {
+      onBack();
+    }
+  };
+
+  const renderStep = () => {
+    switch (step) {
+      case 'role-selection':
+        return (
+          <RoleSelection
+            onSelect={handleRoleSelect}
+            defaultRole={defaultRole}
+          />
+        );
+      case 'details':
+        return (
+          <DetailsForm
+            role={role}
+            onSubmit={handleFormSubmit}
+            onSignIn={() => setStep('signin')}
+            fromBooking={fromBooking}
+          />
+        );
+      case 'signin':
+        return (
+          <DetailsForm
+            role={role}
+            onSubmit={(data) => handleFormSubmit(data, true)}
+            onSignUp={() => setStep('details')}
+            isSignIn={true}
+            fromBooking={fromBooking}
+          />
+        );
+      case 'email-sent':
+        return (
+          <EmailSentConfirmation
+            email={formData.email}
+            onBack={() => setStep('details')}
+          />
+        );
+      default:
+        return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#00B896]/5 to-[#00C9A7]/5 flex flex-col">
-      <div className="py-8 px-4">
-        {onBack && (
-          <Button variant="ghost" onClick={onBack}>
-            Back
-          </Button>
-        )}
-      </div>
-
-      <div className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <Card className="shadow-2xl border-0">
-            <CardContent className="p-8">
-              {step === 'role-selection' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-center">
-                    Join as a Customer or Provider?
-                  </h2>
-                  <p className="text-muted-foreground text-center">
-                    Select your role to continue.
-                  </p>
-                  <div className="grid gap-4">
-                    <Button size="lg" className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={() => handleRoleSelect('customer')}>
-                      I'm a Customer
-                    </Button>
-                    <Button size="lg" variant="outline" onClick={() => handleRoleSelect('provider')}>
-                      I'm a Service Provider
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {step === 'details' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-center">
-                    {role === 'customer' ? 'Create Customer Account' : 'Create Provider Account'}
-                  </h2>
-                  <p className="text-muted-foreground text-center">
-                    Enter your details to create an account.
-                  </p>
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Full Name</Label>
-                      <Input
-                        id="fullName"
-                        name="fullName"
-                        placeholder="Enter your full name"
-                        type="text"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        name="location"
-                        placeholder="Enter your location"
-                        type="text"
-                        value={formData.location}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <Button disabled={loading} className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={handleSubmit}>
-                      {role === 'customer' ? 'Sign Up' : 'Continue as Provider'}
-                    </Button>
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t text-center">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Already have an account?
-                    </p>
-                    <Button variant="link" onClick={() => setStep('signin')}>
-                      Sign In
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {step === 'signin' && (
-                <div className="space-y-6">
-                  <h2 className="text-2xl font-bold text-center">
-                    Sign In
-                  </h2>
-                  <p className="text-muted-foreground text-center">
-                    Enter your email and password to sign in.
-                  </p>
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        placeholder="Enter your email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password</Label>
-                      <Input
-                        id="password"
-                        name="password"
-                        placeholder="Enter your password"
-                        type="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                      />
-                    </div>
-                    <Button disabled={loading} className="bg-[#00B896] hover:bg-[#00A085] text-white" onClick={handleSignIn}>
-                      Sign In
-                    </Button>
-                  </div>
-
-                  <div className="mt-6 pt-6 border-t text-center">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Don't have an account?
-                    </p>
-                    <Button variant="link" onClick={() => setStep('details')}>
-                      Create Account
-                    </Button>
-                  </div>
-                </div>
-              )}
-              
-              {step === 'email-sent' && (
-                <EmailSentConfirmation
-                  email={formData.email}
-                  onTryDifferentEmail={() => setStep('details')}
-                  onContinueAsGuest={() => {
-                    console.log('Continuing as guest from email confirmation');
-                    onComplete('guest');
-                  }}
-                  fullName={formData.fullName}
-                  location={formData.location}
-                  role={role}
-                />
-              )}
-
-              {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
-                <div className="mt-6 pt-6 border-t text-center">
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Need service urgently?
-                  </p>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      console.log('Continuing as guest from booking flow');
-                      onComplete('guest');
-                    }}
-                    className="w-full"
-                  >
-                    Continue for Now
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
+              <div className="text-white text-lg font-bold">S</div>
+            </div>
+            {(step !== 'role-selection' || onBack) && (
+              <Button variant="ghost" size="sm" onClick={handleBack}>
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                Back
+              </Button>
+            )}
+          </div>
+          
+          <div className="text-center">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              {step === 'email-sent' ? 'Check Your Email' : 
+               step === 'signin' ? 'Welcome Back' :
+               step === 'details' ? `Join as ${role === 'customer' ? 'Customer' : 'Service Provider'}` : 
+               'Get Started'}
+            </CardTitle>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="space-y-6">
+          {renderStep()}
+          
+          {fromBooking && step !== 'email-sent' && (
+            <div className="text-center pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={handleContinueAsGuest}
+                className="w-full"
+              >
+                Continue for Now
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Explore services without creating an account
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };

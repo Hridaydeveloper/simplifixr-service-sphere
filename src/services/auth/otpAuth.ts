@@ -53,7 +53,7 @@ export const otpAuth = {
       }
 
       // Store OTP in database
-      const insertData: any = contactType === 'email' 
+      const insertData = contactType === 'email' 
         ? {
             email: contact,
             phone: null,
@@ -96,12 +96,9 @@ export const otpAuth = {
         // For phone OTP, log to console for development
         console.log(`📱 SMS OTP for ${contact}: ${otp}`);
         console.log(`⏰ Expires at: ${expiresAt.toLocaleString()}`);
-        
-        // In a production environment, you would integrate with an SMS service like Twilio here
-        // For now, we'll show the OTP in the console for testing
       }
 
-      return { success: true, otp }; // Return OTP for development logging
+      return { success: true, otp };
     } catch (error) {
       console.error('Error in sendOTP:', error);
       throw error;
@@ -180,7 +177,7 @@ export const otpAuth = {
 
         if (error) throw error;
       } else {
-        // For phone, create a temporary user (you might want to implement proper phone auth)
+        // For phone, create a temporary user
         const tempPassword = Math.random().toString(36).substring(2, 15);
         const { data, error } = await supabase.auth.signUp({
           email: `${contact.replace(/\D/g, '')}@tempphone.local`,
@@ -204,7 +201,6 @@ export const otpAuth = {
     }
   },
 
-  // Sign in with OTP (magic link style)
   async signInWithOTP(contact: string): Promise<CompleteAuthResult> {
     try {
       console.log('Signing in with OTP for contact:', contact);
