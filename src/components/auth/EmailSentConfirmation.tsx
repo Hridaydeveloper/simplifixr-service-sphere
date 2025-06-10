@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Mail, Clock, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { authService } from "@/services/authService";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailSentConfirmationProps {
   email: string;
@@ -41,14 +41,19 @@ const EmailSentConfirmation = ({
   const handleResendEmail = async () => {
     setIsResending(true);
     try {
-      // Resend the confirmation email
-      await authService.signUp({
-        email,
-        password: Math.random().toString(36).substring(2, 15), // Generate a temporary password
-        fullName: fullName || '',
-        location: location || '',
-        role
+      // Use Supabase's resend method instead of creating a new signup
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
       });
+
+      if (error) {
+        console.error('Error resending confirmation email:', error);
+        throw error;
+      }
 
       toast({
         title: "Email Resent",
