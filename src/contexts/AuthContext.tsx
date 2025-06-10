@@ -9,6 +9,8 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  signUp: (data: { email: string; password: string; options?: any }) => Promise<any>;
+  signIn: (data: { email: string; password: string }) => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -112,6 +114,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   }, []);
 
+  const signUp = async (data: { email: string; password: string; options?: any }) => {
+    try {
+      const result = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: data.options
+      });
+      return result;
+    } catch (error) {
+      console.error('Error in signUp:', error);
+      throw error;
+    }
+  };
+
+  const signIn = async (data: { email: string; password: string }) => {
+    try {
+      const result = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password
+      });
+      return result;
+    } catch (error) {
+      console.error('Error in signIn:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut({ scope: 'global' });
@@ -143,6 +172,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     signOut,
     refreshUser,
+    signUp,
+    signIn,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

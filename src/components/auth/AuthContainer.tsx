@@ -11,8 +11,8 @@ interface AuthContainerProps {
 const AuthContainer = ({ onAuthComplete, defaultRole, fromBooking, onBack }: AuthContainerProps) => {
   return (
     <ComprehensiveAuth
-      role={defaultRole}
-      onAuthComplete={onAuthComplete}
+      defaultRole={defaultRole}
+      onComplete={onAuthComplete}
       fromBooking={fromBooking}
       onBack={onBack}
     />

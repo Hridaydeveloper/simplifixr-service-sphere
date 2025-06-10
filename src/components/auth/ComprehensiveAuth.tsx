@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +19,7 @@ interface ComprehensiveAuthProps {
 }
 
 const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromBooking = false }: ComprehensiveAuthProps) => {
-  const [step, setStep] = useState<'role-selection' | 'details' | 'email-sent'>('role-selection');
+  const [step, setStep] = useState<'role-selection' | 'details' | 'signin' | 'email-sent'>('role-selection');
   const [role, setRole] = useState<'customer' | 'provider'>(defaultRole);
   const [formData, setFormData] = useState({
     fullName: '',

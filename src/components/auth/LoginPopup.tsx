@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,7 @@ const LoginPopup = ({ isOpen, onClose, onSkip, onAuthComplete }: LoginPopupProps
             </Button>
             <div className="bg-white rounded-3xl overflow-hidden">
               <ComprehensiveAuth
-                onAuthComplete={handleAuthComplete}
+                onComplete={handleAuthComplete}
                 onBack={() => setShowAuth(false)}
               />
             </div>
