@@ -42,29 +42,6 @@ export const emailPasswordAuth = {
 
       if (error) throw error;
 
-      // If user is created but not confirmed, send custom confirmation email
-      if (authData.user && !authData.user.email_confirmed_at) {
-        try {
-          console.log('Sending custom confirmation email...');
-          
-          // Use the proper confirmation URL format that Supabase expects
-          const confirmationUrl = `${window.location.origin}/auth/confirm`;
-          
-          await supabase.functions.invoke('send-confirmation-email', {
-            body: {
-              email: data.email,
-              confirmationUrl: confirmationUrl,
-              fullName: data.fullName
-            }
-          });
-          
-          console.log('Custom confirmation email sent successfully');
-        } catch (emailError) {
-          console.error('Error sending custom confirmation email:', emailError);
-          // Don't throw here - the user was still created successfully
-        }
-      }
-
       return authData;
     } catch (error) {
       console.error('Error in signUp:', error);

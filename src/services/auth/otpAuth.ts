@@ -25,7 +25,7 @@ export const otpAuth = {
       }
 
       // Store OTP in database
-      const insertData: any = contactType === 'email' 
+      const insertData = contactType === 'email' 
         ? {
             email: contact,
             phone: null,

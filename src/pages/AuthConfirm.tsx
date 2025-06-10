@@ -5,7 +5,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { profileService } from '@/services/profileService';
 
 const AuthConfirm = () => {
   const [searchParams] = useSearchParams();
@@ -17,14 +16,17 @@ const AuthConfirm = () => {
   useEffect(() => {
     const confirmEmail = async () => {
       try {
-        // Get the token_hash and type from URL params (Supabase format)
+        // Get all possible URL parameters that Supabase might send
         const token_hash = searchParams.get('token_hash');
         const type = searchParams.get('type');
+        const access_token = searchParams.get('access_token');
+        const refresh_token = searchParams.get('refresh_token');
         
-        console.log('Auth confirm params:', { token_hash, type });
+        console.log('Auth confirm params:', { token_hash, type, access_token, refresh_token });
 
         if (token_hash && type) {
-          // Use Supabase's verifyOtp method for email confirmation
+          // New format - use verifyOtp
+          console.log('Using new format verification with token_hash');
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
@@ -34,20 +36,11 @@ const AuthConfirm = () => {
             console.error('Email confirmation error:', error);
             setStatus('error');
             setMessage('Failed to confirm email. The link may be expired or invalid.');
-            toast({
-              variant: "destructive",
-              title: "Confirmation Failed",
-              description: error.message,
-            });
             return;
           }
 
           if (data.user) {
             console.log('Email confirmed successfully for user:', data.user.email);
-            
-            // Wait a moment for the auth state to update
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
             setStatus('success');
             setMessage('Your email has been confirmed successfully!');
             
@@ -56,12 +49,44 @@ const AuthConfirm = () => {
               description: "Your account has been verified successfully!",
             });
 
-            // Get the user's role from metadata to determine redirect
-            const userRole = data.user.user_metadata?.role || 'customer';
-            console.log('User role for redirect:', userRole);
-            
             // Redirect based on user role after 2 seconds
             setTimeout(() => {
+              const userRole = data.user.user_metadata?.role || 'customer';
+              if (userRole === 'provider') {
+                navigate('/become-provider');
+              } else {
+                navigate('/services');
+              }
+            }, 2000);
+          }
+        } else if (access_token && refresh_token) {
+          // Old format - set session directly
+          console.log('Using old format verification with access and refresh tokens');
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
+
+          if (error) {
+            console.error('Session setup error:', error);
+            setStatus('error');
+            setMessage('Failed to confirm email. The link may be expired or invalid.');
+            return;
+          }
+
+          if (data.user) {
+            console.log('Email confirmed successfully for user:', data.user.email);
+            setStatus('success');
+            setMessage('Your email has been confirmed successfully!');
+            
+            toast({
+              title: "Email Confirmed",
+              description: "Your account has been verified successfully!",
+            });
+
+            // Redirect based on user role after 2 seconds
+            setTimeout(() => {
+              const userRole = data.user.user_metadata?.role || 'customer';
               if (userRole === 'provider') {
                 navigate('/become-provider');
               } else {
@@ -70,8 +95,8 @@ const AuthConfirm = () => {
             }, 2000);
           }
         } else {
-          // Handle the old format or missing params
-          console.log('No token_hash found, checking for other params');
+          // No valid parameters found
+          console.log('No valid confirmation parameters found');
           setStatus('error');
           setMessage('Invalid confirmation link. Please check your email for the correct link.');
         }
