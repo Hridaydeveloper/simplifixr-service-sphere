@@ -17,3 +17,20 @@ export interface OTPVerificationData {
   contactType: 'email' | 'phone';
   role: 'customer' | 'provider';
 }
+
+export interface OTPResult {
+  success: boolean;
+  otp?: string;
+}
+
+export interface VerifyOTPResult {
+  verified: boolean;
+  userExists: boolean;
+  role: string;
+  contact: string;
+  contactType: string;
+}
+
+export interface CompleteAuthResult {
+  success: boolean;
+}

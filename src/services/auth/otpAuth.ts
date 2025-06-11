@@ -1,34 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
-
-interface OTPResult {
-  success: boolean;
-  otp?: string;
-}
-
-interface VerifyOTPResult {
-  verified: boolean;
-  userExists: boolean;
-  role: string;
-  contact: string;
-  contactType: string;
-}
-
-interface CompleteAuthResult {
-  success: boolean;
-}
-
-// Generate 6-digit OTP
-const generateOTP = (): string => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-// Get OTP expiry time (10 minutes from now)
-const getOTPExpiry = (): Date => {
-  const expiry = new Date();
-  expiry.setMinutes(expiry.getMinutes() + 10);
-  return expiry;
-};
+import { generateOTP, getOTPExpiry } from './utils';
+import type { OTPResult, VerifyOTPResult, CompleteAuthResult } from './types';
 
 export const otpAuth = {
   async sendOTP(contact: string, contactType: 'email' | 'phone', role: 'customer' | 'provider'): Promise<OTPResult> {
