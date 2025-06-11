@@ -28,7 +28,11 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
 
   const { signUp, signIn } = useAuth();
 
-  const handleRoleSelect = (selectedRole: 'customer' | 'provider') => {
+  const handleRoleSelect = (selectedRole: 'customer' | 'provider' | 'guest') => {
+    if (selectedRole === 'guest') {
+      onComplete(selectedRole);
+      return;
+    }
     setRole(selectedRole);
     setStep('details');
   };
@@ -112,7 +116,7 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
   };
 
   const handleBack = () => {
-    if (step === 'details') {
+    if (step === 'details' || step === 'signin') {
       setStep('role-selection');
     } else if (onBack) {
       onBack();
@@ -152,6 +156,11 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
           <EmailSentConfirmation
             email={formData.email}
             onBack={() => setStep('details')}
+            onTryDifferentEmail={() => setStep('details')}
+            onContinueAsGuest={handleContinueAsGuest}
+            fullName={formData.fullName}
+            location={formData.location}
+            role={role}
           />
         );
       default:
@@ -188,7 +197,7 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
         <CardContent className="space-y-6">
           {renderStep()}
           
-          {fromBooking && step !== 'email-sent' && (
+          {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
             <div className="text-center pt-4 border-t">
               <Button 
                 variant="outline" 

@@ -56,13 +56,13 @@ export const otpAuth = {
       const insertData = contactType === 'email' 
         ? {
             email: contact,
-            phone: null,
+            phone: null as string | null,
             otp_code: otp,
             expires_at: expiresAt.toISOString(),
             verified: false
           }
         : {
-            email: null,
+            email: null as string | null,
             phone: contact,
             otp_code: otp,
             expires_at: expiresAt.toISOString(),

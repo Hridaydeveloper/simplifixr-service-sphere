@@ -7,8 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface EmailSentConfirmationProps {
   email: string;
-  onTryDifferentEmail: () => void;
-  onContinueAsGuest: () => void;
+  onBack: () => void;
+  onTryDifferentEmail?: () => void;
+  onContinueAsGuest?: () => void;
   fullName?: string;
   location?: string;
   role?: 'customer' | 'provider';
@@ -16,8 +17,9 @@ interface EmailSentConfirmationProps {
 
 const EmailSentConfirmation = ({ 
   email, 
-  onTryDifferentEmail, 
-  onContinueAsGuest,
+  onBack,
+  onTryDifferentEmail = () => {},
+  onContinueAsGuest = () => {},
   fullName,
   location,
   role = 'customer'

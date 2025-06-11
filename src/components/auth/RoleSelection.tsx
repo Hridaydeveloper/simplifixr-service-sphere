@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface RoleSelectionProps {
-  onRoleSelect: (role: 'customer' | 'provider' | 'guest') => void;
+  onSelect: (role: 'customer' | 'provider' | 'guest') => void;
+  defaultRole: 'customer' | 'provider';
 }
 
-const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
+const RoleSelection = ({ onSelect, defaultRole }: RoleSelectionProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -24,7 +25,7 @@ const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
         <div className="space-y-4 mb-6">
           <p className="text-gray-700 font-medium text-center">Continue as:</p>
           
-          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onRoleSelect('customer')}>
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelect('customer')}>
             <CardContent className="p-6 flex items-center space-x-4">
               <div className="w-12 h-12 bg-[#00B896]/10 rounded-full flex items-center justify-center">
                 <Users className="w-6 h-6 text-[#00B896]" />
@@ -36,7 +37,7 @@ const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onRoleSelect('provider')}>
+          <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => onSelect('provider')}>
             <CardContent className="p-6 flex items-center space-x-4">
               <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-full flex items-center justify-center">
                 <Briefcase className="w-6 h-6 text-[#00C9A7]" />
@@ -52,7 +53,7 @@ const RoleSelection = ({ onRoleSelect }: RoleSelectionProps) => {
         <Button 
           variant="outline" 
           className="w-full border-gray-300 hover:bg-gray-50"
-          onClick={() => onRoleSelect('guest')}
+          onClick={() => onSelect('guest')}
         >
           <Eye className="w-4 h-4 mr-2" />
           Skip for now → Browse
