@@ -1,12 +1,10 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
-import RoleSelection from "./RoleSelection";
-import DetailsForm from "./DetailsForm";
-import EmailSentConfirmation from "./EmailSentConfirmation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthSteps } from "./hooks/useAuthSteps";
+import { useAuthHandler } from "./components/AuthHandler";
+import AuthStepRenderer from "./components/AuthStepRenderer";
 import { toast } from "@/hooks/use-toast";
 
 interface ComprehensiveAuthProps {
@@ -16,94 +14,35 @@ interface ComprehensiveAuthProps {
   fromBooking?: boolean;
 }
 
-const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromBooking = false }: ComprehensiveAuthProps) => {
-  const [step, setStep] = useState<'role-selection' | 'details' | 'signin' | 'email-sent'>('role-selection');
-  const [role, setRole] = useState<'customer' | 'provider'>(defaultRole);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    location: '',
-    password: ''
-  });
+const ComprehensiveAuth = ({ 
+  onComplete, 
+  onBack, 
+  defaultRole = 'customer', 
+  fromBooking = false 
+}: ComprehensiveAuthProps) => {
+  const {
+    step,
+    role,
+    formData,
+    goToStep,
+    updateRole,
+    updateFormData
+  } = useAuthSteps('role-selection');
 
-  const { signUp, signIn } = useAuth();
+  const { handleFormSubmit } = useAuthHandler({
+    role,
+    onSuccess: onComplete,
+    onEmailSent: () => goToStep('email-sent'),
+    updateFormData
+  });
 
   const handleRoleSelect = (selectedRole: 'customer' | 'provider' | 'guest') => {
     if (selectedRole === 'guest') {
       onComplete(selectedRole);
       return;
     }
-    setRole(selectedRole);
-    setStep('details');
-  };
-
-  const handleFormSubmit = async (data: typeof formData, isSignIn: boolean = false) => {
-    try {
-      setFormData(data);
-      
-      if (isSignIn) {
-        const { error } = await signIn({
-          email: data.email,
-          password: data.password
-        });
-
-        if (error) {
-          toast({
-            title: "Sign In Failed",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in."
-        });
-        
-        onComplete(role);
-      } else {
-        const { error } = await signUp({
-          email: data.email,
-          password: data.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/confirm`,
-            data: {
-              full_name: data.fullName,
-              location: data.location,
-              role: role
-            }
-          }
-        });
-
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast({
-              title: "Account exists",
-              description: "This email is already registered. Try signing in instead.",
-              variant: "destructive"
-            });
-            return;
-          }
-          
-          toast({
-            title: "Sign Up Failed",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-
-        setStep('email-sent');
-      }
-    } catch (error) {
-      console.error('Auth error:', error);
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive"
-      });
-    }
+    updateRole(selectedRole);
+    goToStep('details');
   };
 
   const handleContinueAsGuest = () => {
@@ -117,54 +56,18 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
 
   const handleBack = () => {
     if (step === 'details' || step === 'signin') {
-      setStep('role-selection');
+      goToStep('role-selection');
     } else if (onBack) {
       onBack();
     }
   };
 
-  const renderStep = () => {
+  const getTitle = () => {
     switch (step) {
-      case 'role-selection':
-        return (
-          <RoleSelection
-            onSelect={handleRoleSelect}
-            defaultRole={defaultRole}
-          />
-        );
-      case 'details':
-        return (
-          <DetailsForm
-            role={role}
-            onSubmit={handleFormSubmit}
-            onSignIn={() => setStep('signin')}
-            fromBooking={fromBooking}
-          />
-        );
-      case 'signin':
-        return (
-          <DetailsForm
-            role={role}
-            onSubmit={(data) => handleFormSubmit(data, true)}
-            onSignUp={() => setStep('details')}
-            isSignIn={true}
-            fromBooking={fromBooking}
-          />
-        );
-      case 'email-sent':
-        return (
-          <EmailSentConfirmation
-            email={formData.email}
-            onBack={() => setStep('details')}
-            onTryDifferentEmail={() => setStep('details')}
-            onContinueAsGuest={handleContinueAsGuest}
-            fullName={formData.fullName}
-            location={formData.location}
-            role={role}
-          />
-        );
-      default:
-        return null;
+      case 'email-sent': return 'Check Your Email';
+      case 'signin': return 'Welcome Back';
+      case 'details': return `Join as ${role === 'customer' ? 'Customer' : 'Service Provider'}`;
+      default: return 'Get Started';
     }
   };
 
@@ -186,16 +89,26 @@ const ComprehensiveAuth = ({ onComplete, onBack, defaultRole = 'customer', fromB
           
           <div className="text-center">
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-              {step === 'email-sent' ? 'Check Your Email' : 
-               step === 'signin' ? 'Welcome Back' :
-               step === 'details' ? `Join as ${role === 'customer' ? 'Customer' : 'Service Provider'}` : 
-               'Get Started'}
+              {getTitle()}
             </CardTitle>
           </div>
         </CardHeader>
         
         <CardContent className="space-y-6">
-          {renderStep()}
+          <AuthStepRenderer
+            step={step}
+            role={role}
+            formData={formData}
+            defaultRole={defaultRole}
+            fromBooking={fromBooking}
+            onRoleSelect={handleRoleSelect}
+            onFormSubmit={handleFormSubmit}
+            onSignIn={() => goToStep('signin')}
+            onSignUp={() => goToStep('details')}
+            onBackToDetails={() => goToStep('details')}
+            onTryDifferentEmail={() => goToStep('details')}
+            onContinueAsGuest={handleContinueAsGuest}
+          />
           
           {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
             <div className="text-center pt-4 border-t">
