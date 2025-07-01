@@ -46,16 +46,20 @@ export const otpAuth = {
       console.log(`Verifying OTP for ${contactType}: ${contact}, OTP: ${otp}`);
 
       const currentTime = new Date().toISOString();
-      const { data: otpRecord, error: findError } = await supabase
+      
+      // Break down the query to avoid TypeScript deep instantiation issues
+      const baseQuery = supabase
         .from('otp_verifications')
         .select('*')
         .eq(contactType, contact)
         .eq('otp_code', otp)
-        .eq('verified', false)
-        .gt('expires_at', currentTime)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .eq('verified', false);
+      
+      const filteredQuery = baseQuery.gt('expires_at', currentTime);
+      const orderedQuery = filteredQuery.order('created_at', { ascending: false });
+      const limitedQuery = orderedQuery.limit(1);
+      
+      const { data: otpRecord, error: findError } = await limitedQuery.single();
 
       if (findError || !otpRecord) {
         throw new Error('Invalid or expired OTP. Please request a new one.');
