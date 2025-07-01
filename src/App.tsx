@@ -32,13 +32,8 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [hasShownPopup, setHasShownPopup] = useState(false);
 
   useEffect(() => {
-    // Check if popup was already shown
-    const hasSeenPopup = localStorage.getItem('hasSeenLoginPopup') === 'true';
-    setHasShownPopup(hasSeenPopup);
-
     // Simulate loading time
     const loadTimer = setTimeout(() => {
       setIsLoading(false);
@@ -60,15 +55,7 @@ const App = () => {
             <Sonner />
             <BrowserRouter>
               <Routes>
-                <Route 
-                  path="/" 
-                  element={
-                    <Index 
-                      hasShownPopup={hasShownPopup}
-                      setHasShownPopup={setHasShownPopup}
-                    />
-                  } 
-                />
+                <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/service-providers" element={<ServiceProviders />} />
