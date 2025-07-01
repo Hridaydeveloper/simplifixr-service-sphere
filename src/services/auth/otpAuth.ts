@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { generateOTP, getOTPExpiry } from './utils';
 import type { OTPResult, VerifyOTPResult, CompleteAuthResult } from './types';
@@ -47,28 +46,34 @@ export const otpAuth = {
 
       const currentTime = new Date().toISOString();
       
-      // Break down the query to avoid TypeScript deep instantiation issues
-      const baseQuery = supabase
+      // Use a simpler query structure to avoid TypeScript deep instantiation issues
+      const queryFilter = {
+        [contactType]: contact,
+        otp_code: otp,
+        verified: false
+      };
+      
+      const { data: otpRecords, error: findError } = await supabase
         .from('otp_verifications')
         .select('*')
-        .eq(contactType, contact)
-        .eq('otp_code', otp)
-        .eq('verified', false);
-      
-      const filteredQuery = baseQuery.gt('expires_at', currentTime);
-      const orderedQuery = filteredQuery.order('created_at', { ascending: false });
-      const limitedQuery = orderedQuery.limit(1);
-      
-      const { data: otpRecord, error: findError } = await limitedQuery.single();
+        .match(queryFilter)
+        .order('created_at', { ascending: false });
 
-      if (findError || !otpRecord) {
+      if (findError) throw findError;
+
+      // Filter for non-expired records and get the most recent one
+      const validRecord = otpRecords?.find(record => 
+        new Date(record.expires_at) > new Date(currentTime)
+      );
+
+      if (!validRecord) {
         throw new Error('Invalid or expired OTP. Please request a new one.');
       }
 
       const { error: updateError } = await supabase
         .from('otp_verifications')
         .update({ verified: true })
-        .eq('id', otpRecord.id);
+        .eq('id', validRecord.id);
 
       if (updateError) throw updateError;
 
