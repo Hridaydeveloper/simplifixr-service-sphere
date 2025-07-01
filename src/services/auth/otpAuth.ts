@@ -10,6 +10,7 @@ export const otpAuth = {
       
       const otp = generateOTP();
       const expiresAt = getOTPExpiry();
+      const expiresAtString = expiresAt.toISOString();
 
       // Clear any existing OTP for this contact
       const deleteCondition = contactType === 'email' ? { email: contact } : { phone: contact };
@@ -17,8 +18,8 @@ export const otpAuth = {
 
       // Store OTP in database
       const insertData = contactType === 'email' 
-        ? { email: contact, phone: null, otp_code: otp, expires_at: expiresAt.toISOString(), verified: false }
-        : { email: null, phone: contact, otp_code: otp, expires_at: expiresAt.toISOString(), verified: false };
+        ? { email: contact, phone: null, otp_code: otp, expires_at: expiresAtString, verified: false }
+        : { email: null, phone: contact, otp_code: otp, expires_at: expiresAtString, verified: false };
 
       const { error: insertError } = await supabase.from('otp_verifications').insert(insertData);
       if (insertError) throw insertError;
@@ -44,13 +45,14 @@ export const otpAuth = {
     try {
       console.log(`Verifying OTP for ${contactType}: ${contact}, OTP: ${otp}`);
 
+      const currentTime = new Date().toISOString();
       const { data: otpRecord, error: findError } = await supabase
         .from('otp_verifications')
         .select('*')
         .eq(contactType, contact)
         .eq('otp_code', otp)
         .eq('verified', false)
-        .gt('expires_at', new Date().toISOString())
+        .gt('expires_at', currentTime)
         .order('created_at', { ascending: false })
         .limit(1)
         .single();
