@@ -1,9 +1,9 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Settings, User, LogOut } from "lucide-react";
+import { Menu, Settings, User, LogOut, Home } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
@@ -15,20 +15,15 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const isGuest = localStorage.getItem('guestMode') === 'true';
 
   const handleSignIn = () => {
-    if (onShowAuth) {
-      onShowAuth({ show: true });
-    }
+    navigate('/auth');
   };
 
   const handleBecomeProvider = () => {
-    if (onShowAuth) {
-      onShowAuth({ show: true, role: 'provider' });
-    } else {
-      navigate('/become-provider');
-    }
+    navigate('/become-provider');
   };
 
   const handleSignOut = async () => {
@@ -43,6 +38,10 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
     navigate('/settings');
   };
 
+  const handleHomeClick = () => {
+    navigate('/');
+  };
+
   const navItems = [
     { name: "Services", href: "/services" },
     { name: "About Us", href: "/about-us" },
@@ -50,27 +49,53 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
     { name: "Help", href: "/help-community" },
   ];
 
+  const scrollToSection = (sectionId: string) => {
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: sectionId } });
+      return;
+    }
+    
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 dark:bg-gray-900/95 dark:border-gray-800">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
+          <button 
+            onClick={handleHomeClick}
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 bg-gradient-to-br from-[#00B896] to-[#00C9A7] rounded-lg flex items-center justify-center">
               <Settings className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
               Simplifixr
             </span>
-          </Link>
+          </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
+            <button
+              onClick={handleHomeClick}
+              className={`text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896] flex items-center space-x-1 ${
+                location.pathname === '/' ? 'text-[#00B896] font-semibold' : ''
+              }`}
+            >
+              <Home className="w-4 h-4" />
+              <span>Home</span>
+            </button>
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896]"
+                className={`text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896] ${
+                  location.pathname === item.href ? 'text-[#00B896] font-semibold' : ''
+                }`}
               >
                 {item.name}
               </Link>
@@ -129,7 +154,7 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
             )}
           </div>
 
-          {/* Mobile Menu - Increased hamburger button size */}
+          {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="lg" className="p-3">
@@ -138,6 +163,16 @@ const Navigation = ({ onShowAuth }: NavigationProps) => {
             </SheetTrigger>
             <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white dark:bg-gray-900">
               <nav className="flex flex-col space-y-4 mt-4">
+                <button
+                  onClick={() => {
+                    handleHomeClick();
+                    setIsOpen(false);
+                  }}
+                  className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2 dark:text-gray-300 text-left flex items-center space-x-2"
+                >
+                  <Home className="w-4 h-4" />
+                  <span>Home</span>
+                </button>
                 {navItems.map((item) => (
                   <Link
                     key={item.name}
