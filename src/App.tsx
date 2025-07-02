@@ -15,6 +15,10 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import ServiceProviders from "./pages/ServiceProviders";
 import ProviderDetails from "./pages/ProviderDetails";
+import ProviderServiceDetails from "./pages/ProviderServiceDetails";
+import ChatNegotiation from "./pages/ChatNegotiation";
+import BookingPayment from "./pages/BookingPayment";
+import BookingSuccess from "./pages/BookingSuccess";
 import AboutUs from "./pages/AboutUs";
 import Shop from "./pages/Shop";
 import HelpCommunity from "./pages/HelpCommunity";
@@ -60,6 +64,10 @@ const App = () => {
                 <Route path="/services" element={<Services />} />
                 <Route path="/service-providers" element={<ServiceProviders />} />
                 <Route path="/provider/:id" element={<ProviderDetails />} />
+                <Route path="/provider-service-details/:id" element={<ProviderServiceDetails />} />
+                <Route path="/chat-negotiation" element={<ChatNegotiation />} />
+                <Route path="/booking-payment" element={<BookingPayment />} />
+                <Route path="/booking-success" element={<BookingSuccess />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/about-us" element={<AboutUs />} />

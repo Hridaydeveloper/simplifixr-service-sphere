@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { ArrowLeft, Star, MapPin, Clock, CheckCircle, XCircle, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -110,7 +109,7 @@ const ServiceProviders = ({ onShowAuth }: ServiceProvidersProps) => {
     });
 
   const handleProviderSelect = (provider: any) => {
-    navigate('/provider-details', { 
+    navigate(`/provider-service-details/${provider.id}`, { 
       state: { 
         provider, 
         serviceName, 
