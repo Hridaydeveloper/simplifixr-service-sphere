@@ -30,7 +30,7 @@ export const bookingService = {
     notes?: string;
     total_amount?: number;
   }) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('create_booking', {
         p_provider_id: booking.provider_id,
         p_provider_service_id: booking.provider_service_id,
@@ -48,7 +48,7 @@ export const bookingService = {
     const userId = (await supabase.auth.getUser()).data.user?.id;
     
     // Using RPC function to handle complex queries
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_user_bookings', { user_id: userId });
 
     if (error) {
@@ -61,7 +61,7 @@ export const bookingService = {
 
   // Update booking status
   async updateBookingStatus(id: string, status: Booking['status']) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('update_booking_status', {
         booking_id: id,
         new_status: status

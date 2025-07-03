@@ -40,7 +40,7 @@ export interface ServiceCategory {
 export const serviceService = {
   // Get all active master services
   async getMasterServices() {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_master_services');
 
     if (error) {
@@ -52,7 +52,7 @@ export const serviceService = {
 
   // Get all service categories
   async getServiceCategories() {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_service_categories');
 
     if (error) {
@@ -64,7 +64,7 @@ export const serviceService = {
 
   // Get provider services with master service details
   async getProviderServices(category?: string) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_provider_services', { service_category: category });
 
     if (error) {
@@ -76,7 +76,7 @@ export const serviceService = {
 
   // Get provider's own services
   async getMyProviderServices(providerId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('get_my_provider_services', { provider_id: providerId });
 
     if (error) {
@@ -95,7 +95,7 @@ export const serviceService = {
     description?: string;
     images?: string[];
   }) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('add_provider_service', {
         p_master_service_id: service.master_service_id,
         p_custom_service_name: service.custom_service_name,
@@ -111,7 +111,7 @@ export const serviceService = {
 
   // Update provider service
   async updateProviderService(id: string, updates: Partial<ProviderService>) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('update_provider_service', {
         service_id: id,
         updates: updates
@@ -123,7 +123,7 @@ export const serviceService = {
 
   // Delete provider service
   async deleteProviderService(id: string) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .rpc('delete_provider_service', { service_id: id });
 
     if (error) throw error;
@@ -138,7 +138,7 @@ export const serviceService = {
     estimated_time?: string;
     image_url?: string;
   }) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .rpc('add_master_service', service);
 
     if (error) throw error;

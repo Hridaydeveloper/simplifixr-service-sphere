@@ -30,7 +30,7 @@ export const profileService = {
 
   async createProfile(userId: string, profileData: ProfileData) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('create_profile', {
           user_id: userId,
           profile_data: profileData
@@ -46,7 +46,7 @@ export const profileService = {
 
   async updateProfile(userId: string, profileData: ProfileData) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('update_profile', {
           user_id: userId,
           profile_data: profileData
