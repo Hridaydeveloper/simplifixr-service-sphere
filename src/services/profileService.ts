@@ -21,7 +21,7 @@ export const profileService = {
         .single();
 
       if (error && error.code !== 'PGRST116') throw error;
-      return data;
+      return data as any; // Type assertion since schema includes additional fields
     } catch (error) {
       console.error('Error fetching profile:', error);
       return null;
@@ -31,15 +31,10 @@ export const profileService = {
   async createProfile(userId: string, profileData: ProfileData) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          ...profileData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+        .rpc('create_profile', {
+          user_id: userId,
+          profile_data: profileData
+        });
 
       if (error) throw error;
       return data;
@@ -52,14 +47,10 @@ export const profileService = {
   async updateProfile(userId: string, profileData: ProfileData) {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          ...profileData,
-          updated_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+        .rpc('update_profile', {
+          user_id: userId,
+          profile_data: profileData
+        });
 
       if (error) throw error;
       return data;

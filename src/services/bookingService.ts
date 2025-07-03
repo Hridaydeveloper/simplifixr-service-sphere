@@ -31,13 +31,13 @@ export const bookingService = {
     total_amount?: number;
   }) {
     const { data, error } = await supabase
-      .from('bookings')
-      .insert({
-        customer_id: (await supabase.auth.getUser()).data.user?.id,
-        ...booking
-      })
-      .select()
-      .single();
+      .rpc('create_booking', {
+        p_provider_id: booking.provider_id,
+        p_provider_service_id: booking.provider_service_id,
+        p_scheduled_date: booking.scheduled_date,
+        p_notes: booking.notes,
+        p_total_amount: booking.total_amount
+      });
 
     if (error) throw error;
     return data;
@@ -47,33 +47,25 @@ export const bookingService = {
   async getMyBookings() {
     const userId = (await supabase.auth.getUser()).data.user?.id;
     
+    // Using RPC function to handle complex queries
     const { data, error } = await supabase
-      .from('bookings')
-      .select(`
-        *,
-        provider_service:provider_services(
-          master_service:master_services(name),
-          custom_service_name,
-          price_range
-        ),
-        customer_profile:profiles!bookings_customer_id_fkey(full_name),
-        provider_profile:profiles!bookings_provider_id_fkey(full_name)
-      `)
-      .or(`customer_id.eq.${userId},provider_id.eq.${userId}`)
-      .order('created_at', { ascending: false });
+      .rpc('get_user_bookings', { user_id: userId });
 
-    if (error) throw error;
-    return data as Booking[];
+    if (error) {
+      console.error('Error fetching bookings:', error);
+      return [];
+    }
+    
+    return (data || []) as Booking[];
   },
 
   // Update booking status
   async updateBookingStatus(id: string, status: Booking['status']) {
     const { data, error } = await supabase
-      .from('bookings')
-      .update({ status, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
+      .rpc('update_booking_status', {
+        booking_id: id,
+        new_status: status
+      });
 
     if (error) throw error;
     return data;

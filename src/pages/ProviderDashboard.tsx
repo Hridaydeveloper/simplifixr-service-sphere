@@ -58,16 +58,16 @@ const ProviderDashboard = () => {
       ]);
 
       setServices(servicesData || []);
-      
-      // Filter bookings where current user is the provider
-      const providerBookings = bookingsData.filter(booking => booking.provider_id === user.id);
-      setBookings(providerBookings);
+      setBookings(bookingsData || []);
       
       if (profileData) {
-        setIsAvailable(profileData.is_available ?? true);
+        // Type assertion since schema includes is_available but types haven't been regenerated
+        const profile = profileData as any;
+        setIsAvailable(profile.is_available ?? true);
       }
 
       // Calculate stats
+      const providerBookings = bookingsData.filter(booking => booking.provider_id === user.id);
       const activeBookings = providerBookings.filter(b => 
         ['pending', 'confirmed', 'in_progress'].includes(b.status)
       ).length;

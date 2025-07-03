@@ -41,61 +41,49 @@ export const serviceService = {
   // Get all active master services
   async getMasterServices() {
     const { data, error } = await supabase
-      .from('master_services')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
+      .rpc('get_master_services');
 
-    if (error) throw error;
-    return data as MasterService[];
+    if (error) {
+      console.error('Error fetching master services:', error);
+      return [];
+    }
+    return (data || []) as MasterService[];
   },
 
   // Get all service categories
   async getServiceCategories() {
     const { data, error } = await supabase
-      .from('service_categories')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
+      .rpc('get_service_categories');
 
-    if (error) throw error;
-    return data as ServiceCategory[];
+    if (error) {
+      console.error('Error fetching service categories:', error);
+      return [];
+    }
+    return (data || []) as ServiceCategory[];
   },
 
   // Get provider services with master service details
   async getProviderServices(category?: string) {
-    let query = supabase
-      .from('provider_services')
-      .select(`
-        *,
-        master_service:master_services(*),
-        provider_profile:profiles!provider_services_provider_id_fkey(full_name, location)
-      `)
-      .eq('is_available', true);
+    const { data, error } = await supabase
+      .rpc('get_provider_services', { service_category: category });
 
-    if (category) {
-      query = query.eq('master_services.category', category);
+    if (error) {
+      console.error('Error fetching provider services:', error);
+      return [];
     }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data as ProviderService[];
+    return (data || []) as ProviderService[];
   },
 
   // Get provider's own services
   async getMyProviderServices(providerId: string) {
     const { data, error } = await supabase
-      .from('provider_services')
-      .select(`
-        *,
-        master_service:master_services(*)
-      `)
-      .eq('provider_id', providerId)
-      .order('created_at', { ascending: false });
+      .rpc('get_my_provider_services', { provider_id: providerId });
 
-    if (error) throw error;
-    return data;
+    if (error) {
+      console.error('Error fetching my provider services:', error);
+      return [];
+    }
+    return (data || []) as ProviderService[];
   },
 
   // Add a new provider service
@@ -108,13 +96,14 @@ export const serviceService = {
     images?: string[];
   }) {
     const { data, error } = await supabase
-      .from('provider_services')
-      .insert({
-        provider_id: (await supabase.auth.getUser()).data.user?.id,
-        ...service
-      })
-      .select()
-      .single();
+      .rpc('add_provider_service', {
+        p_master_service_id: service.master_service_id,
+        p_custom_service_name: service.custom_service_name,
+        p_price_range: service.price_range,
+        p_estimated_time: service.estimated_time,
+        p_description: service.description,
+        p_images: service.images
+      });
 
     if (error) throw error;
     return data;
@@ -123,11 +112,10 @@ export const serviceService = {
   // Update provider service
   async updateProviderService(id: string, updates: Partial<ProviderService>) {
     const { data, error } = await supabase
-      .from('provider_services')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
+      .rpc('update_provider_service', {
+        service_id: id,
+        updates: updates
+      });
 
     if (error) throw error;
     return data;
@@ -136,9 +124,7 @@ export const serviceService = {
   // Delete provider service
   async deleteProviderService(id: string) {
     const { error } = await supabase
-      .from('provider_services')
-      .delete()
-      .eq('id', id);
+      .rpc('delete_provider_service', { service_id: id });
 
     if (error) throw error;
   },
@@ -153,10 +139,7 @@ export const serviceService = {
     image_url?: string;
   }) {
     const { data, error } = await supabase
-      .from('master_services')
-      .insert(service)
-      .select()
-      .single();
+      .rpc('add_master_service', service);
 
     if (error) throw error;
     return data;

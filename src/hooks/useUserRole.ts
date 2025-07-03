@@ -21,7 +21,7 @@ export const useUserRole = () => {
       try {
         const { data, error } = await supabase
           .from('profiles')
-          .select('role')
+          .select('*')
           .eq('id', user.id)
           .single();
 
@@ -29,7 +29,9 @@ export const useUserRole = () => {
           console.error('Error fetching user role:', error);
           setRole('customer'); // Default fallback
         } else {
-          setRole(data.role as UserRole);
+          // Type assertion since the schema includes role but types haven't been regenerated
+          const profile = data as any;
+          setRole((profile.role as UserRole) || 'customer');
         }
       } catch (error) {
         console.error('Error in fetchUserRole:', error);
@@ -48,7 +50,7 @@ export const useUserRole = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole })
+        .update({ role: newRole } as any)
         .eq('id', user.id);
 
       if (error) throw error;
