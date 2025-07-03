@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Search, Filter, Star, Clock, MapPin, ArrowRight, X } from "lucide-react";
+import { ArrowLeft, Search, Filter, Star, Clock, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,19 @@ import { toast } from "@/hooks/use-toast";
 
 interface ServicesProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void;
+}
+
+interface ServiceItem {
+  id: string | number;
+  category: string;
+  name: string;
+  price: string;
+  rating: number;
+  time: string;
+  image: string;
+  description: string;
+  isProviderService?: boolean;
+  providerImages?: string[];
 }
 
 const Services = ({ onShowAuth }: ServicesProps) => {
@@ -62,118 +75,118 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     { id: "art", name: "Art & Design", icon: PaintBucket }
   ];
 
-  const staticServices = [
+  const staticServices: ServiceItem[] = [
     // Cleaning & Sanitation
-    { id: 1, category: "cleaning", name: "Kitchen Deep Cleaning", price: "₹499-899", rating: 4.8, time: "2-3 hrs", image: "🍳", description: "Professional kitchen cleaning with degreasing" },
-    { id: 2, category: "cleaning", name: "Bathroom Cleaning", price: "₹299-599", rating: 4.9, time: "1-2 hrs", image: "🚿", description: "Complete bathroom sanitization" },
-    { id: 3, category: "cleaning", name: "Living Room Cleaning", price: "₹399-699", rating: 4.7, time: "2 hrs", image: "🛋️", description: "Thorough living room cleaning" },
-    { id: 4, category: "cleaning", name: "Garden Maintenance", price: "₹599-1299", rating: 4.6, time: "3-4 hrs", image: "🌱", description: "Garden cleaning and maintenance" },
-    { id: 5, category: "cleaning", name: "Full House Cleaning", price: "₹1499-2999", rating: 4.9, time: "4-6 hrs", image: "🏠", description: "Complete house cleaning service" },
-    { id: 6, category: "cleaning", name: "Office Cleaning", price: "₹999-1999", rating: 4.8, time: "3-5 hrs", image: "🏢", description: "Professional office cleaning" },
-    { id: 7, category: "cleaning", name: "Carpet Cleaning", price: "₹299-699", rating: 4.7, time: "2-3 hrs", image: "🧽", description: "Deep carpet cleaning and stain removal" },
-    { id: 8, category: "cleaning", name: "Window Cleaning", price: "₹199-499", rating: 4.6, time: "1-2 hrs", image: "🪟", description: "Window and glass cleaning" },
+    { id: 1, category: "cleaning", name: "Kitchen Deep Cleaning", price: "₹499-899", rating: 4.8, time: "2-3 hrs", image: "🍳", description: "Professional kitchen cleaning with degreasing", isProviderService: false, providerImages: [] },
+    { id: 2, category: "cleaning", name: "Bathroom Cleaning", price: "₹299-599", rating: 4.9, time: "1-2 hrs", image: "🚿", description: "Complete bathroom sanitization", isProviderService: false, providerImages: [] },
+    { id: 3, category: "cleaning", name: "Living Room Cleaning", price: "₹399-699", rating: 4.7, time: "2 hrs", image: "🛋️", description: "Thorough living room cleaning", isProviderService: false, providerImages: [] },
+    { id: 4, category: "cleaning", name: "Garden Maintenance", price: "₹599-1299", rating: 4.6, time: "3-4 hrs", image: "🌱", description: "Garden cleaning and maintenance", isProviderService: false, providerImages: [] },
+    { id: 5, category: "cleaning", name: "Full House Cleaning", price: "₹1499-2999", rating: 4.9, time: "4-6 hrs", image: "🏠", description: "Complete house cleaning service", isProviderService: false, providerImages: [] },
+    { id: 6, category: "cleaning", name: "Office Cleaning", price: "₹999-1999", rating: 4.8, time: "3-5 hrs", image: "🏢", description: "Professional office cleaning", isProviderService: false, providerImages: [] },
+    { id: 7, category: "cleaning", name: "Carpet Cleaning", price: "₹299-699", rating: 4.7, time: "2-3 hrs", image: "🧽", description: "Deep carpet cleaning and stain removal", isProviderService: false, providerImages: [] },
+    { id: 8, category: "cleaning", name: "Window Cleaning", price: "₹199-499", rating: 4.6, time: "1-2 hrs", image: "🪟", description: "Window and glass cleaning", isProviderService: false, providerImages: [] },
 
     // Repairs & Maintenance
-    { id: 9, category: "repairs", name: "Plumbing Services", price: "₹299-899", rating: 4.8, time: "1-3 hrs", image: "🔧", description: "Pipe repair, leak fixing, installation" },
-    { id: 10, category: "repairs", name: "Electrical Work", price: "₹399-1299", rating: 4.7, time: "2-4 hrs", image: "⚡", description: "Wiring, switch repair, installation" },
-    { id: 11, category: "repairs", name: "AC Repair & Service", price: "₹499-1599", rating: 4.8, time: "2-3 hrs", image: "❄️", description: "AC installation, repair, maintenance" },
-    { id: 12, category: "repairs", name: "Carpentry Work", price: "₹599-1999", rating: 4.6, time: "3-5 hrs", image: "🔨", description: "Furniture repair, custom carpentry" },
-    { id: 13, category: "repairs", name: "Appliance Repair", price: "₹399-1199", rating: 4.7, time: "2-3 hrs", image: "🔧", description: "Washing machine, fridge, microwave repair" },
-    { id: 14, category: "repairs", name: "Door & Lock Repair", price: "₹299-799", rating: 4.8, time: "1-2 hrs", image: "🚪", description: "Door installation, lock repair" },
+    { id: 9, category: "repairs", name: "Plumbing Services", price: "₹299-899", rating: 4.8, time: "1-3 hrs", image: "🔧", description: "Pipe repair, leak fixing, installation", isProviderService: false, providerImages: [] },
+    { id: 10, category: "repairs", name: "Electrical Work", price: "₹399-1299", rating: 4.7, time: "2-4 hrs", image: "⚡", description: "Wiring, switch repair, installation", isProviderService: false, providerImages: [] },
+    { id: 11, category: "repairs", name: "AC Repair & Service", price: "₹499-1599", rating: 4.8, time: "2-3 hrs", image: "❄️", description: "AC installation, repair, maintenance", isProviderService: false, providerImages: [] },
+    { id: 12, category: "repairs", name: "Carpentry Work", price: "₹599-1999", rating: 4.6, time: "3-5 hrs", image: "🔨", description: "Furniture repair, custom carpentry", isProviderService: false, providerImages: [] },
+    { id: 13, category: "repairs", name: "Appliance Repair", price: "₹399-1199", rating: 4.7, time: "2-3 hrs", image: "🔧", description: "Washing machine, fridge, microwave repair", isProviderService: false, providerImages: [] },
+    { id: 14, category: "repairs", name: "Door & Lock Repair", price: "₹299-799", rating: 4.8, time: "1-2 hrs", image: "🚪", description: "Door installation, lock repair", isProviderService: false, providerImages: [] },
 
     // Education & Tech
-    { id: 15, category: "education", name: "Home Tutoring - Math", price: "₹299-699/hr", rating: 4.9, time: "1-2 hrs", image: "📚", description: "Mathematics tutoring all levels" },
-    { id: 16, category: "education", name: "Computer Training", price: "₹499-999/hr", rating: 4.7, time: "2 hrs", image: "💻", description: "Basic to advanced computer skills" },
-    { id: 17, category: "education", name: "Language Classes", price: "₹399-799/hr", rating: 4.8, time: "1-2 hrs", image: "🗣️", description: "English, Hindi, regional languages" },
-    { id: 18, category: "education", name: "Music Lessons", price: "₹599-1199/hr", rating: 4.9, time: "1 hr", image: "🎵", description: "Guitar, piano, vocals, tabla" },
-    { id: 19, category: "education", name: "Coding Classes", price: "₹799-1499/hr", rating: 4.8, time: "2 hrs", image: "💻", description: "Programming languages, web development" },
+    { id: 15, category: "education", name: "Home Tutoring - Math", price: "₹299-699/hr", rating: 4.9, time: "1-2 hrs", image: "📚", description: "Mathematics tutoring all levels", isProviderService: false, providerImages: [] },
+    { id: 16, category: "education", name: "Computer Training", price: "₹499-999/hr", rating: 4.7, time: "2 hrs", image: "💻", description: "Basic to advanced computer skills", isProviderService: false, providerImages: [] },
+    { id: 17, category: "education", name: "Language Classes", price: "₹399-799/hr", rating: 4.8, time: "1-2 hrs", image: "🗣️", description: "English, Hindi, regional languages", isProviderService: false, providerImages: [] },
+    { id: 18, category: "education", name: "Music Lessons", price: "₹599-1199/hr", rating: 4.9, time: "1 hr", image: "🎵", description: "Guitar, piano, vocals, tabla", isProviderService: false, providerImages: [] },
+    { id: 19, category: "education", name: "Coding Classes", price: "₹799-1499/hr", rating: 4.8, time: "2 hrs", image: "💻", description: "Programming languages, web development", isProviderService: false, providerImages: [] },
 
     // Healthcare & Wellness
-    { id: 20, category: "healthcare", name: "Salon at Home", price: "₹799-1999", rating: 4.8, time: "2-3 hrs", image: "💇", description: "Hair cut, styling, facial" },
-    { id: 21, category: "healthcare", name: "Massage Therapy", price: "₹999-2499", rating: 4.9, time: "1-2 hrs", image: "💆", description: "Therapeutic massage services" },
-    { id: 22, category: "healthcare", name: "Physiotherapy", price: "₹599-1299", rating: 4.7, time: "1 hr", image: "🏥", description: "Physical therapy at home" },
-    { id: 23, category: "healthcare", name: "Nursing Care", price: "₹899-1999", rating: 4.9, time: "4-8 hrs", image: "👩‍⚕️", description: "Professional nursing services" },
-    { id: 24, category: "healthcare", name: "Elder Care", price: "₹699-1499", rating: 4.8, time: "4-12 hrs", image: "👴", description: "Elderly care and assistance" },
+    { id: 20, category: "healthcare", name: "Salon at Home", price: "₹799-1999", rating: 4.8, time: "2-3 hrs", image: "💇", description: "Hair cut, styling, facial", isProviderService: false, providerImages: [] },
+    { id: 21, category: "healthcare", name: "Massage Therapy", price: "₹999-2499", rating: 4.9, time: "1-2 hrs", image: "💆", description: "Therapeutic massage services", isProviderService: false, providerImages: [] },
+    { id: 22, category: "healthcare", name: "Physiotherapy", price: "₹599-1299", rating: 4.7, time: "1 hr", image: "🏥", description: "Physical therapy at home", isProviderService: false, providerImages: [] },
+    { id: 23, category: "healthcare", name: "Nursing Care", price: "₹899-1999", rating: 4.9, time: "4-8 hrs", image: "👩‍⚕️", description: "Professional nursing services", isProviderService: false, providerImages: [] },
+    { id: 24, category: "healthcare", name: "Elder Care", price: "₹699-1499", rating: 4.8, time: "4-12 hrs", image: "👴", description: "Elderly care and assistance", isProviderService: false, providerImages: [] },
 
     // Events & Religious
-    { id: 25, category: "events", name: "Puja Services", price: "₹1999-4999", rating: 4.9, time: "3-5 hrs", image: "🕉️", description: "Hindu religious ceremonies" },
-    { id: 26, category: "events", name: "Party Helpers", price: "₹799-1599", rating: 4.6, time: "4-6 hrs", image: "🎉", description: "Event setup and management" },
-    { id: 27, category: "events", name: "Catering Services", price: "₹199-499/person", rating: 4.8, time: "varies", image: "🍽️", description: "Food catering for events" },
-    { id: 28, category: "events", name: "Wedding Planning", price: "₹9999-49999", rating: 4.9, time: "varies", image: "💒", description: "Complete wedding planning" },
-    { id: 29, category: "events", name: "DJ Services", price: "₹2999-9999", rating: 4.7, time: "4-8 hrs", image: "🎧", description: "Music and DJ for events" },
+    { id: 25, category: "events", name: "Puja Services", price: "₹1999-4999", rating: 4.9, time: "3-5 hrs", image: "🕉️", description: "Hindu religious ceremonies", isProviderService: false, providerImages: [] },
+    { id: 26, category: "events", name: "Party Helpers", price: "₹799-1599", rating: 4.6, time: "4-6 hrs", image: "🎉", description: "Event setup and management", isProviderService: false, providerImages: [] },
+    { id: 27, category: "events", name: "Catering Services", price: "₹199-499/person", rating: 4.8, time: "varies", image: "🍽️", description: "Food catering for events", isProviderService: false, providerImages: [] },
+    { id: 28, category: "events", name: "Wedding Planning", price: "₹9999-49999", rating: 4.9, time: "varies", image: "💒", description: "Complete wedding planning", isProviderService: false, providerImages: [] },
+    { id: 29, category: "events", name: "DJ Services", price: "₹2999-9999", rating: 4.7, time: "4-8 hrs", image: "🎧", description: "Music and DJ for events", isProviderService: false, providerImages: [] },
 
     // Logistics & Moving
-    { id: 30, category: "logistics", name: "Packers & Movers", price: "₹2999-9999", rating: 4.7, time: "4-8 hrs", image: "📦", description: "Home and office relocation" },
-    { id: 31, category: "logistics", name: "Delivery Services", price: "₹99-499", rating: 4.8, time: "1-3 hrs", image: "🚚", description: "Local delivery services" },
-    { id: 32, category: "logistics", name: "Courier Services", price: "₹49-299", rating: 4.6, time: "same day", image: "📦", description: "Document and package delivery" },
+    { id: 30, category: "logistics", name: "Packers & Movers", price: "₹2999-9999", rating: 4.7, time: "4-8 hrs", image: "📦", description: "Home and office relocation", isProviderService: false, providerImages: [] },
+    { id: 31, category: "logistics", name: "Delivery Services", price: "₹99-499", rating: 4.8, time: "1-3 hrs", image: "🚚", description: "Local delivery services", isProviderService: false, providerImages: [] },
+    { id: 32, category: "logistics", name: "Courier Services", price: "₹49-299", rating: 4.6, time: "same day", image: "📦", description: "Document and package delivery", isProviderService: false, providerImages: [] },
 
     // Automotive
-    { id: 33, category: "automotive", name: "Car Wash & Detailing", price: "₹399-1299", rating: 4.8, time: "2-4 hrs", image: "🚗", description: "Complete car cleaning service" },
-    { id: 34, category: "automotive", name: "Bike Service", price: "₹299-899", rating: 4.6, time: "2-3 hrs", image: "🏍️", description: "Motorcycle maintenance" },
-    { id: 35, category: "automotive", name: "Car Mechanic", price: "₹599-1999", rating: 4.7, time: "2-5 hrs", image: "🔧", description: "Car repair and maintenance" },
-    { id: 36, category: "automotive", name: "Tire Services", price: "₹199-799", rating: 4.8, time: "1-2 hrs", image: "🛞", description: "Tire repair and replacement" },
+    { id: 33, category: "automotive", name: "Car Wash & Detailing", price: "₹399-1299", rating: 4.8, time: "2-4 hrs", image: "🚗", description: "Complete car cleaning service", isProviderService: false, providerImages: [] },
+    { id: 34, category: "automotive", name: "Bike Service", price: "₹299-899", rating: 4.6, time: "2-3 hrs", image: "🏍️", description: "Motorcycle maintenance", isProviderService: false, providerImages: [] },
+    { id: 35, category: "automotive", name: "Car Mechanic", price: "₹599-1999", rating: 4.7, time: "2-5 hrs", image: "🔧", description: "Car repair and maintenance", isProviderService: false, providerImages: [] },
+    { id: 36, category: "automotive", name: "Tire Services", price: "₹199-799", rating: 4.8, time: "1-2 hrs", image: "🛞", description: "Tire repair and replacement", isProviderService: false, providerImages: [] },
 
     // Device Repair
-    { id: 37, category: "device", name: "Mobile Repair", price: "₹299-1999", rating: 4.7, time: "1-2 hrs", image: "📱", description: "Screen, battery, software issues" },
-    { id: 38, category: "device", name: "Laptop Repair", price: "₹599-2999", rating: 4.8, time: "2-4 hrs", image: "💻", description: "Hardware and software repair" },
-    { id: 39, category: "device", name: "TV Repair", price: "₹499-1999", rating: 4.6, time: "2-3 hrs", image: "📺", description: "Television repair services" },
-    { id: 40, category: "device", name: "Gaming Console Repair", price: "₹799-2499", rating: 4.7, time: "2-4 hrs", image: "🎮", description: "PlayStation, Xbox repair" },
+    { id: 37, category: "device", name: "Mobile Repair", price: "₹299-1999", rating: 4.7, time: "1-2 hrs", image: "📱", description: "Screen, battery, software issues", isProviderService: false, providerImages: [] },
+    { id: 38, category: "device", name: "Laptop Repair", price: "₹599-2999", rating: 4.8, time: "2-4 hrs", image: "💻", description: "Hardware and software repair", isProviderService: false, providerImages: [] },
+    { id: 39, category: "device", name: "TV Repair", price: "₹499-1999", rating: 4.6, time: "2-3 hrs", image: "📺", description: "Television repair services", isProviderService: false, providerImages: [] },
+    { id: 40, category: "device", name: "Gaming Console Repair", price: "₹799-2499", rating: 4.7, time: "2-4 hrs", image: "🎮", description: "PlayStation, Xbox repair", isProviderService: false, providerImages: [] },
 
     // Home Improvement
-    { id: 41, category: "home", name: "Painting Services", price: "₹999-4999", rating: 4.8, time: "4-8 hrs", image: "🎨", description: "Interior and exterior painting" },
-    { id: 42, category: "home", name: "Interior Design", price: "₹4999-19999", rating: 4.9, time: "varies", image: "🏠", description: "Home interior designing" },
-    { id: 43, category: "home", name: "Flooring Services", price: "₹1999-9999", rating: 4.7, time: "4-8 hrs", image: "🏠", description: "Tile, wood, carpet installation" },
-    { id: 44, category: "home", name: "Waterproofing", price: "₹1499-5999", rating: 4.6, time: "4-6 hrs", image: "💧", description: "Roof and wall waterproofing" },
+    { id: 41, category: "home", name: "Painting Services", price: "₹999-4999", rating: 4.8, time: "4-8 hrs", image: "🎨", description: "Interior and exterior painting", isProviderService: false, providerImages: [] },
+    { id: 42, category: "home", name: "Interior Design", price: "₹4999-19999", rating: 4.9, time: "varies", image: "🏠", description: "Home interior designing", isProviderService: false, providerImages: [] },
+    { id: 43, category: "home", name: "Flooring Services", price: "₹1999-9999", rating: 4.7, time: "4-8 hrs", image: "🏠", description: "Tile, wood, carpet installation", isProviderService: false, providerImages: [] },
+    { id: 44, category: "home", name: "Waterproofing", price: "₹1499-5999", rating: 4.6, time: "4-6 hrs", image: "💧", description: "Roof and wall waterproofing", isProviderService: false, providerImages: [] },
 
     // Food & Catering
-    { id: 45, category: "food", name: "Personal Chef", price: "₹1999-4999", rating: 4.9, time: "3-5 hrs", image: "👨‍🍳", description: "Professional cooking at home" },
-    { id: 46, category: "food", name: "Meal Prep Service", price: "₹599-1499", rating: 4.8, time: "2-3 hrs", image: "🥘", description: "Weekly meal preparation" },
-    { id: 47, category: "food", name: "Baking Services", price: "₹499-1999", rating: 4.7, time: "2-4 hrs", image: "🧁", description: "Custom cakes and pastries" },
+    { id: 45, category: "food", name: "Personal Chef", price: "₹1999-4999", rating: 4.9, time: "3-5 hrs", image: "👨‍🍳", description: "Professional cooking at home", isProviderService: false, providerImages: [] },
+    { id: 46, category: "food", name: "Meal Prep Service", price: "₹599-1499", rating: 4.8, time: "2-3 hrs", image: "🥘", description: "Weekly meal preparation", isProviderService: false, providerImages: [] },
+    { id: 47, category: "food", name: "Baking Services", price: "₹499-1999", rating: 4.7, time: "2-4 hrs", image: "🧁", description: "Custom cakes and pastries", isProviderService: false, providerImages: [] },
 
     // Beauty & Personal Care
-    { id: 48, category: "beauty", name: "Manicure & Pedicure", price: "₹399-899", rating: 4.8, time: "1-2 hrs", image: "💅", description: "Nail care services" },
-    { id: 49, category: "beauty", name: "Makeup Artist", price: "₹1999-4999", rating: 4.9, time: "2-3 hrs", image: "💄", description: "Professional makeup" },
-    { id: 50, category: "beauty", name: "Hair Styling", price: "₹599-1999", rating: 4.7, time: "2-3 hrs", image: "💇‍♀️", description: "Hair cut, color, styling" },
+    { id: 48, category: "beauty", name: "Manicure & Pedicure", price: "₹399-899", rating: 4.8, time: "1-2 hrs", image: "💅", description: "Nail care services", isProviderService: false, providerImages: [] },
+    { id: 49, category: "beauty", name: "Makeup Artist", price: "₹1999-4999", rating: 4.9, time: "2-3 hrs", image: "💄", description: "Professional makeup", isProviderService: false, providerImages: [] },
+    { id: 50, category: "beauty", name: "Hair Styling", price: "₹599-1999", rating: 4.7, time: "2-3 hrs", image: "💇‍♀️", description: "Hair cut, color, styling", isProviderService: false, providerImages: [] },
 
     // Photography & Media
-    { id: 51, category: "photography", name: "Event Photography", price: "₹4999-19999", rating: 4.9, time: "4-8 hrs", image: "📸", description: "Wedding, party photography" },
-    { id: 52, category: "photography", name: "Product Photography", price: "₹1999-7999", rating: 4.8, time: "2-4 hrs", image: "📷", description: "Professional product shoots" },
-    { id: 53, category: "photography", name: "Video Editing", price: "₹999-3999", rating: 4.7, time: "varies", image: "🎬", description: "Video post-production" },
+    { id: 51, category: "photography", name: "Event Photography", price: "₹4999-19999", rating: 4.9, time: "4-8 hrs", image: "📸", description: "Wedding, party photography", isProviderService: false, providerImages: [] },
+    { id: 52, category: "photography", name: "Product Photography", price: "₹1999-7999", rating: 4.8, time: "2-4 hrs", image: "📷", description: "Professional product shoots", isProviderService: false, providerImages: [] },
+    { id: 53, category: "photography", name: "Video Editing", price: "₹999-3999", rating: 4.7, time: "varies", image: "🎬", description: "Video post-production", isProviderService: false, providerImages: [] },
 
     // Entertainment
-    { id: 54, category: "entertainment", name: "Party Entertainment", price: "₹2999-9999", rating: 4.8, time: "3-5 hrs", image: "🎭", description: "Magicians, clowns, performers" },
-    { id: 55, category: "entertainment", name: "Dance Classes", price: "₹699-1499/session", rating: 4.9, time: "1-2 hrs", image: "💃", description: "Classical, western, bollywood" },
+    { id: 54, category: "entertainment", name: "Party Entertainment", price: "₹2999-9999", rating: 4.8, time: "3-5 hrs", image: "🎭", description: "Magicians, clowns, performers", isProviderService: false, providerImages: [] },
+    { id: 55, category: "entertainment", name: "Dance Classes", price: "₹699-1499/session", rating: 4.9, time: "1-2 hrs", image: "💃", description: "Classical, western, bollywood", isProviderService: false, providerImages: [] },
 
     // Fitness & Sports
-    { id: 56, category: "fitness", name: "Personal Trainer", price: "₹999-2499/session", rating: 4.8, time: "1-2 hrs", image: "🏋️", description: "Home fitness training" },
-    { id: 57, category: "fitness", name: "Yoga Instructor", price: "₹699-1499/session", rating: 4.9, time: "1 hr", image: "🧘", description: "Yoga and meditation" },
-    { id: 58, category: "fitness", name: "Sports Coaching", price: "₹799-1999/session", rating: 4.7, time: "1-2 hrs", image: "⚽", description: "Cricket, football, tennis" },
+    { id: 56, category: "fitness", name: "Personal Trainer", price: "₹999-2499/session", rating: 4.8, time: "1-2 hrs", image: "🏋️", description: "Home fitness training", isProviderService: false, providerImages: [] },
+    { id: 57, category: "fitness", name: "Yoga Instructor", price: "₹699-1499/session", rating: 4.9, time: "1 hr", image: "🧘", description: "Yoga and meditation", isProviderService: false, providerImages: [] },
+    { id: 58, category: "fitness", name: "Sports Coaching", price: "₹799-1999/session", rating: 4.7, time: "1-2 hrs", image: "⚽", description: "Cricket, football, tennis", isProviderService: false, providerImages: [] },
 
     // Childcare & Elderly
-    { id: 59, category: "childcare", name: "Babysitting", price: "₹299-699/hr", rating: 4.8, time: "4-8 hrs", image: "👶", description: "Professional childcare" },
-    { id: 60, category: "childcare", name: "Child Tutoring", price: "₹399-799/hr", rating: 4.9, time: "1-2 hrs", image: "📚", description: "Academic support for kids" },
+    { id: 59, category: "childcare", name: "Babysitting", price: "₹299-699/hr", rating: 4.8, time: "4-8 hrs", image: "👶", description: "Professional childcare", isProviderService: false, providerImages: [] },
+    { id: 60, category: "childcare", name: "Child Tutoring", price: "₹399-799/hr", rating: 4.9, time: "1-2 hrs", image: "📚", description: "Academic support for kids", isProviderService: false, providerImages: [] },
 
     // Gardening & Landscaping
-    { id: 61, category: "garden", name: "Garden Design", price: "₹2999-9999", rating: 4.8, time: "varies", image: "🌺", description: "Landscape design and planning" },
-    { id: 62, category: "garden", name: "Plant Care", price: "₹299-799", rating: 4.7, time: "1-2 hrs", image: "🪴", description: "Plant maintenance and care" },
-    { id: 63, category: "garden", name: "Lawn Mowing", price: "₹199-599", rating: 4.6, time: "1-2 hrs", image: "🌱", description: "Grass cutting and maintenance" },
+    { id: 61, category: "garden", name: "Garden Design", price: "₹2999-9999", rating: 4.8, time: "varies", image: "🌺", description: "Landscape design and planning", isProviderService: false, providerImages: [] },
+    { id: 62, category: "garden", name: "Plant Care", price: "₹299-799", rating: 4.7, time: "1-2 hrs", image: "🪴", description: "Plant maintenance and care", isProviderService: false, providerImages: [] },
+    { id: 63, category: "garden", name: "Lawn Mowing", price: "₹199-599", rating: 4.6, time: "1-2 hrs", image: "🌱", description: "Grass cutting and maintenance", isProviderService: false, providerImages: [] },
 
     // Pet Services
-    { id: 64, category: "pet", name: "Pet Grooming", price: "₹599-1499", rating: 4.8, time: "2-3 hrs", image: "🐕", description: "Pet bathing and grooming" },
-    { id: 65, category: "pet", name: "Pet Sitting", price: "₹399-899/day", rating: 4.9, time: "varies", image: "🐱", description: "Pet care at your home" },
-    { id: 66, category: "pet", name: "Dog Walking", price: "₹199-499", rating: 4.7, time: "1 hr", image: "🐕‍🦺", description: "Daily dog walking service" },
+    { id: 64, category: "pet", name: "Pet Grooming", price: "₹599-1499", rating: 4.8, time: "2-3 hrs", image: "🐕", description: "Pet bathing and grooming", isProviderService: false, providerImages: [] },
+    { id: 65, category: "pet", name: "Pet Sitting", price: "₹399-899/day", rating: 4.9, time: "varies", image: "🐱", description: "Pet care at your home", isProviderService: false, providerImages: [] },
+    { id: 66, category: "pet", name: "Dog Walking", price: "₹199-499", rating: 4.7, time: "1 hr", image: "🐕‍🦺", description: "Daily dog walking service", isProviderService: false, providerImages: [] },
 
     // Security Services
-    { id: 67, category: "security", name: "Security Guard", price: "₹999-2499/day", rating: 4.8, time: "8-12 hrs", image: "👮", description: "Professional security services" },
-    { id: 68, category: "security", name: "CCTV Installation", price: "₹2999-9999", rating: 4.7, time: "3-5 hrs", image: "📹", description: "Security camera setup" },
+    { id: 67, category: "security", name: "Security Guard", price: "₹999-2499/day", rating: 4.8, time: "8-12 hrs", image: "👮", description: "Professional security services", isProviderService: false, providerImages: [] },
+    { id: 68, category: "security", name: "CCTV Installation", price: "₹2999-9999", rating: 4.7, time: "3-5 hrs", image: "📹", description: "Security camera setup", isProviderService: false, providerImages: [] },
 
     // Art & Design
-    { id: 69, category: "art", name: "Wall Art Painting", price: "₹1999-7999", rating: 4.9, time: "4-8 hrs", image: "🎨", description: "Custom wall murals and art" },
-    { id: 70, category: "art", name: "Graphic Design", price: "₹999-4999", rating: 4.8, time: "varies", image: "🖌️", description: "Logo, poster, banner design" }
+    { id: 69, category: "art", name: "Wall Art Painting", price: "₹1999-7999", rating: 4.9, time: "4-8 hrs", image: "🎨", description: "Custom wall murals and art", isProviderService: false, providerImages: [] },
+    { id: 70, category: "art", name: "Graphic Design", price: "₹999-4999", rating: 4.8, time: "varies", image: "🖌️", description: "Logo, poster, banner design", isProviderService: false, providerImages: [] }
   ];
 
   // Convert provider services to match the format and add them to the services list
-  const convertedProviderServices = providerServices.map((service, index) => ({
+  const convertedProviderServices: ServiceItem[] = providerServices.map((service, index) => ({
     id: `provider-${service.id}`,
     category: service.category === 'other' ? 'art' : service.category, // Map 'other' to a valid category
     name: service.title,
@@ -186,7 +199,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     providerImages: service.images
   }));
 
-  const allServices = [...staticServices, ...convertedProviderServices];
+  const allServices: ServiceItem[] = [...staticServices, ...convertedProviderServices];
 
   const filteredServices = allServices.filter(service => {
     const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
@@ -216,7 +229,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     setShowFilters(true);
   };
 
-  const handleBookService = (service: any) => {
+  const handleBookService = (service: ServiceItem) => {
     if (!user && !isGuest) {
       // Show auth with "Continue for Now" option
       if (onShowAuth) {
@@ -233,7 +246,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     }
   };
 
-  const handleContinueAsGuest = (service: any) => {
+  const handleContinueAsGuest = (service: ServiceItem) => {
     // Set guest mode
     localStorage.setItem('guestMode', 'true');
     // Navigate to service providers
@@ -369,7 +382,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
                 <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md">
                   <CardContent className="p-6">
                     <div className="mb-4">
-                      {service.isProviderService && service.providerImages?.length > 0 ? (
+                      {service.isProviderService && service.providerImages && service.providerImages.length > 0 ? (
                         <img
                           src={service.providerImages[0]}
                           alt={service.name}
