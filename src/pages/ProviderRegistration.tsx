@@ -39,75 +39,80 @@ const ProviderRegistration = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement form submission logic
     console.log('Provider registration submitted:', formData);
-    // For now, just show success message and redirect
-    alert('Registration submitted successfully! We will review your application and get back to you.');
-    navigate('/become-provider');
+    
+    // Store provider data in localStorage for demo purposes
+    localStorage.setItem('providerData', JSON.stringify(formData));
+    
+    // Redirect to provider dashboard instead of showing alert
+    navigate('/provider-dashboard');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <div className="pt-20 pb-12">
+      <div className="pt-16 sm:pt-20 pb-8 sm:pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/become-provider')}
-              className="mb-4"
+              className="mb-4 w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Become Provider
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
               Provider Registration
             </h1>
-            <p className="text-gray-600">
+            <p className="text-sm sm:text-base text-gray-600">
               Join our platform and start earning by offering your services
             </p>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle>Registration Form</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">Registration Form</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div>
-                    <Label htmlFor="fullName">Full Name *</Label>
+                    <Label htmlFor="fullName" className="text-sm sm:text-base">Full Name *</Label>
                     <Input
                       id="fullName"
                       value={formData.fullName}
                       onChange={(e) => handleInputChange('fullName', e.target.value)}
                       required
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email" className="text-sm sm:text-base">Email *</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       required
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Label htmlFor="phone" className="text-sm sm:text-base">Phone Number *</Label>
                     <Input
                       id="phone"
                       value={formData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       required
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="experience">Years of Experience *</Label>
+                    <Label htmlFor="experience" className="text-sm sm:text-base">Years of Experience *</Label>
                     <Select onValueChange={(value) => handleInputChange('experience', value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-1">
                         <SelectValue placeholder="Select experience" />
                       </SelectTrigger>
                       <SelectContent>
@@ -123,42 +128,46 @@ const ProviderRegistration = () => {
 
                 {/* Address Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Address Information</h3>
+                  <h3 className="text-base sm:text-lg font-semibold">Address Information</h3>
                   <div>
-                    <Label htmlFor="address">Address *</Label>
+                    <Label htmlFor="address" className="text-sm sm:text-base">Address *</Label>
                     <Textarea
                       id="address"
                       value={formData.address}
                       onChange={(e) => handleInputChange('address', e.target.value)}
                       required
+                      className="mt-1"
                     />
                   </div>
-                  <div className="grid md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="city">City *</Label>
+                      <Label htmlFor="city" className="text-sm sm:text-base">City *</Label>
                       <Input
                         id="city"
                         value={formData.city}
                         onChange={(e) => handleInputChange('city', e.target.value)}
                         required
+                        className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="state">State *</Label>
+                      <Label htmlFor="state" className="text-sm sm:text-base">State *</Label>
                       <Input
                         id="state"
                         value={formData.state}
                         onChange={(e) => handleInputChange('state', e.target.value)}
                         required
+                        className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="pincode">Pincode *</Label>
+                      <Label htmlFor="pincode" className="text-sm sm:text-base">Pincode *</Label>
                       <Input
                         id="pincode"
                         value={formData.pincode}
                         onChange={(e) => handleInputChange('pincode', e.target.value)}
                         required
+                        className="mt-1"
                       />
                     </div>
                   </div>
@@ -166,36 +175,38 @@ const ProviderRegistration = () => {
 
                 {/* Service Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Service Information</h3>
+                  <h3 className="text-base sm:text-lg font-semibold">Service Information</h3>
                   <div>
-                    <Label htmlFor="services">Services Offered *</Label>
+                    <Label htmlFor="services" className="text-sm sm:text-base">Services Offered *</Label>
                     <Textarea
                       id="services"
                       placeholder="List the services you can provide (e.g., Plumbing, Electrical work, etc.)"
                       value={formData.services}
                       onChange={(e) => handleInputChange('services', e.target.value)}
                       required
+                      className="mt-1"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Service Description</Label>
+                    <Label htmlFor="description" className="text-sm sm:text-base">Service Description</Label>
                     <Textarea
                       id="description"
                       placeholder="Describe your expertise and what makes you unique"
                       value={formData.description}
                       onChange={(e) => handleInputChange('description', e.target.value)}
+                      className="mt-1"
                     />
                   </div>
                 </div>
 
                 {/* ID Proof Section */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Identity Verification</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <h3 className="text-base sm:text-lg font-semibold">Identity Verification</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="idProofType">ID Proof Type *</Label>
+                      <Label htmlFor="idProofType" className="text-sm sm:text-base">ID Proof Type *</Label>
                       <Select onValueChange={(value) => handleInputChange('idProofType', value)}>
-                        <SelectTrigger>
+                        <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Select ID type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -208,19 +219,20 @@ const ProviderRegistration = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="idProofNumber">ID Proof Number *</Label>
+                      <Label htmlFor="idProofNumber" className="text-sm sm:text-base">ID Proof Number *</Label>
                       <Input
                         id="idProofNumber"
                         value={formData.idProofNumber}
                         onChange={(e) => handleInputChange('idProofNumber', e.target.value)}
                         required
+                        className="mt-1"
                       />
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Upload ID Proof *</Label>
+                      <Label className="text-sm sm:text-base">Upload ID Proof *</Label>
                       <div className="mt-2">
                         <input
                           type="file"
@@ -235,8 +247,8 @@ const ProviderRegistration = () => {
                           className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#00B896] transition-colors"
                         >
                           <div className="text-center">
-                            <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600">
+                            <Upload className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-gray-400 mb-2" />
+                            <p className="text-xs sm:text-sm text-gray-600">
                               {formData.idProofFile ? formData.idProofFile.name : 'Click to upload ID proof'}
                             </p>
                           </div>
@@ -245,7 +257,7 @@ const ProviderRegistration = () => {
                     </div>
 
                     <div>
-                      <Label>Upload Valid Document/Certificate</Label>
+                      <Label className="text-sm sm:text-base">Upload Valid Document/Certificate</Label>
                       <div className="mt-2">
                         <input
                           type="file"
@@ -259,8 +271,8 @@ const ProviderRegistration = () => {
                           className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#00B896] transition-colors"
                         >
                           <div className="text-center">
-                            <FileText className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                            <p className="text-sm text-gray-600">
+                            <FileText className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-gray-400 mb-2" />
+                            <p className="text-xs sm:text-sm text-gray-600">
                               {formData.validDocument ? formData.validDocument.name : 'Click to upload certificate (optional)'}
                             </p>
                           </div>
@@ -270,17 +282,18 @@ const ProviderRegistration = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end space-x-4 pt-6">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 pt-6">
                   <Button 
                     type="button" 
                     variant="outline" 
                     onClick={() => navigate('/become-provider')}
+                    className="w-full sm:w-auto"
                   >
                     Cancel
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-[#00B896] hover:bg-[#00A085] text-white"
+                    className="bg-[#00B896] hover:bg-[#00A085] text-white w-full sm:w-auto"
                   >
                     Submit Registration
                   </Button>

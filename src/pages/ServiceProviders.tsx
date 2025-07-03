@@ -39,20 +39,21 @@ const ServiceProviders = ({ onShowAuth }: ServiceProvidersProps) => {
     <div className="min-h-screen bg-background">
       <Navigation onShowAuth={onShowAuth} />
       
-      <div className="pt-20 pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
+      <div className="pt-16 sm:pt-20 pb-6 sm:pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold mb-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="w-full sm:w-auto">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">
                 {serviceName || "Service"} Providers
               </h1>
-              <p className="text-muted-foreground text-base lg:text-lg">
+              <p className="text-muted-foreground text-sm sm:text-base lg:text-lg">
                 Choose from {filteredProviders.length} available providers
               </p>
             </div>
             <Button 
               variant="outline" 
               onClick={() => navigate(-1)}
+              className="w-full sm:w-auto"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
@@ -61,7 +62,7 @@ const ServiceProviders = ({ onShowAuth }: ServiceProvidersProps) => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <SearchAndFilters
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}

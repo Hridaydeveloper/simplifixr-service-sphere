@@ -75,6 +75,7 @@ const App = () => {
                 <Route path="/help-community" element={<HelpCommunity />} />
                 <Route path="/become-provider" element={<BecomeProvider />} />
                 <Route path="/provider-registration" element={<ProviderRegistration />} />
+                <Route path="/provider-dashboard" element={<ProviderDashboard />} />
                 <Route path="/auth/confirm" element={<AuthConfirm />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
