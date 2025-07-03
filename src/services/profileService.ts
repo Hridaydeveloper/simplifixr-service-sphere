@@ -5,7 +5,10 @@ export interface ProfileData {
   full_name?: string;
   location?: string;
   profile_picture_url?: string;
-  role?: 'customer' | 'provider';
+  role?: 'customer' | 'provider' | 'admin';
+  phone?: string;
+  is_available?: boolean;
+  bio?: string;
 }
 
 export const profileService = {
