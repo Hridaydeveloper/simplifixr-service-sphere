@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { ArrowLeft, Plus, Edit2, Trash2, User, Mail, Phone, MapPin, Calendar, Star, ToggleLeft, ToggleRight } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, Trash2, User, Mail, Phone, MapPin, Calendar, Star, ToggleLeft, ToggleRight, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface Service {
   id: string;
@@ -18,7 +19,9 @@ interface Service {
   price: string;
   timeNeeded: string;
   category: string;
+  customCategory?: string;
   available: boolean;
+  images: string[];
   createdAt: string;
 }
 
@@ -33,6 +36,7 @@ interface ProviderData {
   services: string;
   experience: string;
   description: string;
+  available: boolean;
 }
 
 const ProviderDashboard = () => {
@@ -41,19 +45,22 @@ const ProviderDashboard = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [isAddServiceOpen, setIsAddServiceOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [newService, setNewService] = useState({
     title: '',
     description: '',
     price: '',
     timeNeeded: '',
-    category: ''
+    category: '',
+    customCategory: ''
   });
 
   useEffect(() => {
     // Load provider data from localStorage
     const savedProviderData = localStorage.getItem('providerData');
     if (savedProviderData) {
-      setProviderData(JSON.parse(savedProviderData));
+      const data = JSON.parse(savedProviderData);
+      setProviderData({ ...data, available: data.available ?? true });
     }
 
     // Load services from localStorage
@@ -63,22 +70,47 @@ const ProviderDashboard = () => {
     }
   }, []);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setSelectedImages(prev => [...prev, ...files].slice(0, 5)); // Max 5 images
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAddService = () => {
     if (!newService.title || !newService.price || !newService.timeNeeded) return;
 
-    const service: Service = {
-      id: Date.now().toString(),
-      ...newService,
-      available: true,
-      createdAt: new Date().toISOString()
-    };
+    // Convert selected images to base64 strings for storage
+    const imagePromises = selectedImages.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+    });
 
-    const updatedServices = [...services, service];
-    setServices(updatedServices);
-    localStorage.setItem('providerServices', JSON.stringify(updatedServices));
-    
-    setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '' });
-    setIsAddServiceOpen(false);
+    Promise.all(imagePromises).then(imageUrls => {
+      const service: Service = {
+        id: Date.now().toString(),
+        ...newService,
+        customCategory: newService.category === 'other' ? newService.customCategory : '',
+        available: true,
+        images: imageUrls,
+        createdAt: new Date().toISOString()
+      };
+
+      const updatedServices = [...services, service];
+      setServices(updatedServices);
+      localStorage.setItem('providerServices', JSON.stringify(updatedServices));
+      
+      setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '', customCategory: '' });
+      setSelectedImages([]);
+      setIsAddServiceOpen(false);
+    });
   };
 
   const handleEditService = (service: Service) => {
@@ -88,7 +120,8 @@ const ProviderDashboard = () => {
       description: service.description,
       price: service.price,
       timeNeeded: service.timeNeeded,
-      category: service.category
+      category: service.category,
+      customCategory: service.customCategory || ''
     });
     setIsAddServiceOpen(true);
   };
@@ -96,18 +129,34 @@ const ProviderDashboard = () => {
   const handleUpdateService = () => {
     if (!editingService || !newService.title || !newService.price || !newService.timeNeeded) return;
 
-    const updatedServices = services.map(service =>
-      service.id === editingService.id
-        ? { ...service, ...newService }
-        : service
-    );
+    const imagePromises = selectedImages.length > 0 ? selectedImages.map(file => {
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target?.result as string);
+        reader.readAsDataURL(file);
+      });
+    }) : Promise.resolve(editingService.images);
 
-    setServices(updatedServices);
-    localStorage.setItem('providerServices', JSON.stringify(updatedServices));
-    
-    setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '' });
-    setEditingService(null);
-    setIsAddServiceOpen(false);
+    Promise.all([imagePromises].flat()).then(imageUrls => {
+      const updatedServices = services.map(service =>
+        service.id === editingService.id
+          ? { 
+              ...service, 
+              ...newService,
+              customCategory: newService.category === 'other' ? newService.customCategory : '',
+              images: selectedImages.length > 0 ? imageUrls as string[] : service.images
+            }
+          : service
+      );
+
+      setServices(updatedServices);
+      localStorage.setItem('providerServices', JSON.stringify(updatedServices));
+      
+      setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '', customCategory: '' });
+      setSelectedImages([]);
+      setEditingService(null);
+      setIsAddServiceOpen(false);
+    });
   };
 
   const handleDeleteService = (serviceId: string) => {
@@ -126,10 +175,19 @@ const ProviderDashboard = () => {
     localStorage.setItem('providerServices', JSON.stringify(updatedServices));
   };
 
+  const toggleProviderAvailability = () => {
+    if (providerData) {
+      const updatedData = { ...providerData, available: !providerData.available };
+      setProviderData(updatedData);
+      localStorage.setItem('providerData', JSON.stringify(updatedData));
+    }
+  };
+
   const handleCloseDialog = () => {
     setIsAddServiceOpen(false);
     setEditingService(null);
-    setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '' });
+    setSelectedImages([]);
+    setNewService({ title: '', description: '', price: '', timeNeeded: '', category: '', customCategory: '' });
   };
 
   if (!providerData) {
@@ -165,9 +223,21 @@ const ProviderDashboard = () => {
                 <p className="text-sm text-gray-600">Manage your services and profile</p>
               </div>
             </div>
-            <Badge variant="secondary" className="text-sm">
-              Provider
-            </Badge>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="provider-availability" className="text-sm font-medium">
+                  Available
+                </Label>
+                <Switch
+                  id="provider-availability"
+                  checked={providerData.available}
+                  onCheckedChange={toggleProviderAvailability}
+                />
+              </div>
+              <Badge variant={providerData.available ? "default" : "secondary"} className="text-sm">
+                {providerData.available ? "Available" : "Unavailable"}
+              </Badge>
+            </div>
           </div>
         </div>
       </div>
@@ -192,6 +262,9 @@ const ProviderDashboard = () => {
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900">{providerData.fullName}</h3>
                   <p className="text-sm text-gray-600">Service Provider</p>
+                  <Badge variant={providerData.available ? "default" : "secondary"} className="mt-2">
+                    {providerData.available ? "Available" : "Unavailable"}
+                  </Badge>
                 </div>
                 
                 <div className="space-y-3 text-sm">
@@ -244,7 +317,7 @@ const ProviderDashboard = () => {
                         Add Service
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-md">
+                    <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>
                           {editingService ? 'Edit Service' : 'Add New Service'}
@@ -306,6 +379,50 @@ const ProviderDashboard = () => {
                             </SelectContent>
                           </Select>
                         </div>
+                        {newService.category === 'other' && (
+                          <div>
+                            <Label htmlFor="customCategory">Custom Service Type</Label>
+                            <Input
+                              id="customCategory"
+                              value={newService.customCategory}
+                              onChange={(e) => setNewService({ ...newService, customCategory: e.target.value })}
+                              placeholder="Enter your service type"
+                            />
+                          </div>
+                        )}
+                        <div>
+                          <Label htmlFor="serviceImages">Service Images (Max 5)</Label>
+                          <div className="space-y-2">
+                            <Input
+                              id="serviceImages"
+                              type="file"
+                              multiple
+                              accept="image/*"
+                              onChange={handleImageSelect}
+                              className="cursor-pointer"
+                            />
+                            {selectedImages.length > 0 && (
+                              <div className="grid grid-cols-2 gap-2">
+                                {selectedImages.map((image, index) => (
+                                  <div key={index} className="relative">
+                                    <img
+                                      src={URL.createObjectURL(image)}
+                                      alt={`Preview ${index + 1}`}
+                                      className="w-full h-20 object-cover rounded border"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeImage(index)}
+                                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                                    >
+                                      <X className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
                         <div className="flex space-x-2 pt-4">
                           <Button 
                             variant="outline" 
@@ -355,7 +472,7 @@ const ProviderDashboard = () => {
                               <h3 className="font-semibold text-gray-900 truncate">{service.title}</h3>
                               {service.category && (
                                 <Badge variant="secondary" className="text-xs">
-                                  {service.category}
+                                  {service.customCategory || service.category}
                                 </Badge>
                               )}
                               <Badge variant={service.available ? "default" : "secondary"} className="text-xs">
@@ -364,6 +481,23 @@ const ProviderDashboard = () => {
                             </div>
                             {service.description && (
                               <p className="text-sm text-gray-600 mb-2 line-clamp-2">{service.description}</p>
+                            )}
+                            {service.images.length > 0 && (
+                              <div className="flex space-x-2 mb-2">
+                                {service.images.slice(0, 3).map((image, index) => (
+                                  <img
+                                    key={index}
+                                    src={image}
+                                    alt={`Service ${index + 1}`}
+                                    className="w-12 h-12 object-cover rounded border"
+                                  />
+                                ))}
+                                {service.images.length > 3 && (
+                                  <div className="w-12 h-12 bg-gray-100 rounded border flex items-center justify-center text-xs text-gray-500">
+                                    +{service.images.length - 3}
+                                  </div>
+                                )}
+                              </div>
                             )}
                             <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                               <span className="font-medium text-[#00B896]">{service.price}</span>

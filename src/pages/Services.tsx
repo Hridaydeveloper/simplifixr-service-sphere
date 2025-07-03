@@ -20,6 +20,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(true);
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false);
+  const [providerServices, setProviderServices] = useState<any[]>([]);
   const locationState = useLocation();
   const navigate = useNavigate();
 
@@ -29,6 +30,12 @@ const Services = ({ onShowAuth }: ServicesProps) => {
   useEffect(() => {
     if (locationState.state?.scrollToTop) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Load provider services from localStorage
+    const savedServices = localStorage.getItem('providerServices');
+    if (savedServices) {
+      setProviderServices(JSON.parse(savedServices));
     }
   }, [locationState]);
 
@@ -55,7 +62,7 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     { id: "art", name: "Art & Design", icon: PaintBucket }
   ];
 
-  const allServices = [
+  const staticServices = [
     // Cleaning & Sanitation
     { id: 1, category: "cleaning", name: "Kitchen Deep Cleaning", price: "₹499-899", rating: 4.8, time: "2-3 hrs", image: "🍳", description: "Professional kitchen cleaning with degreasing" },
     { id: 2, category: "cleaning", name: "Bathroom Cleaning", price: "₹299-599", rating: 4.9, time: "1-2 hrs", image: "🚿", description: "Complete bathroom sanitization" },
@@ -164,6 +171,22 @@ const Services = ({ onShowAuth }: ServicesProps) => {
     { id: 69, category: "art", name: "Wall Art Painting", price: "₹1999-7999", rating: 4.9, time: "4-8 hrs", image: "🎨", description: "Custom wall murals and art" },
     { id: 70, category: "art", name: "Graphic Design", price: "₹999-4999", rating: 4.8, time: "varies", image: "🖌️", description: "Logo, poster, banner design" }
   ];
+
+  // Convert provider services to match the format and add them to the services list
+  const convertedProviderServices = providerServices.map((service, index) => ({
+    id: `provider-${service.id}`,
+    category: service.category === 'other' ? 'art' : service.category, // Map 'other' to a valid category
+    name: service.title,
+    price: service.price,
+    rating: 4.5, // Default rating for provider services
+    time: service.timeNeeded,
+    image: service.images.length > 0 ? service.images[0] : "🔧", // Use first image or default emoji
+    description: service.description || "Professional service",
+    isProviderService: true,
+    providerImages: service.images
+  }));
+
+  const allServices = [...staticServices, ...convertedProviderServices];
 
   const filteredServices = allServices.filter(service => {
     const matchesCategory = selectedCategory === "all" || service.category === selectedCategory;
@@ -345,7 +368,17 @@ const Services = ({ onShowAuth }: ServicesProps) => {
               {filteredServices.map(service => (
                 <Card key={service.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md">
                   <CardContent className="p-6">
-                    <div className="text-4xl mb-4">{service.image}</div>
+                    <div className="mb-4">
+                      {service.isProviderService && service.providerImages?.length > 0 ? (
+                        <img
+                          src={service.providerImages[0]}
+                          alt={service.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
+                      ) : (
+                        <div className="text-4xl">{service.image}</div>
+                      )}
+                    </div>
                     <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
                       {service.name}
                     </h3>
