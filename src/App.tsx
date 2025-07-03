@@ -24,6 +24,7 @@ import Shop from "./pages/Shop";
 import HelpCommunity from "./pages/HelpCommunity";
 import BecomeProvider from "./pages/BecomeProvider";
 import ProviderRegistration from "./pages/ProviderRegistration";
+import ProviderDashboard from "./pages/ProviderDashboard";
 import AuthConfirm from "./pages/AuthConfirm";
 import NotFound from "./pages/NotFound";
 import TermsOfService from "./pages/TermsOfService";
