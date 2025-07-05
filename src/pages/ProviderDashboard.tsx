@@ -33,41 +33,87 @@ const ProviderDashboard = () => {
 
   useEffect(() => {
     if (!roleLoading && user) {
+      // If user doesn't have provider role, try to update it or redirect
       if (role !== 'provider') {
-        toast({
-          title: "Access Denied",
-          description: "You need to be a provider to access this page",
-          variant: "destructive"
-        });
-        navigate('/');
-        return;
+        // Check if this is a new provider account
+        const urlParams = new URLSearchParams(window.location.search);
+        const isNewProvider = urlParams.get('new') === 'true';
+        
+        if (isNewProvider || role === null) {
+          // Try to update role to provider
+          updateUserToProvider();
+        } else {
+          toast({
+            title: "Access Denied",
+            description: "You need to be a provider to access this page",
+            variant: "destructive"
+          });
+          navigate('/become-provider');
+          return;
+        }
       }
       fetchDashboardData();
     }
   }, [user, role, roleLoading, navigate]);
+
+  const updateUserToProvider = async () => {
+    if (!user) return;
+    
+    try {
+      await profileService.updateProfile(user.id, { role: 'provider' });
+      // Force a page refresh to update the role
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({
+        title: "Setup Required",
+        description: "Please complete your provider registration",
+        variant: "destructive"
+      });
+      navigate('/become-provider');
+    }
+  };
 
   const fetchDashboardData = async () => {
     if (!user) return;
     
     try {
       setLoading(true);
-      const [servicesData, bookingsData, profileData] = await Promise.all([
+      
+      // Fetch data with error handling
+      const [servicesData, bookingsData, profileData] = await Promise.allSettled([
         serviceService.getMyProviderServices(user.id),
         bookingService.getMyBookings(),
         profileService.getProfile(user.id)
       ]);
 
-      setServices(servicesData || []);
-      setBookings(bookingsData || []);
+      // Handle services data
+      if (servicesData.status === 'fulfilled') {
+        setServices(servicesData.value || []);
+      } else {
+        console.error('Error fetching services:', servicesData.reason);
+        setServices([]);
+      }
+
+      // Handle bookings data  
+      if (bookingsData.status === 'fulfilled') {
+        setBookings(bookingsData.value || []);
+      } else {
+        console.error('Error fetching bookings:', bookingsData.reason);
+        setBookings([]);
+      }
       
-      if (profileData) {
-        // Type assertion since schema includes is_available but types haven't been regenerated
-        const profile = profileData as any;
+      // Handle profile data
+      if (profileData.status === 'fulfilled' && profileData.value) {
+        const profile = profileData.value as any;
         setIsAvailable(profile.is_available ?? true);
       }
 
-      // Calculate stats
-      const providerBookings = bookingsData.filter(booking => booking.provider_id === user.id);
+      // Calculate stats from successfully fetched data
+      const validBookings = bookingsData.status === 'fulfilled' ? (bookingsData.value || []) : [];
+      const validServices = servicesData.status === 'fulfilled' ? (servicesData.value || []) : [];
+      
+      const providerBookings = validBookings.filter(booking => booking.provider_id === user.id);
       const activeBookings = providerBookings.filter(b => 
         ['pending', 'confirmed', 'in_progress'].includes(b.status)
       ).length;
@@ -77,7 +123,7 @@ const ProviderDashboard = () => {
         .reduce((sum, b) => sum + (b.total_amount || 0), 0);
 
       setStats({
-        totalServices: servicesData?.length || 0,
+        totalServices: validServices.length,
         activeBookings,
         totalEarnings,
         rating: 4.8 // This would come from reviews in a real app
@@ -86,9 +132,8 @@ const ProviderDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: "Error",
-        description: "Failed to load dashboard data",
-        variant: "destructive"
+        title: "Welcome to Your Dashboard!",
+        description: "Start by adding your first service to attract customers",
       });
     } finally {
       setLoading(false);
@@ -137,14 +182,15 @@ const ProviderDashboard = () => {
     fetchDashboardData();
   };
 
-  if (roleLoading || loading) {
+  // Show loading screen while checking authentication and role
+  if (roleLoading || (loading && role !== 'provider')) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#00B896] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p>Loading dashboard...</p>
+            <p>Setting up your provider dashboard...</p>
           </div>
         </div>
       </div>

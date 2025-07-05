@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { authService } from "@/services/authService";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { profileService } from "@/services/profileService";
 
 interface ProviderSignupProps {
   contact: string;
@@ -38,6 +38,15 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
       return;
     }
 
+    if (!location.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter your location",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -59,6 +68,7 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
     setIsLoading(true);
 
     try {
+      // Sign up the user
       const { data, error } = await supabase.auth.signUp({
         email: contact,
         password: password,
@@ -76,6 +86,19 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
       if (error) throw error;
 
       if (data.user) {
+        // Create profile with provider role
+        try {
+          await profileService.createProfile(data.user.id, {
+            full_name: fullName,
+            location: location,
+            role: 'provider',
+            bio: serviceDescription
+          });
+        } catch (profileError) {
+          console.error('Profile creation error:', profileError);
+          // Continue even if profile creation fails - it will be created by trigger
+        }
+
         toast({
           title: "Provider account created successfully!",
           description: "You are being signed in...",
@@ -89,7 +112,10 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
 
         if (signInError) {
           console.error('Sign in error:', signInError);
-          // Even if sign in fails, we can still complete the flow
+          toast({
+            title: "Account created",
+            description: "Please sign in with your credentials",
+          });
         }
 
         // Complete the auth flow

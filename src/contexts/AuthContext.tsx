@@ -32,14 +32,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Creating profile for user:', user.id);
       const existingProfile = await profileService.getProfile(user.id);
       if (!existingProfile) {
+        const userData = user.user_metadata || {};
         await profileService.createProfile(user.id, {
-          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
-          location: user.user_metadata?.location || '',
-          role: user.user_metadata?.role || 'customer'
+          full_name: userData.full_name || user.email?.split('@')[0] || 'User',
+          location: userData.location || '',
+          role: userData.role || 'customer',
+          bio: userData.service_description || userData.bio || '',
+          phone: userData.phone || ''
         });
         console.log('Profile created successfully');
       } else {
         console.log('Profile already exists for user:', user.id);
+        
+        // Update role if it's specified in metadata but not in profile
+        const userData = user.user_metadata || {};
+        if (userData.role && userData.role !== (existingProfile as any).role) {
+          console.log('Updating user role to:', userData.role);
+          await profileService.updateProfile(user.id, {
+            role: userData.role
+          });
+        }
       }
     } catch (error) {
       console.error('Error handling user profile:', error);
@@ -61,8 +73,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         localStorage.removeItem('guestMode');
         
-        // Create profile for authenticated users
-        if (event === 'SIGNED_IN') {
+        // Create/update profile for authenticated users
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setTimeout(() => {
             if (mounted) {
               createProfileIfNeeded(session.user);
@@ -87,7 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (mounted) {
             setUser(session?.user ?? null);
             
-            // Create profile if user exists
+            // Create/update profile if user exists
             if (session?.user) {
               setTimeout(() => {
                 if (mounted) {
