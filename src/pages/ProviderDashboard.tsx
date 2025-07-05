@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -53,7 +52,7 @@ const ProviderDashboard = () => {
         console.error('Profile fetch error:', profileError);
       }
 
-      // Set profile data
+      // Set profile data with safe property access
       const profileData = profile || {
         id: user.id,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
@@ -66,7 +65,8 @@ const ProviderDashboard = () => {
       };
 
       setUserProfile(profileData);
-      setIsAvailable(profileData.is_available || true);
+      // Safely access is_available with fallback to true
+      setIsAvailable((profileData as any).is_available ?? true);
 
       // Try to update profile with provider role using RPC
       try {
