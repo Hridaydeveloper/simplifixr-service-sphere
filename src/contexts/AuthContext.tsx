@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { profileService } from '@/services/profileService';
 
 interface AuthContextType {
   user: User | null;
@@ -27,31 +26,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const createProfileIfNeeded = async (user: User) => {
+  const createOrUpdateProfile = async (user: User) => {
     try {
-      console.log('Creating profile for user:', user.id);
-      const existingProfile = await profileService.getProfile(user.id);
-      if (!existingProfile) {
-        const userData = user.user_metadata || {};
-        await profileService.createProfile(user.id, {
-          full_name: userData.full_name || user.email?.split('@')[0] || 'User',
-          location: userData.location || '',
-          role: userData.role || 'customer',
-          bio: userData.service_description || userData.bio || '',
-          phone: userData.phone || ''
-        });
-        console.log('Profile created successfully');
+      console.log('Creating/updating profile for user:', user.id);
+      
+      const userData = user.user_metadata || {};
+      const profileData = {
+        id: user.id,
+        full_name: userData.full_name || user.email?.split('@')[0] || 'User',
+        location: userData.location || '',
+        role: userData.role || 'customer',
+        bio: userData.service_description || userData.bio || '',
+        phone: userData.phone || ''
+      };
+
+      // Use upsert to create or update the profile
+      const { error } = await supabase
+        .from('profiles')
+        .upsert(profileData, { onConflict: 'id' });
+
+      if (error) {
+        console.error('Profile upsert error:', error);
       } else {
-        console.log('Profile already exists for user:', user.id);
-        
-        // Update role if it's specified in metadata but not in profile
-        const userData = user.user_metadata || {};
-        if (userData.role && userData.role !== (existingProfile as any).role) {
-          console.log('Updating user role to:', userData.role);
-          await profileService.updateProfile(user.id, {
-            role: userData.role
-          });
-        }
+        console.log('Profile created/updated successfully');
       }
     } catch (error) {
       console.error('Error handling user profile:', error);
@@ -77,7 +74,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setTimeout(() => {
             if (mounted) {
-              createProfileIfNeeded(session.user);
+              createOrUpdateProfile(session.user);
             }
           }, 0);
         }
@@ -103,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             if (session?.user) {
               setTimeout(() => {
                 if (mounted) {
-                  createProfileIfNeeded(session.user);
+                  createOrUpdateProfile(session.user);
                 }
               }, 0);
             }

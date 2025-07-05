@@ -9,21 +9,18 @@ import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { useUserRole } from "@/hooks/useUserRole";
-import { serviceService, ProviderService } from "@/services/serviceService";
-import { bookingService, Booking } from "@/services/bookingService";
-import { profileService } from "@/services/profileService";
+import { supabase } from "@/integrations/supabase/client";
 import AddServiceModal from "@/components/provider/AddServiceModal";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { role, loading: roleLoading } = useUserRole();
-  const [services, setServices] = useState<ProviderService[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const [stats, setStats] = useState({
     totalServices: 0,
     activeBookings: 0,
@@ -32,105 +29,70 @@ const ProviderDashboard = () => {
   });
 
   useEffect(() => {
-    if (!roleLoading && user) {
-      // If user doesn't have provider role, try to update it or redirect
-      if (role !== 'provider') {
-        // Check if this is a new provider account
-        const urlParams = new URLSearchParams(window.location.search);
-        const isNewProvider = urlParams.get('new') === 'true';
-        
-        if (isNewProvider || role === null) {
-          // Try to update role to provider
-          updateUserToProvider();
-        } else {
-          toast({
-            title: "Access Denied",
-            description: "You need to be a provider to access this page",
-            variant: "destructive"
+    if (user) {
+      checkUserAccess();
+    } else {
+      navigate('/auth');
+    }
+  }, [user, navigate]);
+
+  const checkUserAccess = async () => {
+    if (!user) return;
+    
+    try {
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('Profile fetch error:', profileError);
+        throw profileError;
+      }
+
+      if (!profile) {
+        // Create profile if it doesn't exist
+        const { error: createError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            role: 'provider',
+            location: user.user_metadata?.location || ''
           });
-          navigate('/become-provider');
-          return;
+
+        if (createError) {
+          console.error('Profile creation error:', createError);
+        }
+        
+        setUserProfile({ 
+          id: user.id, 
+          role: 'provider', 
+          full_name: user.user_metadata?.full_name || 'User',
+          is_available: true
+        });
+      } else {
+        setUserProfile(profile);
+        setIsAvailable(profile.is_available ?? true);
+        
+        // Update role to provider if it's not already
+        if (profile.role !== 'provider') {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ role: 'provider' })
+            .eq('id', user.id);
+            
+          if (updateError) {
+            console.error('Role update error:', updateError);
+          }
         }
       }
-      fetchDashboardData();
-    }
-  }, [user, role, roleLoading, navigate]);
 
-  const updateUserToProvider = async () => {
-    if (!user) return;
-    
-    try {
-      await profileService.updateProfile(user.id, { role: 'provider' });
-      // Force a page refresh to update the role
-      window.location.reload();
+      await fetchDashboardData();
     } catch (error) {
-      console.error('Error updating user role:', error);
-      toast({
-        title: "Setup Required",
-        description: "Please complete your provider registration",
-        variant: "destructive"
-      });
-      navigate('/become-provider');
-    }
-  };
-
-  const fetchDashboardData = async () => {
-    if (!user) return;
-    
-    try {
-      setLoading(true);
-      
-      // Fetch data with error handling
-      const [servicesData, bookingsData, profileData] = await Promise.allSettled([
-        serviceService.getMyProviderServices(user.id),
-        bookingService.getMyBookings(),
-        profileService.getProfile(user.id)
-      ]);
-
-      // Handle services data
-      if (servicesData.status === 'fulfilled') {
-        setServices(servicesData.value || []);
-      } else {
-        console.error('Error fetching services:', servicesData.reason);
-        setServices([]);
-      }
-
-      // Handle bookings data  
-      if (bookingsData.status === 'fulfilled') {
-        setBookings(bookingsData.value || []);
-      } else {
-        console.error('Error fetching bookings:', bookingsData.reason);
-        setBookings([]);
-      }
-      
-      // Handle profile data
-      if (profileData.status === 'fulfilled' && profileData.value) {
-        const profile = profileData.value as any;
-        setIsAvailable(profile.is_available ?? true);
-      }
-
-      // Calculate stats from successfully fetched data
-      const validBookings = bookingsData.status === 'fulfilled' ? (bookingsData.value || []) : [];
-      const validServices = servicesData.status === 'fulfilled' ? (servicesData.value || []) : [];
-      
-      const providerBookings = validBookings.filter(booking => booking.provider_id === user.id);
-      const activeBookings = providerBookings.filter(b => 
-        ['pending', 'confirmed', 'in_progress'].includes(b.status)
-      ).length;
-      
-      const totalEarnings = providerBookings
-        .filter(b => b.status === 'completed')
-        .reduce((sum, b) => sum + (b.total_amount || 0), 0);
-
-      setStats({
-        totalServices: validServices.length,
-        activeBookings,
-        totalEarnings,
-        rating: 4.8 // This would come from reviews in a real app
-      });
-
-    } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      console.error('Error checking user access:', error);
       toast({
         title: "Welcome to Your Dashboard!",
         description: "Start by adding your first service to attract customers",
@@ -140,11 +102,88 @@ const ProviderDashboard = () => {
     }
   };
 
+  const fetchDashboardData = async () => {
+    if (!user) return;
+    
+    try {
+      // Fetch provider services
+      const { data: servicesData, error: servicesError } = await supabase
+        .from('provider_services')
+        .select(`
+          *,
+          master_services (
+            id,
+            name,
+            category
+          )
+        `)
+        .eq('provider_id', user.id);
+
+      if (servicesError) {
+        console.error('Services fetch error:', servicesError);
+      } else {
+        setServices(servicesData || []);
+      }
+
+      // Fetch bookings
+      const { data: bookingsData, error: bookingsError } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          provider_services (
+            *,
+            master_services (
+              name
+            )
+          ),
+          profiles!bookings_customer_id_fkey (
+            full_name
+          )
+        `)
+        .eq('provider_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (bookingsError) {
+        console.error('Bookings fetch error:', bookingsError);
+      } else {
+        setBookings(bookingsData || []);
+      }
+
+      // Calculate stats
+      const validServices = servicesData || [];
+      const validBookings = bookingsData || [];
+      
+      const activeBookings = validBookings.filter(b => 
+        ['pending', 'confirmed', 'in_progress'].includes(b.status)
+      ).length;
+      
+      const totalEarnings = validBookings
+        .filter(b => b.status === 'completed')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount) || 0), 0);
+
+      setStats({
+        totalServices: validServices.length,
+        activeBookings,
+        totalEarnings,
+        rating: 4.8
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    }
+  };
+
   const handleAvailabilityToggle = async (available: boolean) => {
     if (!user) return;
 
     try {
-      await profileService.updateProfile(user.id, { is_available: available });
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_available: available })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
       setIsAvailable(available);
       toast({
         title: "Status Updated",
@@ -162,7 +201,14 @@ const ProviderDashboard = () => {
 
   const handleDeleteService = async (serviceId: string) => {
     try {
-      await serviceService.deleteProviderService(serviceId);
+      const { error } = await supabase
+        .from('provider_services')
+        .delete()
+        .eq('id', serviceId)
+        .eq('provider_id', user?.id);
+
+      if (error) throw error;
+
       setServices(prev => prev.filter(s => s.id !== serviceId));
       toast({
         title: "Success",
@@ -182,15 +228,14 @@ const ProviderDashboard = () => {
     fetchDashboardData();
   };
 
-  // Show loading screen while checking authentication and role
-  if (roleLoading || (loading && role !== 'provider')) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
             <div className="w-8 h-8 border-4 border-[#00B896] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p>Setting up your provider dashboard...</p>
+            <p>Loading your provider dashboard...</p>
           </div>
         </div>
       </div>
@@ -206,7 +251,9 @@ const ProviderDashboard = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Dashboard</h1>
-            <p className="text-gray-600">Manage your services and bookings</p>
+            <p className="text-gray-600">
+              Welcome {userProfile?.full_name || 'Provider'}! Manage your services and bookings
+            </p>
           </div>
           
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
@@ -321,7 +368,7 @@ const ProviderDashboard = () => {
                       </Badge>
                     </div>
                     <CardTitle className="text-lg">
-                      {service.master_service?.name || service.custom_service_name}
+                      {service.master_services?.name || service.custom_service_name}
                     </CardTitle>
                   </CardHeader>
                   
@@ -385,11 +432,11 @@ const ProviderDashboard = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         <h4 className="font-semibold">
-                          {booking.provider_service?.master_service?.name || 
-                           booking.provider_service?.custom_service_name || 'Service'}
+                          {booking.provider_services?.master_services?.name || 
+                           booking.provider_services?.custom_service_name || 'Service'}
                         </h4>
                         <p className="text-sm text-gray-600">
-                          Customer: {booking.customer_profile?.full_name || 'Unknown'}
+                          Customer: {booking.profiles?.full_name || 'Unknown'}
                         </p>
                         <p className="text-sm text-gray-500">
                           {booking.scheduled_date ? 

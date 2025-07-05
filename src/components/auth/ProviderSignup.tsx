@@ -6,8 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { profileService } from "@/services/profileService";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProviderSignupProps {
   contact: string;
@@ -25,6 +24,8 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { signUp } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,11 +69,12 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
     setIsLoading(true);
 
     try {
-      // Sign up the user
-      const { data, error } = await supabase.auth.signUp({
+      // Sign up the user with proper email confirmation
+      const { data, error } = await signUp({
         email: contact,
         password: password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`,
           data: {
             full_name: fullName,
             location: location,
@@ -83,44 +85,24 @@ const ProviderSignup = ({ contact, onBack, onComplete }: ProviderSignupProps) =>
         }
       });
 
-      if (error) throw error;
-
-      if (data.user) {
-        // Create profile with provider role
-        try {
-          await profileService.createProfile(data.user.id, {
-            full_name: fullName,
-            location: location,
-            role: 'provider',
-            bio: serviceDescription
-          });
-        } catch (profileError) {
-          console.error('Profile creation error:', profileError);
-          // Continue even if profile creation fails - it will be created by trigger
-        }
-
-        toast({
-          title: "Provider account created successfully!",
-          description: "You are being signed in...",
-        });
-
-        // Sign in the user immediately after signup
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: contact,
-          password: password,
-        });
-
-        if (signInError) {
-          console.error('Sign in error:', signInError);
-          toast({
-            title: "Account created",
-            description: "Please sign in with your credentials",
-          });
-        }
-
-        // Complete the auth flow
-        onComplete();
+      if (error) {
+        throw error;
       }
+
+      if (data.user && !data.user.email_confirmed_at) {
+        toast({
+          title: "Check your email!",
+          description: "We've sent you a confirmation link to complete your registration.",
+        });
+      } else if (data.user) {
+        toast({
+          title: "Provider account created!",
+          description: "Welcome to Simplifixr!",
+        });
+      }
+
+      // Complete the auth flow
+      onComplete();
     } catch (error: any) {
       console.error('Signup error:', error);
       toast({
