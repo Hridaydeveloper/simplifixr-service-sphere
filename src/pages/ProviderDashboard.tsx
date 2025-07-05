@@ -42,7 +42,7 @@ const ProviderDashboard = () => {
     try {
       console.log('Checking user access for:', user.id);
       
-      // Get user profile using direct query (only for fields that exist in the type)
+      // Get user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
@@ -51,24 +51,26 @@ const ProviderDashboard = () => {
 
       if (profileError && profileError.code !== 'PGRST116') {
         console.error('Profile fetch error:', profileError);
-        // Continue without throwing to allow dashboard to load
       }
 
-      // Set profile data with type safety
+      // Set profile data
       const profileData = profile || {
         id: user.id,
         full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
         location: user.user_metadata?.location || '',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        profile_picture_url: null
+        profile_picture_url: null,
+        role: 'provider',
+        is_available: true
       };
 
       setUserProfile(profileData);
+      setIsAvailable(profileData.is_available || true);
 
-      // Try to get additional profile data using RPC function (which handles extended fields)
+      // Try to update profile with provider role using RPC
       try {
-        const { data: extendedProfile, error: rpcError } = await supabase
+        const { error: rpcError } = await (supabase as any)
           .rpc('update_profile', {
             user_id: user.id,
             profile_data: {
@@ -77,11 +79,11 @@ const ProviderDashboard = () => {
             }
           });
 
-        if (!rpcError) {
-          setIsAvailable(true);
+        if (rpcError) {
+          console.log('RPC profile update error:', rpcError);
         }
       } catch (rpcError) {
-        console.log('RPC profile update not available, using basic profile');
+        console.log('RPC profile update not available:', rpcError);
       }
 
       await fetchDashboardData();
@@ -104,7 +106,7 @@ const ProviderDashboard = () => {
 
       // Fetch provider services using RPC function
       try {
-        const { data: servicesData, error: servicesError } = await supabase
+        const { data: servicesData, error: servicesError } = await (supabase as any)
           .rpc('get_my_provider_services', { provider_id: user.id });
 
         if (servicesError) {
@@ -121,7 +123,7 @@ const ProviderDashboard = () => {
 
       // Fetch bookings using RPC function
       try {
-        const { data: bookingsData, error: bookingsError } = await supabase
+        const { data: bookingsData, error: bookingsError } = await (supabase as any)
           .rpc('get_user_bookings', { user_id: user.id });
 
         if (bookingsError) {
@@ -136,31 +138,36 @@ const ProviderDashboard = () => {
         setBookings([]);
       }
 
-      // Calculate stats safely
-      const validServices = services || [];
-      const validBookings = bookings || [];
-      
-      const activeBookings = validBookings.filter((b: any) => 
-        b.status && ['pending', 'confirmed', 'in_progress'].includes(b.status)
-      ).length;
-      
-      const totalEarnings = validBookings
-        .filter((b: any) => b.status === 'completed' && b.total_amount)
-        .reduce((sum: number, b: any) => sum + (parseFloat(b.total_amount.toString()) || 0), 0);
-
-      setStats({
-        totalServices: validServices.length,
-        activeBookings,
-        totalEarnings,
-        rating: 4.8
-      });
+      // Update stats after fetching data
+      setTimeout(() => {
+        updateStats();
+      }, 100);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      // Set empty states to prevent UI errors
       setServices([]);
       setBookings([]);
     }
+  };
+
+  const updateStats = () => {
+    const validServices = services || [];
+    const validBookings = bookings || [];
+    
+    const activeBookings = validBookings.filter((b: any) => 
+      b.status && ['pending', 'confirmed', 'in_progress'].includes(b.status)
+    ).length;
+    
+    const totalEarnings = validBookings
+      .filter((b: any) => b.status === 'completed' && b.total_amount)
+      .reduce((sum: number, b: any) => sum + (parseFloat(b.total_amount.toString()) || 0), 0);
+
+    setStats({
+      totalServices: validServices.length,
+      activeBookings,
+      totalEarnings,
+      rating: 4.8
+    });
   };
 
   const handleAvailabilityToggle = async (available: boolean) => {
@@ -168,7 +175,7 @@ const ProviderDashboard = () => {
 
     try {
       // Use RPC function to update availability
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .rpc('update_profile', {
           user_id: user.id,
           profile_data: {
@@ -177,7 +184,7 @@ const ProviderDashboard = () => {
         });
 
       if (error) {
-        console.log('RPC update not available, continuing...');
+        console.log('RPC update error:', error);
       }
 
       setIsAvailable(available);
@@ -187,23 +194,24 @@ const ProviderDashboard = () => {
       });
     } catch (error) {
       console.error('Error updating availability:', error);
+      setIsAvailable(available);
       toast({
         title: "Status Updated", 
         description: `You are now ${available ? 'available' : 'unavailable'} for bookings`
       });
-      setIsAvailable(available);
     }
   };
 
   const handleDeleteService = async (serviceId: string) => {
     try {
       // Use RPC function to delete service
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .rpc('delete_provider_service', { service_id: serviceId });
 
       if (error) throw error;
 
       setServices(prev => prev.filter(s => s.id !== serviceId));
+      updateStats();
       toast({
         title: "Success",
         description: "Service deleted successfully"
