@@ -40,22 +40,42 @@ const EmailSentConfirmation = ({
     }
   }, [resendTimer]);
 
-  const handleResendEmail = async () => {
-    setIsResending(true);
+  const sendConfirmationEmail = async (email: string, fullName: string, confirmationUrl: string) => {
     try {
-      // Use Supabase's resend method instead of creating a new signup
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`
+      console.log('Sending confirmation email to:', email);
+      const { data, error } = await supabase.functions.invoke('send-confirmation-email', {
+        body: {
+          email: email,
+          confirmationUrl: confirmationUrl,
+          fullName: fullName
         }
       });
 
       if (error) {
-        console.error('Error resending confirmation email:', error);
+        console.error('Email sending error:', error);
         throw error;
       }
+
+      console.log('Email sent successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to send confirmation email:', error);
+      throw error;
+    }
+  };
+
+  const handleResendEmail = async () => {
+    setIsResending(true);
+    try {
+      console.log('Resending confirmation email to:', email);
+      
+      // Send our custom confirmation email
+      const confirmationUrl = `${window.location.origin}/auth/confirm`;
+      await sendConfirmationEmail(
+        email,
+        fullName || 'User',
+        confirmationUrl
+      );
 
       toast({
         title: "Email Resent",

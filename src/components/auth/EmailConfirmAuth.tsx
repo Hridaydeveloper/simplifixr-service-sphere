@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailConfirmAuthProps {
   onBack?: () => void;
@@ -33,6 +33,30 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const sendConfirmationEmail = async (email: string, fullName: string, confirmationUrl: string) => {
+    try {
+      console.log('Sending confirmation email to:', email);
+      const { data, error } = await supabase.functions.invoke('send-confirmation-email', {
+        body: {
+          email: email,
+          confirmationUrl: confirmationUrl,
+          fullName: fullName
+        }
+      });
+
+      if (error) {
+        console.error('Email sending error:', error);
+        throw error;
+      }
+
+      console.log('Email sent successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to send confirmation email:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -40,7 +64,7 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
     try {
       if (isSignUp) {
         // Sign up with email confirmation
-        const { error } = await signUp({
+        const { data, error } = await signUp({
           email: formData.email,
           password: formData.password,
           options: {
@@ -64,6 +88,23 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
             return;
           }
           throw error;
+        }
+
+        // Send custom confirmation email
+        if (data.user && !data.user.email_confirmed_at) {
+          try {
+            // Create confirmation URL - this will be handled by our custom email template
+            const confirmationUrl = `${window.location.origin}/auth/confirm`;
+            
+            await sendConfirmationEmail(
+              formData.email,
+              formData.fullName,
+              confirmationUrl
+            );
+          } catch (emailError) {
+            console.error('Custom email sending failed:', emailError);
+            // Don't throw here - the default Supabase email should still work
+          }
         }
 
         setEmailSent(true);
@@ -101,6 +142,35 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
     }
   };
 
+  const handleResendEmail = async () => {
+    setLoading(true);
+    try {
+      console.log('Resending confirmation email to:', formData.email);
+      
+      // Send our custom confirmation email
+      const confirmationUrl = `${window.location.origin}/auth/confirm`;
+      await sendConfirmationEmail(
+        formData.email,
+        formData.fullName,
+        confirmationUrl
+      );
+
+      toast({
+        title: "Email Resent",
+        description: "We've sent another confirmation email to your inbox.",
+      });
+    } catch (error: any) {
+      console.error('Error resending email:', error);
+      toast({
+        variant: "destructive",
+        title: "Failed to Resend",
+        description: "There was an error sending the email. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (emailSent) {
     return (
       <Card className="w-full max-w-md mx-auto">
@@ -119,6 +189,15 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
               Please check your email and click the confirmation link to activate your account.
             </p>
           </div>
+
+          <Button
+            onClick={handleResendEmail}
+            disabled={loading}
+            className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+          >
+            {loading ? 'Resending...' : 'Resend Email'}
+          </Button>
+
           <Button
             onClick={() => setEmailSent(false)}
             variant="outline"
