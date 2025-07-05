@@ -40,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone: userData.phone || ''
       };
 
+      console.log('Profile data to upsert:', profileData);
+
       // Use upsert to create or update the profile
       const { error } = await supabase
         .from('profiles')
@@ -64,17 +66,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (!mounted) return;
 
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       
       // Clear guest mode when user logs in
-      if (session?.user) {
+      if (currentUser) {
         localStorage.removeItem('guestMode');
         
         // Create/update profile for authenticated users
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setTimeout(() => {
-            if (mounted) {
-              createOrUpdateProfile(session.user);
+            if (mounted && currentUser) {
+              createOrUpdateProfile(currentUser);
             }
           }, 0);
         }
@@ -94,13 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           console.log('Initial session user:', session?.user?.email || 'none');
           if (mounted) {
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
             
             // Create/update profile if user exists
-            if (session?.user) {
+            if (currentUser) {
               setTimeout(() => {
                 if (mounted) {
-                  createOrUpdateProfile(session.user);
+                  createOrUpdateProfile(currentUser);
                 }
               }, 0);
             }
@@ -133,6 +137,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
+      
+      console.log('SignUp result:', result);
       return result;
     } catch (error) {
       console.error('Error in signUp:', error);
@@ -146,6 +152,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: data.email,
         password: data.password
       });
+      
+      console.log('SignIn result:', result);
       return result;
     } catch (error) {
       console.error('Error in signIn:', error);
@@ -173,6 +181,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error refreshing user:', error);
       } else {
         setUser(user);
+        if (user) {
+          createOrUpdateProfile(user);
+        }
       }
     } catch (error) {
       console.error('Error in refreshUser:', error);

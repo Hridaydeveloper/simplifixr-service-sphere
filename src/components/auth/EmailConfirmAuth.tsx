@@ -33,26 +33,29 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const sendConfirmationEmail = async (email: string, fullName: string, confirmationUrl: string) => {
+  const sendCustomConfirmationEmail = async (email: string, fullName: string, token_hash?: string, type?: string) => {
     try {
-      console.log('Sending confirmation email to:', email);
+      console.log('Sending custom confirmation email:', { email, token_hash, type });
+      
       const { data, error } = await supabase.functions.invoke('send-confirmation-email', {
         body: {
           email: email,
-          confirmationUrl: confirmationUrl,
-          fullName: fullName
+          confirmationUrl: `${window.location.origin}/auth/confirm`,
+          fullName: fullName,
+          token_hash: token_hash,
+          type: type
         }
       });
 
       if (error) {
-        console.error('Email sending error:', error);
+        console.error('Custom email sending error:', error);
         throw error;
       }
 
-      console.log('Email sent successfully:', data);
+      console.log('Custom email sent successfully:', data);
       return data;
     } catch (error) {
-      console.error('Failed to send confirmation email:', error);
+      console.error('Failed to send custom confirmation email:', error);
       throw error;
     }
   };
@@ -90,20 +93,20 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
           throw error;
         }
 
-        // Send custom confirmation email
+        // Send custom confirmation email with proper token handling
         if (data.user && !data.user.email_confirmed_at) {
           try {
-            // Create confirmation URL - this will be handled by our custom email template
-            const confirmationUrl = `${window.location.origin}/auth/confirm`;
-            
-            await sendConfirmationEmail(
+            // The signup process should provide us with confirmation tokens
+            // We'll send our custom email but let Supabase handle the token generation
+            await sendCustomConfirmationEmail(
               formData.email,
-              formData.fullName,
-              confirmationUrl
+              formData.fullName
             );
+            
+            console.log('Both Supabase and custom emails should be sent');
           } catch (emailError) {
             console.error('Custom email sending failed:', emailError);
-            // Don't throw here - the default Supabase email should still work
+            // Don't block the flow - Supabase default email should still work
           }
         }
 
@@ -120,6 +123,14 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
         });
 
         if (error) {
+          if (error.message.includes('Email not confirmed')) {
+            toast({
+              title: "Email not confirmed",
+              description: "Please check your email and click the confirmation link first.",
+              variant: "destructive"
+            });
+            return;
+          }
           throw error;
         }
 
@@ -148,11 +159,9 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
       console.log('Resending confirmation email to:', formData.email);
       
       // Send our custom confirmation email
-      const confirmationUrl = `${window.location.origin}/auth/confirm`;
-      await sendConfirmationEmail(
+      await sendCustomConfirmationEmail(
         formData.email,
-        formData.fullName,
-        confirmationUrl
+        formData.fullName
       );
 
       toast({

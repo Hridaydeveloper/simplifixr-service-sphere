@@ -14,6 +14,8 @@ interface ConfirmationEmailRequest {
   email: string;
   confirmationUrl: string;
   fullName?: string;
+  token_hash?: string;
+  type?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -23,10 +25,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, confirmationUrl, fullName }: ConfirmationEmailRequest = await req.json();
+    const { email, confirmationUrl, fullName, token_hash, type }: ConfirmationEmailRequest = await req.json();
 
     console.log(`Attempting to send confirmation email to: ${email}`);
     console.log(`Confirmation URL: ${confirmationUrl}`);
+    console.log(`Token hash: ${token_hash}`);
+    console.log(`Type: ${type}`);
 
     // Validate required fields
     if (!email || !confirmationUrl) {
@@ -37,6 +41,16 @@ const handler = async (req: Request): Promise<Response> => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       throw new Error('Invalid email format');
+    }
+
+    // Build the proper confirmation URL with token_hash and type if available
+    let finalConfirmationUrl = confirmationUrl;
+    if (token_hash && type) {
+      const urlParams = new URLSearchParams({
+        token_hash,
+        type
+      });
+      finalConfirmationUrl = `${confirmationUrl}?${urlParams.toString()}`;
     }
 
     const emailResponse = await resend.emails.send({
@@ -60,7 +74,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <div style="text-align: center; margin: 35px 0;">
-              <a href="${confirmationUrl}" 
+              <a href="${finalConfirmationUrl}" 
                  style="background: linear-gradient(135deg, #00B896, #00C9A7); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
                 Confirm My Email Address
               </a>
@@ -71,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <strong>Need help?</strong> If the button doesn't work, copy and paste this link into your browser:
               </p>
               <p style="margin: 10px 0 0 0; font-size: 14px; color: #4a5568; word-break: break-all; background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">
-                ${confirmationUrl}
+                ${finalConfirmationUrl}
               </p>
             </div>
             
@@ -95,7 +109,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(JSON.stringify({ 
       success: true, 
       message: "Confirmation email sent successfully",
-      emailId: emailResponse.data?.id 
+      emailId: emailResponse.data?.id,
+      confirmationUrl: finalConfirmationUrl
     }), {
       status: 200,
       headers: {

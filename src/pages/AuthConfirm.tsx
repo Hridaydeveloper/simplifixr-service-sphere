@@ -24,81 +24,89 @@ const AuthConfirm = () => {
         
         console.log('Auth confirm params:', { token_hash, type, access_token, refresh_token });
 
+        let confirmationResult = null;
+
         if (token_hash && type) {
           // New format - use verifyOtp
           console.log('Using new format verification with token_hash');
-          const { data, error } = await supabase.auth.verifyOtp({
+          confirmationResult = await supabase.auth.verifyOtp({
             token_hash,
             type: type as any,
           });
-
-          if (error) {
-            console.error('Email confirmation error:', error);
-            setStatus('error');
-            setMessage('Failed to confirm email. The link may be expired or invalid.');
-            return;
-          }
-
-          if (data.user) {
-            console.log('Email confirmed successfully for user:', data.user.email);
-            setStatus('success');
-            setMessage('Your email has been confirmed successfully!');
-            
-            toast({
-              title: "Email Confirmed",
-              description: "Your account has been verified successfully!",
-            });
-
-            // Redirect based on user role after 2 seconds
-            setTimeout(() => {
-              const userRole = data.user.user_metadata?.role || 'customer';
-              if (userRole === 'provider') {
-                navigate('/become-provider');
-              } else {
-                navigate('/services');
-              }
-            }, 2000);
-          }
         } else if (access_token && refresh_token) {
           // Old format - set session directly
           console.log('Using old format verification with access and refresh tokens');
-          const { data, error } = await supabase.auth.setSession({
+          confirmationResult = await supabase.auth.setSession({
             access_token,
             refresh_token,
           });
-
-          if (error) {
-            console.error('Session setup error:', error);
-            setStatus('error');
-            setMessage('Failed to confirm email. The link may be expired or invalid.');
-            return;
-          }
-
-          if (data.user) {
-            console.log('Email confirmed successfully for user:', data.user.email);
-            setStatus('success');
-            setMessage('Your email has been confirmed successfully!');
-            
-            toast({
-              title: "Email Confirmed",
-              description: "Your account has been verified successfully!",
-            });
-
-            // Redirect based on user role after 2 seconds
-            setTimeout(() => {
-              const userRole = data.user.user_metadata?.role || 'customer';
-              if (userRole === 'provider') {
-                navigate('/become-provider');
-              } else {
-                navigate('/services');
-              }
-            }, 2000);
-          }
         } else {
           // No valid parameters found
           console.log('No valid confirmation parameters found');
           setStatus('error');
           setMessage('Invalid confirmation link. Please check your email for the correct link.');
+          return;
+        }
+
+        const { data, error } = confirmationResult;
+
+        if (error) {
+          console.error('Email confirmation error:', error);
+          setStatus('error');
+          setMessage('Failed to confirm email. The link may be expired or invalid.');
+          return;
+        }
+
+        if (data.user) {
+          console.log('Email confirmed successfully for user:', data.user.email);
+          
+          // Create or update the user profile
+          try {
+            const userData = data.user.user_metadata || {};
+            const profileData = {
+              id: data.user.id,
+              full_name: userData.full_name || data.user.email?.split('@')[0] || 'User',
+              location: userData.location || '',
+              role: userData.role || 'customer',
+              bio: userData.service_description || userData.bio || '',
+              phone: userData.phone || ''
+            };
+
+            console.log('Creating/updating profile:', profileData);
+
+            // Use upsert to create or update the profile
+            const { error: profileError } = await supabase
+              .from('profiles')
+              .upsert(profileData, { onConflict: 'id' });
+
+            if (profileError) {
+              console.error('Profile creation error:', profileError);
+              // Don't fail the confirmation for profile errors
+            } else {
+              console.log('Profile created/updated successfully');
+            }
+          } catch (profileError) {
+            console.error('Error handling user profile:', profileError);
+            // Don't fail the confirmation for profile errors
+          }
+
+          setStatus('success');
+          setMessage('Your email has been confirmed successfully!');
+          
+          toast({
+            title: "Email Confirmed",
+            description: "Your account has been verified successfully!",
+          });
+
+          // Redirect based on user role after 2 seconds
+          setTimeout(() => {
+            const userRole = data.user.user_metadata?.role || 'customer';
+            if (userRole === 'provider') {
+              navigate('/become-provider');
+            } else {
+              navigate('/services');
+            }
+          }, 2000);
         }
       } catch (error: any) {
         console.error('Unexpected error during email confirmation:', error);
