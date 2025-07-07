@@ -41,55 +41,49 @@ const AuthConfirm = () => {
             refresh_token,
           });
         } else {
-          // No valid parameters found
-          console.log('No valid confirmation parameters found');
-          setStatus('error');
-          setMessage('Invalid confirmation link. Please check your email for the correct link.');
-          return;
+          // Try to handle URL fragments (sometimes tokens come after #)
+          const fragment = window.location.hash.substring(1);
+          const fragmentParams = new URLSearchParams(fragment);
+          const fragmentAccessToken = fragmentParams.get('access_token');
+          const fragmentRefreshToken = fragmentParams.get('refresh_token');
+          
+          if (fragmentAccessToken && fragmentRefreshToken) {
+            console.log('Using URL fragment tokens');
+            confirmationResult = await supabase.auth.setSession({
+              access_token: fragmentAccessToken,
+              refresh_token: fragmentRefreshToken,
+            });
+          } else {
+            console.log('No valid confirmation parameters found');
+            setStatus('error');
+            setMessage('Invalid confirmation link. Please check your email for the correct link or try signing up again.');
+            return;
+          }
         }
 
         const { data, error } = confirmationResult;
 
         if (error) {
           console.error('Email confirmation error:', error);
-          setStatus('error');
-          setMessage('Failed to confirm email. The link may be expired or invalid.');
+          
+          // Handle specific error cases
+          if (error.message.includes('expired')) {
+            setStatus('error');
+            setMessage('The confirmation link has expired. Please sign up again to receive a new link.');
+          } else if (error.message.includes('invalid')) {
+            setStatus('error');
+            setMessage('Invalid confirmation link. Please check your email for the correct link or sign up again.');
+          } else {
+            setStatus('error');
+            setMessage('Failed to confirm email. Please try again or contact support.');
+          }
           return;
         }
 
         if (data.user) {
           console.log('Email confirmed successfully for user:', data.user.email);
           
-          // Create or update the user profile
-          try {
-            const userData = data.user.user_metadata || {};
-            const profileData = {
-              id: data.user.id,
-              full_name: userData.full_name || data.user.email?.split('@')[0] || 'User',
-              location: userData.location || '',
-              role: userData.role || 'customer',
-              bio: userData.service_description || userData.bio || '',
-              phone: userData.phone || ''
-            };
-
-            console.log('Creating/updating profile:', profileData);
-
-            // Use upsert to create or update the profile
-            const { error: profileError } = await supabase
-              .from('profiles')
-              .upsert(profileData, { onConflict: 'id' });
-
-            if (profileError) {
-              console.error('Profile creation error:', profileError);
-              // Don't fail the confirmation for profile errors
-            } else {
-              console.log('Profile created/updated successfully');
-            }
-          } catch (profileError) {
-            console.error('Error handling user profile:', profileError);
-            // Don't fail the confirmation for profile errors
-          }
-
+          // The AuthContext will handle profile creation via onAuthStateChange
           setStatus('success');
           setMessage('Your email has been confirmed successfully!');
           
@@ -107,11 +101,14 @@ const AuthConfirm = () => {
               navigate('/services');
             }
           }, 2000);
+        } else {
+          setStatus('error');
+          setMessage('Confirmation failed. Please try again.');
         }
       } catch (error: any) {
         console.error('Unexpected error during email confirmation:', error);
         setStatus('error');
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage('An unexpected error occurred. Please try signing up again.');
       }
     };
 
@@ -146,17 +143,17 @@ const AuthConfirm = () => {
               <p className="text-gray-600 mb-6">{message}</p>
               <div className="space-y-3">
                 <Button 
-                  onClick={() => navigate('/')}
+                  onClick={() => navigate('/auth')}
                   className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
                 >
-                  Go to Homepage
+                  Sign Up Again
                 </Button>
                 <Button 
-                  onClick={() => window.location.reload()}
+                  onClick={() => navigate('/')}
                   variant="outline"
                   className="w-full"
                 >
-                  Try Again
+                  Go to Homepage
                 </Button>
               </div>
             </>
