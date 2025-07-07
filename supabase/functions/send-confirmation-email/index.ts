@@ -14,8 +14,6 @@ interface ConfirmationEmailRequest {
   email: string;
   confirmationUrl: string;
   fullName?: string;
-  token_hash?: string;
-  type?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -25,33 +23,43 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { email, confirmationUrl, fullName, token_hash, type }: ConfirmationEmailRequest = await req.json();
+    console.log("=== Email Confirmation Function Started ===");
+    console.log("Request method:", req.method);
+    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
 
-    console.log(`Attempting to send confirmation email to: ${email}`);
+    const requestBody = await req.json();
+    console.log("Request body received:", requestBody);
+
+    const { email, confirmationUrl, fullName }: ConfirmationEmailRequest = requestBody;
+
+    console.log(`Processing confirmation email for: ${email}`);
+    console.log(`Full name: ${fullName}`);
     console.log(`Confirmation URL: ${confirmationUrl}`);
-    console.log(`Token hash: ${token_hash}`);
-    console.log(`Type: ${type}`);
 
     // Validate required fields
     if (!email || !confirmationUrl) {
-      throw new Error('Missing required fields: email or confirmationUrl');
+      const errorMsg = 'Missing required fields: email or confirmationUrl';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      throw new Error('Invalid email format');
+      const errorMsg = 'Invalid email format';
+      console.error(errorMsg, email);
+      throw new Error(errorMsg);
     }
 
-    // Build the proper confirmation URL with token_hash and type if available
-    let finalConfirmationUrl = confirmationUrl;
-    if (token_hash && type) {
-      const urlParams = new URLSearchParams({
-        token_hash,
-        type
-      });
-      finalConfirmationUrl = `${confirmationUrl}?${urlParams.toString()}`;
+    // Check if Resend API key is available
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
+      const errorMsg = 'RESEND_API_KEY environment variable is not set';
+      console.error(errorMsg);
+      throw new Error(errorMsg);
     }
+
+    console.log("Attempting to send email via Resend...");
 
     const emailResponse = await resend.emails.send({
       from: "Simplifixr <noreply@simplifixr.com>",
@@ -74,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
             
             <div style="text-align: center; margin: 35px 0;">
-              <a href="${finalConfirmationUrl}" 
+              <a href="${confirmationUrl}?email=${encodeURIComponent(email)}" 
                  style="background: linear-gradient(135deg, #00B896, #00C9A7); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
                 Confirm My Email Address
               </a>
@@ -85,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
                 <strong>Need help?</strong> If the button doesn't work, copy and paste this link into your browser:
               </p>
               <p style="margin: 10px 0 0 0; font-size: 14px; color: #4a5568; word-break: break-all; background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">
-                ${finalConfirmationUrl}
+                ${confirmationUrl}?email=${encodeURIComponent(email)}
               </p>
             </div>
             
@@ -104,14 +112,21 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Confirmation email sent successfully:", emailResponse);
+    console.log("Email sent successfully via Resend:");
+    console.log("Email ID:", emailResponse.data?.id);
+    console.log("Email response:", emailResponse);
 
-    return new Response(JSON.stringify({ 
+    const responsePayload = { 
       success: true, 
       message: "Confirmation email sent successfully",
       emailId: emailResponse.data?.id,
-      confirmationUrl: finalConfirmationUrl
-    }), {
+      confirmationUrl: `${confirmationUrl}?email=${encodeURIComponent(email)}`,
+      timestamp: new Date().toISOString()
+    };
+
+    console.log("Returning success response:", responsePayload);
+
+    return new Response(JSON.stringify(responsePayload), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
@@ -119,12 +134,22 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
   } catch (error: any) {
-    console.error("Error in send-confirmation-email function:", error);
+    console.error("=== ERROR in send-confirmation-email function ===");
+    console.error("Error type:", typeof error);
+    console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    console.error("Full error object:", error);
+
+    const errorResponse = { 
+      error: error.message || "Unknown error occurred",
+      details: "Failed to send confirmation email. Please check your email address and try again.",
+      timestamp: new Date().toISOString()
+    };
+
+    console.log("Returning error response:", errorResponse);
+
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: "Failed to send confirmation email. Please check your email address and try again."
-      }),
+      JSON.stringify(errorResponse),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

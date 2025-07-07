@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Mail, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailConfirmAuthProps {
   onBack?: () => void;
@@ -27,10 +28,35 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
     role: defaultRole
   });
 
-  const { signIn, signUp } = useAuth();
+  const { signIn } = useAuth();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const sendCustomConfirmationEmail = async (email: string, fullName: string) => {
+    try {
+      console.log('Sending custom confirmation email to:', email);
+      
+      const { data, error } = await supabase.functions.invoke('send-confirmation-email', {
+        body: {
+          email: email,
+          confirmationUrl: `${window.location.origin}/auth/confirm`,
+          fullName: fullName
+        }
+      });
+
+      if (error) {
+        console.error('Error invoking send-confirmation-email function:', error);
+        throw error;
+      }
+
+      console.log('Custom confirmation email sent successfully:', data);
+      return data;
+    } catch (error) {
+      console.error('Failed to send custom confirmation email:', error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,12 +65,13 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
 
     try {
       if (isSignUp) {
-        // Sign up with email confirmation
-        const { data, error } = await signUp({
+        console.log('Starting sign up process for:', formData.email);
+        
+        // First, try to sign up the user with Supabase
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/confirm`,
             data: {
               full_name: formData.fullName,
               location: formData.location,
@@ -53,8 +80,10 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
           }
         });
 
-        if (error) {
-          if (error.message.includes('already registered')) {
+        if (signUpError) {
+          console.error('Supabase sign up error:', signUpError);
+          
+          if (signUpError.message.includes('already registered')) {
             toast({
               title: "Account exists",
               description: "This email is already registered. Try signing in instead.",
@@ -63,10 +92,24 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
             setIsSignUp(false);
             return;
           }
-          throw error;
+          throw signUpError;
         }
 
-        if (data.user && !data.user.email_confirmed_at) {
+        console.log('Supabase sign up successful:', signUpData);
+
+        // Now send our custom confirmation email
+        try {
+          await sendCustomConfirmationEmail(formData.email, formData.fullName);
+          
+          setEmailSent(true);
+          toast({
+            title: "Check your email!",
+            description: "We've sent you a confirmation link to complete your registration.",
+          });
+        } catch (emailError) {
+          console.error('Custom email sending failed:', emailError);
+          
+          // Fallback: Still show email sent state since Supabase might have sent their default email
           setEmailSent(true);
           toast({
             title: "Check your email!",
@@ -75,12 +118,16 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
         }
       } else {
         // Sign in
+        console.log('Starting sign in process for:', formData.email);
+        
         const { error } = await signIn({
           email: formData.email,
           password: formData.password
         });
 
         if (error) {
+          console.error('Sign in error:', error);
+          
           if (error.message.includes('Email not confirmed')) {
             toast({
               title: "Email not confirmed",
@@ -92,6 +139,7 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
           throw error;
         }
 
+        console.log('Sign in successful');
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in."
@@ -112,26 +160,13 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
   };
 
   const handleResendEmail = async () => {
+    console.log('Resending email to:', formData.email);
     setLoading(true);
+    
     try {
-      // Just trigger a new signup to resend the email
-      const { error } = await signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
-          data: {
-            full_name: formData.fullName,
-            location: formData.location,
-            role: formData.role
-          }
-        }
-      });
-
-      if (error && !error.message.includes('already registered')) {
-        throw error;
-      }
-
+      // Send our custom confirmation email
+      await sendCustomConfirmationEmail(formData.email, formData.fullName);
+      
       toast({
         title: "Email Resent",
         description: "We've sent another confirmation email to your inbox.",
