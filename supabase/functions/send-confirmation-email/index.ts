@@ -62,54 +62,117 @@ const handler = async (req: Request): Promise<Response> => {
     console.log("Attempting to send email via Resend...");
 
     const emailResponse = await resend.emails.send({
-      from: "Simplifixr <noreply@simplifixr.com>",
+      from: "Simplifixr <hello@simplifixr.com>",
       to: [email],
-      subject: "Welcome to Simplifixr - Please confirm your email",
+      subject: "✅ Confirm your email - Simplifixr",
       html: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8f9fa;">
-          <div style="background: linear-gradient(135deg, #00B896, #00C9A7); padding: 40px 20px; text-align: center; border-radius: 12px 12px 0 0;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">Welcome to Simplifixr!</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 16px;">Your trusted service marketplace</p>
-          </div>
-          
-          <div style="padding: 40px 30px; background: white; border-radius: 0 0 12px 12px;">
-            <h2 style="color: #1a1a1a; margin: 0 0 20px 0; font-size: 22px; font-weight: 600;">
-              Hi ${fullName || 'there'}! 👋
-            </h2>
-            
-            <p style="color: #4a5568; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-              Thank you for joining Simplifixr! We're excited to have you on board. To get started and secure your account, please confirm your email address by clicking the button below.
-            </p>
-            
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="${confirmationUrl}?email=${encodeURIComponent(email)}" 
-                 style="background: linear-gradient(135deg, #00B896, #00C9A7); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
-                Confirm My Email Address
-              </a>
-            </div>
-            
-            <div style="background: #f7fafc; padding: 20px; border-radius: 8px; border-left: 4px solid #00B896; margin: 30px 0;">
-              <p style="margin: 0; font-size: 14px; color: #2d3748;">
-                <strong>Need help?</strong> If the button doesn't work, copy and paste this link into your browser:
-              </p>
-              <p style="margin: 10px 0 0 0; font-size: 14px; color: #4a5568; word-break: break-all; background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">
-                ${confirmationUrl}?email=${encodeURIComponent(email)}
-              </p>
-            </div>
-            
-            <div style="margin-top: 40px; padding-top: 30px; border-top: 1px solid #e2e8f0;">
-              <p style="color: #718096; font-size: 14px; margin: 0; line-height: 1.5;">
-                If you didn't create an account with Simplifixr, you can safely ignore this email. This confirmation link will expire in 24 hours for security.
-              </p>
-            </div>
-          </div>
-          
-          <div style="background: #f7fafc; padding: 25px 30px; text-align: center; color: #718096; font-size: 14px; border-radius: 0 0 12px 12px;">
-            <p style="margin: 0 0 10px 0;">© 2024 Simplifixr. All rights reserved.</p>
-            <p style="margin: 0; font-size: 12px;">Making services simple, one click at a time.</p>
-          </div>
-        </div>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Confirm Your Email - Simplifixr</title>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;">
+          <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc;">
+            <tr>
+              <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                  <!-- Header -->
+                  <tr>
+                    <td style="padding: 48px 40px 32px; text-align: center; background: linear-gradient(135deg, #00B896 0%, #00C9A7 100%); border-radius: 16px 16px 0 0;">
+                      <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.2;">Welcome to Simplifixr!</h1>
+                      <p style="margin: 12px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 18px; font-weight: 500;">Your trusted service marketplace</p>
+                    </td>
+                  </tr>
+                  
+                  <!-- Main Content -->
+                  <tr>
+                    <td style="padding: 48px 40px;">
+                      <h2 style="margin: 0 0 24px; color: #1a202c; font-size: 24px; font-weight: 600;">
+                        Hi ${fullName || 'there'}! 👋
+                      </h2>
+                      
+                      <p style="margin: 0 0 32px; color: #4a5568; font-size: 16px; line-height: 1.6;">
+                        Thank you for joining Simplifixr! We're excited to have you on board. To complete your registration and secure your account, please confirm your email address by clicking the button below.
+                      </p>
+                      
+                      <!-- CTA Button -->
+                      <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
+                        <tr>
+                          <td align="center" style="padding: 0 0 40px;">
+                            <a href="${confirmationUrl}" 
+                               style="display: inline-block; background: linear-gradient(135deg, #00B896 0%, #00C9A7 100%); color: #ffffff; text-decoration: none; padding: 18px 36px; border-radius: 12px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; box-shadow: 0 8px 24px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
+                              ✅ Confirm My Email Address
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                      
+                      <!-- Help Section -->
+                      <div style="background: #f7fafc; padding: 24px; border-radius: 12px; border-left: 4px solid #00B896; margin: 32px 0;">
+                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #2d3748;">
+                          🔗 Having trouble with the button?
+                        </p>
+                        <p style="margin: 0 0 16px; font-size: 14px; color: #4a5568;">
+                          Copy and paste this link into your browser:
+                        </p>
+                        <div style="background: #ffffff; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; word-break: break-all;">
+                          <a href="${confirmationUrl}" style="color: #00B896; text-decoration: none; font-size: 14px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+                            ${confirmationUrl}
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <!-- Security Notice -->
+                      <div style="background: #fff5f5; padding: 20px; border-radius: 8px; border-left: 4px solid #f56565; margin: 32px 0;">
+                        <p style="margin: 0; font-size: 14px; color: #c53030; font-weight: 500;">
+                          🔒 Security Notice
+                        </p>
+                        <p style="margin: 8px 0 0; font-size: 14px; color: #742a2a; line-height: 1.5;">
+                          This confirmation link will expire in 24 hours for your security. If you didn't create this account, you can safely ignore this email.
+                        </p>
+                      </div>
+                      
+                      <!-- What's Next -->
+                      <div style="background: #f0fff4; padding: 24px; border-radius: 12px; border-left: 4px solid #48bb78; margin: 32px 0;">
+                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #22543d;">
+                          🚀 What's next?
+                        </p>
+                        <p style="margin: 0; font-size: 14px; color: #2f855a; line-height: 1.5;">
+                          Once confirmed, you'll be able to browse services, connect with providers, and start simplifying your life with Simplifixr!
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                  
+                  <!-- Footer -->
+                  <tr>
+                    <td style="padding: 32px 40px; background: #f8fafc; border-radius: 0 0 16px 16px; text-align: center; border-top: 1px solid #e2e8f0;">
+                      <p style="margin: 0 0 8px; color: #718096; font-size: 14px; font-weight: 500;">
+                        © ${new Date().getFullYear()} Simplifixr. All rights reserved.
+                      </p>
+                      <p style="margin: 0; color: #a0aec0; font-size: 12px;">
+                        Making services simple, one click at a time.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high',
+      },
+      tags: [
+        { name: 'category', value: 'email_confirmation' },
+        { name: 'user_id', value: email }
+      ]
     });
 
     console.log("Email sent successfully via Resend:");

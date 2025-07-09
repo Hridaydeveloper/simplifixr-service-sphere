@@ -97,24 +97,28 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
 
         console.log('Supabase sign up successful:', signUpData);
 
-        // Now send our custom confirmation email
+        // Send our custom confirmation email immediately
         try {
-          await sendCustomConfirmationEmail(formData.email, formData.fullName);
+          const emailResult = await sendCustomConfirmationEmail(formData.email, formData.fullName);
+          console.log('Custom confirmation email sent:', emailResult);
           
           setEmailSent(true);
           toast({
-            title: "Check your email!",
-            description: "We've sent you a confirmation link to complete your registration.",
+            title: "📧 Please check your inbox",
+            description: `We've sent a confirmation email to ${formData.email}. Click the link to verify your account.`,
           });
         } catch (emailError) {
           console.error('Custom email sending failed:', emailError);
           
-          // Fallback: Still show email sent state since Supabase might have sent their default email
-          setEmailSent(true);
+          // Show error but still allow user to try again
           toast({
-            title: "Check your email!",
-            description: "We've sent you a confirmation link to complete your registration.",
+            title: "Email sending failed",
+            description: "There was an issue sending the confirmation email. Please try the resend button.",
+            variant: "destructive"
           });
+          
+          // Still show email sent state so user can try resend
+          setEmailSent(true);
         }
       } else {
         // Sign in
@@ -196,18 +200,31 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-            <p className="text-sm text-blue-800">
-              Please check your email and click the confirmation link to activate your account.
+          <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-6 text-center">
+            <div className="flex items-center justify-center mb-3">
+              <Mail className="w-5 h-5 text-blue-600 mr-2" />
+              <span className="text-sm font-semibold text-blue-800">Confirmation Email Sent</span>
+            </div>
+            <p className="text-sm text-blue-800 mb-2">
+              📧 Please check your inbox. We've sent a confirmation email to verify your account.
+            </p>
+            <p className="text-xs text-blue-600">
+              Don't see the email? Check your spam folder or wait a few minutes for delivery.
+            </p>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p className="text-xs text-yellow-800 text-center">
+              ⚠️ Email not arriving? Click resend below. Make sure to check your spam/junk folder.
             </p>
           </div>
 
           <Button
             onClick={handleResendEmail}
             disabled={loading}
-            className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+            className="w-full bg-[#00B896] hover:bg-[#00A085] text-white font-semibold"
           >
-            {loading ? 'Resending...' : 'Resend Email'}
+            {loading ? 'Resending Email...' : '🔄 Resend Email'}
           </Button>
 
           <Button
@@ -215,7 +232,7 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
             variant="outline"
             className="w-full"
           >
-            Back to Sign Up
+            ✏️ Edit Email Address
           </Button>
           {onBack && (
             <Button
