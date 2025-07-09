@@ -36,12 +36,11 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
 
   const sendCustomConfirmationEmail = async (email: string, fullName: string) => {
     try {
-      console.log('Sending custom confirmation email to:', email);
+      console.log('Sending custom welcome email to:', email);
       
       const { data, error } = await supabase.functions.invoke('send-confirmation-email', {
         body: {
           email: email,
-          confirmationUrl: `${window.location.origin}/auth/confirm`,
           fullName: fullName
         }
       });
@@ -51,10 +50,10 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
         throw error;
       }
 
-      console.log('Custom confirmation email sent successfully:', data);
+      console.log('Custom welcome email sent successfully:', data);
       return data;
     } catch (error) {
-      console.error('Failed to send custom confirmation email:', error);
+      console.error('Failed to send custom welcome email:', error);
       throw error;
     }
   };
@@ -67,11 +66,12 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
       if (isSignUp) {
         console.log('Starting sign up process for:', formData.email);
         
-        // First, try to sign up the user with Supabase
+        // First, try to sign up the user with Supabase with proper email confirmation
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/auth/confirm`,
             data: {
               full_name: formData.fullName,
               location: formData.location,
@@ -97,29 +97,22 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
 
         console.log('Supabase sign up successful:', signUpData);
 
-        // Send our custom confirmation email immediately
-        try {
-          const emailResult = await sendCustomConfirmationEmail(formData.email, formData.fullName);
-          console.log('Custom confirmation email sent:', emailResult);
-          
-          setEmailSent(true);
-          toast({
-            title: "📧 Please check your inbox",
-            description: `We've sent a confirmation email to ${formData.email}. Click the link to verify your account.`,
-          });
-        } catch (emailError) {
-          console.error('Custom email sending failed:', emailError);
-          
-          // Show error but still allow user to try again
-          toast({
-            title: "Email sending failed",
-            description: "There was an issue sending the confirmation email. Please try the resend button.",
-            variant: "destructive"
-          });
-          
-          // Still show email sent state so user can try resend
-          setEmailSent(true);
+        // Check if we have the user and their ID for custom email
+        if (signUpData.user && signUpData.user.id) {
+          // Send our custom welcome email (Supabase will send the confirmation email separately)
+          try {
+            const emailResult = await sendCustomConfirmationEmail(formData.email, formData.fullName);
+            console.log('Custom welcome email sent:', emailResult);
+          } catch (emailError) {
+            console.error('Custom welcome email sending failed:', emailError);
+          }
         }
+
+        setEmailSent(true);
+        toast({
+          title: "📧 Please check your inbox",
+          description: `We've sent confirmation emails to ${formData.email}. Click the link in the Supabase email to verify your account.`,
+        });
       } else {
         // Sign in
         console.log('Starting sign in process for:', formData.email);
@@ -164,23 +157,40 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
   };
 
   const handleResendEmail = async () => {
-    console.log('Resending email to:', formData.email);
+    console.log('Resending confirmation email to:', formData.email);
     setLoading(true);
     
     try {
-      // Send our custom confirmation email
-      await sendCustomConfirmationEmail(formData.email, formData.fullName);
+      // Resend the Supabase confirmation email by calling resend method
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Also resend our welcome email
+      try {
+        await sendCustomConfirmationEmail(formData.email, formData.fullName);
+      } catch (welcomeError) {
+        console.error('Welcome email failed, but confirmation email sent:', welcomeError);
+      }
       
       toast({
         title: "Email Resent",
-        description: "We've sent another confirmation email to your inbox.",
+        description: "We've sent another confirmation email to your inbox. Please check for the Supabase confirmation email.",
       });
     } catch (error: any) {
       console.error('Error resending email:', error);
       toast({
         variant: "destructive",
         title: "Failed to Resend",
-        description: "There was an error sending the email. Please try again.",
+        description: "There was an error sending the confirmation email. Please try signing up again.",
       });
     } finally {
       setLoading(false);
@@ -203,19 +213,19 @@ const EmailConfirmAuth = ({ onBack, onSuccess, defaultRole = 'customer' }: Email
           <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-6 text-center">
             <div className="flex items-center justify-center mb-3">
               <Mail className="w-5 h-5 text-blue-600 mr-2" />
-              <span className="text-sm font-semibold text-blue-800">Confirmation Email Sent</span>
+              <span className="text-sm font-semibold text-blue-800">Confirmation Emails Sent</span>
             </div>
             <p className="text-sm text-blue-800 mb-2">
-              📧 Please check your inbox. We've sent a confirmation email to verify your account.
+              📧 We've sent you TWO emails: a welcome email and a Supabase confirmation email.
             </p>
             <p className="text-xs text-blue-600">
-              Don't see the email? Check your spam folder or wait a few minutes for delivery.
+              <strong>Look for the SUPABASE email</strong> - that's the one with the working confirmation link!
             </p>
           </div>
 
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-xs text-yellow-800 text-center">
-              ⚠️ Email not arriving? Click resend below. Make sure to check your spam/junk folder.
+              ⚠️ Email not arriving? Check your spam/junk folder first. The Supabase email might be filtered.
             </p>
           </div>
 

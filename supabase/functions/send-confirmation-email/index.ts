@@ -12,7 +12,6 @@ const corsHeaders = {
 
 interface ConfirmationEmailRequest {
   email: string;
-  confirmationUrl: string;
   fullName?: string;
 }
 
@@ -30,15 +29,14 @@ const handler = async (req: Request): Promise<Response> => {
     const requestBody = await req.json();
     console.log("Request body received:", requestBody);
 
-    const { email, confirmationUrl, fullName }: ConfirmationEmailRequest = requestBody;
+    const { email, fullName }: ConfirmationEmailRequest = requestBody;
 
     console.log(`Processing confirmation email for: ${email}`);
     console.log(`Full name: ${fullName}`);
-    console.log(`Confirmation URL: ${confirmationUrl}`);
 
     // Validate required fields
-    if (!email || !confirmationUrl) {
-      const errorMsg = 'Missing required fields: email or confirmationUrl';
+    if (!email) {
+      const errorMsg = 'Missing required field: email';
       console.error(errorMsg);
       throw new Error(errorMsg);
     }
@@ -59,19 +57,19 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(errorMsg);
     }
 
-    console.log("Attempting to send email via Resend...");
+    console.log("Attempting to send welcome email via Resend...");
 
     const emailResponse = await resend.emails.send({
-      from: "Simplifixr <hello@simplifixr.com>",
+      from: "Simplifixr <onboarding@resend.dev>",
       to: [email],
-      subject: "✅ Confirm your email - Simplifixr",
+      subject: "Welcome to Simplifixr! Please check your email for confirmation",
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Confirm Your Email - Simplifixr</title>
+          <title>Welcome to Simplifixr</title>
         </head>
         <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;">
           <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc;">
@@ -94,43 +92,15 @@ const handler = async (req: Request): Promise<Response> => {
                       </h2>
                       
                       <p style="margin: 0 0 32px; color: #4a5568; font-size: 16px; line-height: 1.6;">
-                        Thank you for joining Simplifixr! We're excited to have you on board. To complete your registration and secure your account, please confirm your email address by clicking the button below.
+                        Thank you for joining Simplifixr! We're excited to have you on board. 
                       </p>
-                      
-                      <!-- CTA Button -->
-                      <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0;">
-                        <tr>
-                          <td align="center" style="padding: 0 0 40px;">
-                            <a href="${confirmationUrl}" 
-                               style="display: inline-block; background: linear-gradient(135deg, #00B896 0%, #00C9A7 100%); color: #ffffff; text-decoration: none; padding: 18px 36px; border-radius: 12px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; box-shadow: 0 8px 24px rgba(0, 184, 150, 0.3); transition: all 0.3s ease;">
-                              ✅ Confirm My Email Address
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-                      
-                      <!-- Help Section -->
-                      <div style="background: #f7fafc; padding: 24px; border-radius: 12px; border-left: 4px solid #00B896; margin: 32px 0;">
-                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #2d3748;">
-                          🔗 Having trouble with the button?
+
+                      <div style="background: #e6fffa; padding: 24px; border-radius: 12px; border-left: 4px solid #00B896; margin: 32px 0;">
+                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #22543d;">
+                          📧 Check Your Email
                         </p>
-                        <p style="margin: 0 0 16px; font-size: 14px; color: #4a5568;">
-                          Copy and paste this link into your browser:
-                        </p>
-                        <div style="background: #ffffff; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; word-break: break-all;">
-                          <a href="${confirmationUrl}" style="color: #00B896; text-decoration: none; font-size: 14px; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
-                            ${confirmationUrl}
-                          </a>
-                        </div>
-                      </div>
-                      
-                      <!-- Security Notice -->
-                      <div style="background: #fff5f5; padding: 20px; border-radius: 8px; border-left: 4px solid #f56565; margin: 32px 0;">
-                        <p style="margin: 0; font-size: 14px; color: #c53030; font-weight: 500;">
-                          🔒 Security Notice
-                        </p>
-                        <p style="margin: 8px 0 0; font-size: 14px; color: #742a2a; line-height: 1.5;">
-                          This confirmation link will expire in 24 hours for your security. If you didn't create this account, you can safely ignore this email.
+                        <p style="margin: 0; font-size: 14px; color: #2f855a; line-height: 1.5;">
+                          We've also sent you a separate confirmation email from Supabase. Please check your inbox (including spam folder) and click the confirmation link to activate your account.
                         </p>
                       </div>
                       
@@ -140,7 +110,7 @@ const handler = async (req: Request): Promise<Response> => {
                           🚀 What's next?
                         </p>
                         <p style="margin: 0; font-size: 14px; color: #2f855a; line-height: 1.5;">
-                          Once confirmed, you'll be able to browse services, connect with providers, and start simplifying your life with Simplifixr!
+                          Once you confirm your email, you'll be able to browse services, connect with providers, and start simplifying your life with Simplifixr!
                         </p>
                       </div>
                     </td>
@@ -166,12 +136,13 @@ const handler = async (req: Request): Promise<Response> => {
       `,
       headers: {
         'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
+        'X-MSMail-Priority': 'High', 
         'Importance': 'high',
+        'List-Unsubscribe': '<mailto:unsubscribe@resend.dev>',
       },
       tags: [
-        { name: 'category', value: 'email_confirmation' },
-        { name: 'user_id', value: email }
+        { name: 'category', value: 'welcome_email' },
+        { name: 'user_email', value: email }
       ]
     });
 
@@ -181,10 +152,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     const responsePayload = { 
       success: true, 
-      message: "Confirmation email sent successfully",
+      message: "Welcome email sent successfully",
       emailId: emailResponse.data?.id,
-      confirmationUrl: `${confirmationUrl}?email=${encodeURIComponent(email)}`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      note: "Supabase confirmation email sent separately with valid auth tokens"
     };
 
     console.log("Returning success response:", responsePayload);
