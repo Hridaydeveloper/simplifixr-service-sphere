@@ -44,25 +44,20 @@ export const useAuthFlow = (onSuccess: (role: 'customer' | 'provider') => void) 
   const handleEmailAuth = async () => {
     try {
       if (isSignUp) {
-        try {
-          await signIn({
-            email: formData.email,
-            password: formData.password
-          });
-
+        // For sign up, we need to create account with proper verification
+        if (!formData.fullName || !formData.location) {
           toast({
-            title: "Welcome back!",
-            description: "You have successfully signed in."
+            title: "Missing Information",
+            description: "Please fill in all required fields.",
+            variant: "destructive"
           });
-          onSuccess('customer');
-        } catch (signInError: any) {
-          if (signInError.message?.includes('Invalid login credentials')) {
-            setStep('details');
-            return;
-          }
-          throw signInError;
+          return;
         }
+        
+        // Try to create new account
+        await handleSignUp();
       } else {
+        // For sign in, authenticate existing user
         await signIn({
           email: formData.email,
           password: formData.password
@@ -123,12 +118,31 @@ export const useAuthFlow = (onSuccess: (role: 'customer' | 'provider') => void) 
 
   const handlePhoneAuth = async () => {
     try {
-      await otpAuth.sendOTP(formData.phone, 'phone', 'customer');
+      // Validate required fields for sign up
+      if (isSignUp && (!formData.fullName || !formData.location || !formData.phone)) {
+        toast({
+          title: "Missing Information",
+          description: "Please fill in all required fields.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Format phone number (ensure it starts with + for international format)
+      let phoneNumber = formData.phone.replace(/\D/g, ''); // Remove non-digits
+      if (!phoneNumber.startsWith('1') && phoneNumber.length === 10) {
+        phoneNumber = '1' + phoneNumber; // Add US country code
+      }
+      phoneNumber = '+' + phoneNumber;
+
+      console.log('Sending OTP to formatted phone:', phoneNumber);
+      await otpAuth.sendOTP(phoneNumber, 'phone', 'customer');
       setVerificationSent(true);
       setStep('verification');
+      
       toast({
-        title: "OTP Sent",
-        description: `Verification code sent to ${formData.phone}`,
+        title: "📱 Verification Code Sent",
+        description: `Please check your messages at ${formData.phone}`,
       });
     } catch (error: any) {
       console.error('Phone auth error:', error);

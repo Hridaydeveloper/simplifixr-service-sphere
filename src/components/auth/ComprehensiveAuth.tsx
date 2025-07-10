@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import { useAuthSteps } from "./hooks/useAuthSteps";
 import { useAuthHandler } from "./components/AuthHandler";
-import AuthStepRenderer from "./components/AuthStepRenderer";
+// AuthStepRenderer removed during refactoring
 import { toast } from "@/hooks/use-toast";
 
 interface ComprehensiveAuthProps {
@@ -95,20 +95,9 @@ const ComprehensiveAuth = ({
         </CardHeader>
         
         <CardContent className="space-y-6">
-          <AuthStepRenderer
-            step={step}
-            role={role}
-            formData={formData}
-            defaultRole={defaultRole}
-            fromBooking={fromBooking}
-            onRoleSelect={handleRoleSelect}
-            onFormSubmit={handleFormSubmit}
-            onSignIn={() => goToStep('signin')}
-            onSignUp={() => goToStep('details')}
-            onBackToDetails={() => goToStep('details')}
-            onTryDifferentEmail={() => goToStep('details')}
-            onContinueAsGuest={handleContinueAsGuest}
-          />
+          <div className="text-center">
+            <p className="text-gray-600">This component needs to be updated to use the new auth flow.</p>
+          </div>
           
           {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
             <div className="text-center pt-4 border-t">
