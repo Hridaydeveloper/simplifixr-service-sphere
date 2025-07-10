@@ -7,6 +7,7 @@ import { ArrowLeft, Mail, Phone, Eye, EyeOff, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { authService } from "@/services/authService";
+import { otpAuth } from "@/services/auth/otpAuth";
 
 interface UnifiedAuthProps {
   onBack?: () => void;
@@ -127,24 +128,13 @@ const UnifiedAuth = ({ onBack, onSuccess }: UnifiedAuthProps) => {
 
   const handlePhoneAuth = async () => {
     try {
-      if (isSignUp) {
-        await authService.sendOTP(formData.phone, 'phone', 'customer');
-        setVerificationSent(true);
-        setStep('verification');
-        toast({
-          title: "OTP Sent",
-          description: `Verification code sent to ${formData.phone}`,
-        });
-      } else {
-        // For existing users, send OTP for sign in
-        await authService.sendOTP(formData.phone, 'phone', 'customer');
-        setVerificationSent(true);
-        setStep('verification');
-        toast({
-          title: "OTP Sent",
-          description: `Verification code sent to ${formData.phone}`,
-        });
-      }
+      await otpAuth.sendOTP(formData.phone, 'phone', 'customer');
+      setVerificationSent(true);
+      setStep('verification');
+      toast({
+        title: "OTP Sent",
+        description: `Verification code sent to ${formData.phone}`,
+      });
     } catch (error: any) {
       console.error('Phone auth error:', error);
       toast({
@@ -158,12 +148,12 @@ const UnifiedAuth = ({ onBack, onSuccess }: UnifiedAuthProps) => {
   const handleOTPVerification = async () => {
     try {
       const contact = authMethod === 'email' ? formData.email : formData.phone;
-      const result = await authService.verifyOTP(contact, authMethod, otp);
+      const result = await otpAuth.verifyOTP(contact, authMethod, otp);
       
       if (result.verified) {
         if (result.userExists) {
           // Complete sign in
-          await authService.signInWithOTP(contact);
+          await otpAuth.signInWithOTP(contact);
           toast({
             title: "Welcome back!",
             description: "You have successfully signed in."
@@ -187,7 +177,7 @@ const UnifiedAuth = ({ onBack, onSuccess }: UnifiedAuthProps) => {
   const handleCompleteSignUp = async () => {
     try {
       const contact = authMethod === 'email' ? formData.email : formData.phone;
-      await authService.completeOTPAuth(contact, authMethod, formData.fullName, formData.location);
+      await otpAuth.completeOTPAuth(contact, authMethod, formData.fullName, formData.location);
       
       toast({
         title: "Account created successfully!",

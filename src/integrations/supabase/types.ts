@@ -17,26 +17,29 @@ export type Database = {
       otp_verifications: {
         Row: {
           created_at: string
-          email: string
+          email: string | null
           expires_at: string
           id: string
           otp_code: string
+          phone: string | null
           verified: boolean
         }
         Insert: {
           created_at?: string
-          email: string
+          email?: string | null
           expires_at: string
           id?: string
           otp_code: string
+          phone?: string | null
           verified?: boolean
         }
         Update: {
           created_at?: string
-          email?: string
+          email?: string | null
           expires_at?: string
           id?: string
           otp_code?: string
+          phone?: string | null
           verified?: boolean
         }
         Relationships: []
