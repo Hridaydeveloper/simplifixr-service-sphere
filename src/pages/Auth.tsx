@@ -1,6 +1,6 @@
 
 import { useNavigate, useLocation } from "react-router-dom";
-import UnifiedAuth from "@/components/auth/UnifiedAuth";
+import SimpleAuth from "@/components/auth/SimpleAuth";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4">
-      <UnifiedAuth
+      <SimpleAuth
         onBack={handleBack}
         onSuccess={handleAuthSuccess}
       />
