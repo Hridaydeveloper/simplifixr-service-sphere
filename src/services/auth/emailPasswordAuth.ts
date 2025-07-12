@@ -35,7 +35,7 @@ export const emailPasswordAuth = {
           data: {
             full_name: data.fullName,
             location: data.location,
-            role: data.role
+            role: data.role || 'customer'
           }
         }
       });
