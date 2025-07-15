@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { serviceService, MasterService } from "@/services/serviceService";
-import { Upload, X } from "lucide-react";
+import { Upload, X, Search } from "lucide-react";
 
 interface AddServiceModalProps {
   open: boolean;
@@ -26,6 +26,8 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCustomService, setIsCustomService] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredServices, setFilteredServices] = useState<MasterService[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -33,10 +35,23 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
     }
   }, [open]);
 
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setFilteredServices(masterServices);
+    } else {
+      const filtered = masterServices.filter(service =>
+        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        service.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredServices(filtered);
+    }
+  }, [searchQuery, masterServices]);
+
   const fetchMasterServices = async () => {
     try {
       const services = await serviceService.getMasterServices();
       setMasterServices(services);
+      setFilteredServices(services);
     } catch (error) {
       console.error('Error fetching master services:', error);
       toast({
@@ -134,6 +149,8 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
     setDescription('');
     setImages([]);
     setIsCustomService(false);
+    setSearchQuery('');
+    setFilteredServices(masterServices);
     onClose();
   };
 
@@ -147,6 +164,15 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Service Type</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+              <Input
+                placeholder="Search for a service..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 mb-2"
+              />
+            </div>
             <Select 
               value={isCustomService ? 'custom' : selectedServiceId} 
               onValueChange={(value) => {
@@ -162,12 +188,16 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
               <SelectTrigger>
                 <SelectValue placeholder="Select a service or choose Other" />
               </SelectTrigger>
-              <SelectContent>
-                {masterServices.map((service) => (
-                  <SelectItem key={service.id} value={service.id}>
-                    {service.name} - {service.category}
-                  </SelectItem>
-                ))}
+              <SelectContent className="max-h-60 overflow-y-auto">
+                {filteredServices.length > 0 ? (
+                  filteredServices.map((service) => (
+                    <SelectItem key={service.id} value={service.id}>
+                      {service.name} - {service.category}
+                    </SelectItem>
+                  ))
+                ) : searchQuery.trim() !== '' ? (
+                  <div className="p-2 text-sm text-gray-500">No services found</div>
+                ) : null}
                 <SelectItem value="custom">Other (Custom Service)</SelectItem>
               </SelectContent>
             </Select>
@@ -188,14 +218,18 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="priceRange">Price Range *</Label>
-              <Input
-                id="priceRange"
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                placeholder="₹499-899"
-                required
-              />
+              <Label htmlFor="priceRange">Price Range (INR) *</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                <Input
+                  id="priceRange"
+                  value={priceRange}
+                  onChange={(e) => setPriceRange(e.target.value)}
+                  placeholder="499-899"
+                  className="pl-8"
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="estimatedTime">Estimated Time *</Label>

@@ -1,15 +1,19 @@
 
-import { Search, MapPin, Calendar, ArrowRight } from "lucide-react";
+import { Search, MapPin, Calendar, ArrowRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import Map from "./Map";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useProviderStatus } from "@/hooks/useProviderStatus";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { user } = useAuth();
+  const providerStatus = useProviderStatus();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const [showMap, setShowMap] = useState(false);
@@ -23,7 +27,24 @@ const Hero = () => {
   };
 
   const handleBecomeProvider = () => {
-    navigate('/become-provider');
+    if (providerStatus.isProvider) {
+      navigate('/provider-dashboard');
+    } else {
+      navigate('/become-provider');
+    }
+  };
+
+  const getProviderButtonText = () => {
+    if (!user) return "Become a Provider";
+    if (providerStatus.loading) return "Loading...";
+    if (providerStatus.isVerified) return "Provider Dashboard";
+    if (providerStatus.hasRegistration) return "Dashboard (Pending)";
+    return "Become a Provider";
+  };
+
+  const getProviderButtonIcon = () => {
+    if (providerStatus.isVerified) return <Shield className="w-5 h-5 mr-2" />;
+    return <ArrowRight className="w-5 h-5 ml-2" />;
   };
 
   const handleSearch = () => {
@@ -82,8 +103,19 @@ const Hero = () => {
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button onClick={handleBecomeProvider} variant="outline" className="border-2 border-[#00B896] hover:bg-[#00B896] hover:text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 text-[#00B896]">
-                Become a Provider
+              <Button 
+                onClick={handleBecomeProvider} 
+                variant={providerStatus.isVerified ? "default" : "outline"} 
+                className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 ${
+                  providerStatus.isVerified 
+                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg" 
+                    : "border-2 border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]"
+                }`}
+                disabled={providerStatus.loading}
+              >
+                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
+                {getProviderButtonText()}
+                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
               </Button>
             </div>
 

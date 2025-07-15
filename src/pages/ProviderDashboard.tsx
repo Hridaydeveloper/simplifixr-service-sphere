@@ -5,15 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star } from "lucide-react";
+import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AddServiceModal from "@/components/provider/AddServiceModal";
+import VerificationSteps from "@/components/provider/VerificationSteps";
+import { useProviderStatus } from "@/hooks/useProviderStatus";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const providerStatus = useProviderStatus();
   const [services, setServices] = useState<any[]>([]);
   const [bookings, setBookings] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
@@ -251,11 +254,22 @@ const ProviderDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Dashboard</h1>
-            <p className="text-gray-600">
-              Welcome {userProfile?.full_name || 'Provider'}! Manage your services and bookings
-            </p>
+          <div className="flex items-center space-x-4">
+            <Button 
+              onClick={() => navigate(-1)} 
+              variant="outline" 
+              size="sm"
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Dashboard</h1>
+              <p className="text-gray-600">
+                Welcome {userProfile?.full_name || 'Provider'}! Manage your services and bookings
+              </p>
+            </div>
           </div>
           
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
@@ -332,6 +346,13 @@ const ProviderDashboard = () => {
           </Card>
         </div>
 
+        {/* Verification Status (if not verified) */}
+        {!providerStatus.isVerified && (
+          <div className="mb-8">
+            <VerificationSteps currentStep={providerStatus.hasRegistration ? 2 : 1} />
+          </div>
+        )}
+
         {/* Services Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -339,11 +360,23 @@ const ProviderDashboard = () => {
             <Button 
               onClick={() => setShowAddServiceModal(true)}
               className="bg-[#00B896] hover:bg-[#00A085]"
+              disabled={!providerStatus.isVerified}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
               Add Service
             </Button>
           </div>
+          
+          {!providerStatus.isVerified && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-yellow-600" />
+                <span className="text-yellow-800 font-medium">
+                  Complete verification to start adding services and receiving bookings.
+                </span>
+              </div>
+            </div>
+          )}
 
           {services.length === 0 ? (
             <Card>
