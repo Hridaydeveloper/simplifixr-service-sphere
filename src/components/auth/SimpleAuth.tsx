@@ -75,10 +75,10 @@ const SimpleAuth = ({ onBack, onSuccess }: SimpleAuthProps) => {
         });
 
         if (error) {
-          if (error.message.includes('already registered')) {
+          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
             toast({
               title: "Account Exists",
-              description: "This email is already registered. Try signing in instead.",
+              description: "This email is already registered. Try logging in instead.",
               variant: "destructive"
             });
             setIsSignUp(false);

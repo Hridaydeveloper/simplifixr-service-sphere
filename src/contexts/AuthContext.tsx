@@ -2,9 +2,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
 
 interface AuthContextType {
   user: User | null;
+  userProfile: Tables<'profiles'> | null;
   loading: boolean;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -24,6 +26,7 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<Tables<'profiles'> | null>(null);
   const [loading, setLoading] = useState(true);
 
   const createOrUpdateProfile = async (user: User) => {
@@ -43,17 +46,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log('Profile data to upsert:', profileData);
 
       // Use upsert to create or update the profile
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
-        .upsert(profileData, { onConflict: 'id' });
+        .upsert(profileData, { onConflict: 'id' })
+        .select()
+        .single();
 
       if (error) {
         console.error('Profile upsert error:', error);
       } else {
         console.log('Profile created/updated successfully');
+        setUserProfile(data);
       }
     } catch (error) {
       console.error('Error handling user profile:', error);
+    }
+  };
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setUserProfile(data);
+      }
+    } catch (error) {
+      console.error('Error in fetchUserProfile:', error);
     }
   };
 
@@ -80,7 +104,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               createOrUpdateProfile(currentUser);
             }
           }, 0);
+        } else {
+          // Just fetch existing profile
+          setTimeout(() => {
+            if (mounted && currentUser) {
+              fetchUserProfile(currentUser.id);
+            }
+          }, 0);
         }
+      } else {
+        // Clear profile when user logs out
+        setUserProfile(null);
       }
       
       if (mounted) {
@@ -100,11 +134,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const currentUser = session?.user ?? null;
             setUser(currentUser);
             
-            // Create/update profile if user exists
+            // Fetch existing profile if user exists
             if (currentUser) {
               setTimeout(() => {
                 if (mounted) {
-                  createOrUpdateProfile(currentUser);
+                  fetchUserProfile(currentUser.id);
                 }
               }, 0);
             }
@@ -192,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const value = {
     user,
+    userProfile,
     loading,
     signOut,
     refreshUser,

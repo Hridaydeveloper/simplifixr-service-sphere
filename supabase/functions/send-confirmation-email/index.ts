@@ -1,6 +1,9 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { WelcomeEmail } from './_templates/welcome-email.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -59,43 +62,22 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Attempting to send welcome email via Resend...");
 
+    // Generate a mock confirmation URL (since actual confirmation is handled by Supabase)
+    const confirmationUrl = `${Deno.env.get('SUPABASE_URL') || 'https://gyunwjlhcdlposlicatl.supabase.co'}/auth/v1/verify?type=signup&redirect_to=${encodeURIComponent('https://lovable.dev')}`;
+
+    // Render the React email template
+    const emailHtml = await renderAsync(
+      React.createElement(WelcomeEmail, {
+        fullName: fullName || 'there',
+        confirmationUrl
+      })
+    );
+
     const emailResponse = await resend.emails.send({
       from: "Simplifixr <onboarding@resend.dev>",
       to: [email],
       subject: "Confirm your Signup",
-      html: `
-        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;">
-          <!-- Header Section -->
-          <div style="background-color: #10B981; border-radius: 8px 8px 0 0; padding: 32px 40px; text-align: center;">
-            <h1 style="color: #ffffff; font-size: 32px; font-weight: bold; line-height: 1.3; margin: 0 0 8px;">Welcome to Simplifixr!</h1>
-            <p style="color: #ffffff; font-size: 18px; line-height: 1.4; margin: 0; opacity: 0.9;">Your trusted service marketplace</p>
-          </div>
-          
-          <!-- Content Section -->
-          <div style="padding: 40px; background-color: #ffffff; border-radius: 0 0 8px 8px; border: 1px solid #f0f0f0;">
-            <h2 style="color: #333333; font-size: 24px; font-weight: 600; line-height: 1.3; margin: 0 0 24px;">Hi ${fullName || 'there'}! 👋</h2>
-            
-            <p style="color: #555555; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
-              Thank you for joining Simplifixr! We're excited to have you on board. To get started and secure your account, please confirm your email address by clicking the confirmation link in the email sent by Supabase.
-            </p>
-            
-            <div style="text-align: center; margin: 32px 0;">
-              <div style="background-color: #10B981; color: white; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block;">
-                Confirm My Email Address
-              </div>
-            </div>
-            
-            <p style="color: #888888; font-size: 14px; line-height: 1.6; margin: 32px 0 16px;">
-              Need help? If you didn't receive the confirmation email from Supabase, check your spam folder or try signing up again.
-            </p>
-            
-            <p style="color: #888888; font-size: 16px; line-height: 1.6; margin: 32px 0 0;">
-              Best regards,<br>
-              The Simplifixr Team
-            </p>
-          </div>
-        </div>
-      `,
+      html: emailHtml,
       headers: {
         'X-Priority': '1',
         'X-MSMail-Priority': 'High', 

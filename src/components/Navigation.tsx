@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavigationProps {
   onShowAuth?: (authFlow: {
@@ -20,11 +21,24 @@ const Navigation = ({
   const [isOpen, setIsOpen] = useState(false);
   const {
     user,
-    signOut
+    signOut,
+    userProfile
   } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isGuest = localStorage.getItem('guestMode') === 'true';
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  const displayName = userProfile?.full_name || user?.email?.split('@')[0] || 'User';
+  const userInitials = getInitials(displayName);
 
   const handleSignIn = () => {
     navigate('/auth');
@@ -108,14 +122,16 @@ const Navigation = ({
           <div className="hidden md:flex items-center space-x-4">
             {user ? <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-300">
-                  Welcome, {user.email?.split('@')[0]}!
+                  {displayName}
                 </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="flex items-center space-x-2">
-                      <User className="w-4 h-4" />
-                      <span>Account</span>
-                    </Button>
+                    <Avatar className="h-8 w-8 cursor-pointer">
+                      <AvatarImage src={userProfile?.profile_picture_url} />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                        {userInitials}
+                      </AvatarFallback>
+                    </Avatar>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                     <DropdownMenuItem onClick={handleProfileClick}>
@@ -169,9 +185,17 @@ const Navigation = ({
                     {item.name}
                   </Link>)}
                 <div className="border-t pt-4 space-y-2 dark:border-gray-700">
-                  {user ? <>
-                      <div className="text-sm text-gray-600 py-2 dark:text-gray-300">
-                        Welcome, {user.email?.split('@')[0]}!
+                   {user ? <>
+                      <div className="flex items-center space-x-3 py-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={userProfile?.profile_picture_url} />
+                          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-semibold">
+                            {userInitials}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                          {displayName}
+                        </div>
                       </div>
                       <Button onClick={handleProfileClick} variant="outline" className="w-full justify-start">
                         <User className="w-4 h-4 mr-2" />
