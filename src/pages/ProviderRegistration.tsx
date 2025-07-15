@@ -58,7 +58,7 @@ const ProviderRegistration = () => {
     if (!formData.email && !user?.id) return;
     
     try {
-      // Check localStorage for now until database table is created
+      // Check localStorage for now until database migration is run
       const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
       const existingReg = existingRegistrations.find((reg: any) => 
         reg.email === formData.email || (user?.id && reg.user_id === user.id)
@@ -108,8 +108,7 @@ const ProviderRegistration = () => {
     setIsLoading(true);
     
     try {
-      // For now, store in localStorage since service_providers table may not exist yet
-      // This will be replaced with actual database insertion once table is created
+      // Store in localStorage temporarily until database migration is run
       const registrationData = {
         user_id: user.id,
         email: formData.email,
@@ -128,7 +127,6 @@ const ProviderRegistration = () => {
         created_at: new Date().toISOString()
       };
 
-      // Store in localStorage for now
       const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
       const duplicateExists = existingRegistrations.some((reg: any) => 
         reg.email === formData.email || reg.user_id === user.id
@@ -146,15 +144,11 @@ const ProviderRegistration = () => {
       existingRegistrations.push(registrationData);
       localStorage.setItem('serviceProviderRegistrations', JSON.stringify(existingRegistrations));
 
-
       toast({
         title: "Registration Submitted Successfully",
         description: "Your provider registration has been submitted for review. You'll be notified once it's approved.",
         variant: "default"
       });
-
-      // Store provider data in localStorage for demo purposes
-      localStorage.setItem('providerData', JSON.stringify(formData));
       
       navigate('/provider-dashboard');
     } catch (error: any) {
