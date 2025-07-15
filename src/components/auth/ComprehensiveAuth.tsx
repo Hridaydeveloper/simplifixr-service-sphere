@@ -8,67 +8,27 @@ import { useAuthHandler } from "./components/AuthHandler";
 import { toast } from "@/hooks/use-toast";
 
 interface ComprehensiveAuthProps {
-  onComplete: (role: 'customer' | 'provider' | 'guest') => void;
+  onComplete: () => void;
   onBack?: () => void;
-  defaultRole?: 'customer' | 'provider';
   fromBooking?: boolean;
 }
 
 const ComprehensiveAuth = ({ 
   onComplete, 
   onBack, 
-  defaultRole = 'customer', 
   fromBooking = false 
 }: ComprehensiveAuthProps) => {
-  const {
-    step,
-    role,
-    formData,
-    goToStep,
-    updateRole,
-    updateFormData
-  } = useAuthSteps('role-selection');
-
-  const { handleFormSubmit } = useAuthHandler({
-    role,
-    onSuccess: onComplete,
-    onEmailSent: () => goToStep('email-sent'),
-    updateFormData
-  });
-
-  const handleRoleSelect = (selectedRole: 'customer' | 'provider' | 'guest') => {
-    if (selectedRole === 'guest') {
-      onComplete(selectedRole);
-      return;
-    }
-    updateRole(selectedRole);
-    goToStep('details');
-  };
-
   const handleContinueAsGuest = () => {
     localStorage.setItem('guestMode', 'true');
     toast({
       title: "Browsing as Guest",
       description: "You can explore services. Sign up to book appointments.",
     });
-    onComplete('guest');
-  };
-
-  const handleBack = () => {
-    if (step === 'details' || step === 'signin') {
-      goToStep('role-selection');
-    } else if (onBack) {
-      onBack();
-    }
+    onComplete();
   };
 
   const getTitle = () => {
-    switch (step) {
-      case 'email-sent': return 'Check Your Email';
-      case 'signin': return 'Welcome Back';
-      case 'details': return `Join as ${role === 'customer' ? 'Customer' : 'Service Provider'}`;
-      default: return 'Get Started';
-    }
+    return 'Get Started';
   };
 
   return (
@@ -79,8 +39,8 @@ const ComprehensiveAuth = ({
             <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center">
               <div className="text-white text-lg font-bold">S</div>
             </div>
-            {(step !== 'role-selection' || onBack) && (
-              <Button variant="ghost" size="sm" onClick={handleBack}>
+            {onBack && (
+              <Button variant="ghost" size="sm" onClick={onBack}>
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Back
               </Button>
@@ -96,10 +56,16 @@ const ComprehensiveAuth = ({
         
         <CardContent className="space-y-6">
           <div className="text-center">
-            <p className="text-gray-600">This component needs to be updated to use the new auth flow.</p>
+            <p className="text-gray-600">Please use the simplified authentication flow.</p>
+            <Button 
+              onClick={onComplete}
+              className="mt-4 w-full"
+            >
+              Go to Auth
+            </Button>
           </div>
           
-          {fromBooking && step !== 'email-sent' && step !== 'role-selection' && (
+          {fromBooking && (
             <div className="text-center pt-4 border-t">
               <Button 
                 variant="outline" 

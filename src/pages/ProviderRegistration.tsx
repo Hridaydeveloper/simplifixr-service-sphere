@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,9 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, FileText, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const ProviderRegistration = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [existingRegistration, setExistingRegistration] = useState<{ exists: boolean; status: string } | null>(null);
+  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -29,6 +36,44 @@ const ProviderRegistration = () => {
     validDocument: null as File | null
   });
 
+  // Check for existing registration on component mount
+  useEffect(() => {
+    if (user && formData.email) {
+      checkExistingRegistration();
+    }
+  }, [user, formData.email]);
+
+  // Auto-fill user data if logged in
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || '',
+        fullName: user.user_metadata?.full_name || ''
+      }));
+    }
+  }, [user]);
+
+  const checkExistingRegistration = async () => {
+    if (!formData.email && !user?.id) return;
+    
+    try {
+      // Check localStorage for now until database table is created
+      const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
+      const existingReg = existingRegistrations.find((reg: any) => 
+        reg.email === formData.email || (user?.id && reg.user_id === user.id)
+      );
+
+      if (existingReg) {
+        setExistingRegistration({ exists: true, status: existingReg.status || 'pending' });
+      } else {
+        setExistingRegistration({ exists: false, status: '' });
+      }
+    } catch (error) {
+      console.error('Error checking registration:', error);
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -37,15 +82,91 @@ const ProviderRegistration = () => {
     setFormData(prev => ({ ...prev, [field]: file }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Provider registration submitted:', formData);
     
-    // Store provider data in localStorage for demo purposes
-    localStorage.setItem('providerData', JSON.stringify(formData));
+    // Check if user already has a registration
+    if (existingRegistration?.exists) {
+      toast({
+        title: "Registration Already Exists",
+        description: `You've already submitted a registration. Current status: ${existingRegistration.status}. Please wait for approval.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to submit your registration.",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
+    setIsLoading(true);
     
-    // Redirect to provider dashboard instead of showing alert
-    navigate('/provider-dashboard');
+    try {
+      // For now, store in localStorage since service_providers table may not exist yet
+      // This will be replaced with actual database insertion once table is created
+      const registrationData = {
+        user_id: user.id,
+        email: formData.email,
+        full_name: formData.fullName,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        state: formData.state,
+        pincode: formData.pincode,
+        services: formData.services,
+        experience: formData.experience,
+        description: formData.description,
+        id_proof_type: formData.idProofType,
+        id_proof_number: formData.idProofNumber,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
+
+      // Store in localStorage for now
+      const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
+      const duplicateExists = existingRegistrations.some((reg: any) => 
+        reg.email === formData.email || reg.user_id === user.id
+      );
+
+      if (duplicateExists) {
+        toast({
+          title: "Registration Already Exists",
+          description: "You've already submitted a registration. Please wait for approval.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      existingRegistrations.push(registrationData);
+      localStorage.setItem('serviceProviderRegistrations', JSON.stringify(existingRegistrations));
+
+
+      toast({
+        title: "Registration Submitted Successfully",
+        description: "Your provider registration has been submitted for review. You'll be notified once it's approved.",
+        variant: "default"
+      });
+
+      // Store provider data in localStorage for demo purposes
+      localStorage.setItem('providerData', JSON.stringify(formData));
+      
+      navigate('/provider-dashboard');
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Registration Failed",
+        description: "An error occurred while submitting your registration. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,6 +196,15 @@ const ProviderRegistration = () => {
               <CardTitle className="text-lg sm:text-xl">Registration Form</CardTitle>
             </CardHeader>
             <CardContent>
+              {existingRegistration?.exists && (
+                <div className="mb-6 p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                  <h4 className="font-semibold text-orange-800 mb-2">Registration Already Submitted</h4>
+                  <p className="text-orange-700">
+                    You've already submitted a registration with status: <strong>{existingRegistration.status}</strong>. 
+                    Please wait for approval before submitting another registration.
+                  </p>
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Personal Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -94,9 +224,14 @@ const ProviderRegistration = () => {
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      onChange={(e) => {
+                        handleInputChange('email', e.target.value);
+                        // Trigger check when email changes
+                        setTimeout(() => checkExistingRegistration(), 500);
+                      }}
                       required
                       className="mt-1"
+                      disabled={!!user?.email}
                     />
                   </div>
                   <div>
@@ -293,9 +428,10 @@ const ProviderRegistration = () => {
                   </Button>
                   <Button 
                     type="submit"
-                    className="bg-[#00B896] hover:bg-[#00A085] text-white w-full sm:w-auto"
+                    disabled={isLoading || existingRegistration?.exists}
+                    className="bg-[#00B896] hover:bg-[#00A085] text-white w-full sm:w-auto disabled:opacity-50"
                   >
-                    Submit Registration
+                    {isLoading ? 'Submitting...' : 'Submit Registration'}
                   </Button>
                 </div>
               </form>

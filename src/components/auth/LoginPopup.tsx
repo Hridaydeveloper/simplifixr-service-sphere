@@ -8,14 +8,14 @@ interface LoginPopupProps {
   isOpen: boolean;
   onClose: () => void;
   onSkip: () => void;
-  onAuthComplete: (role: 'customer' | 'provider' | 'guest') => void;
+  onAuthComplete: () => void;
 }
 
 const LoginPopup = ({ isOpen, onClose, onSkip, onAuthComplete }: LoginPopupProps) => {
   const [showAuth, setShowAuth] = useState(false);
 
-  const handleAuthComplete = (role: 'customer' | 'provider' | 'guest') => {
-    onAuthComplete(role);
+  const handleAuthComplete = () => {
+    onAuthComplete();
     onClose();
   };
 
