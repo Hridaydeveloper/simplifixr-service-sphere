@@ -62,77 +62,39 @@ const handler = async (req: Request): Promise<Response> => {
     const emailResponse = await resend.emails.send({
       from: "Simplifixr <onboarding@resend.dev>",
       to: [email],
-      subject: "Welcome to Simplifixr! Please check your email for confirmation",
+      subject: "Confirm your Signup",
       html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to Simplifixr</title>
-        </head>
-        <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;">
-          <table role="presentation" style="width: 100%; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #f8fafc;">
-            <tr>
-              <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" style="width: 100%; max-width: 600px; border-collapse: collapse; border: 0; border-spacing: 0; background-color: #ffffff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
-                  <!-- Header -->
-                  <tr>
-                    <td style="padding: 48px 40px 32px; text-align: center; background: linear-gradient(135deg, #00B896 0%, #00C9A7 100%); border-radius: 16px 16px 0 0;">
-                      <h1 style="margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; line-height: 1.2;">Welcome to Simplifixr!</h1>
-                      <p style="margin: 12px 0 0; color: rgba(255, 255, 255, 0.9); font-size: 18px; font-weight: 500;">Your trusted service marketplace</p>
-                    </td>
-                  </tr>
-                  
-                  <!-- Main Content -->
-                  <tr>
-                    <td style="padding: 48px 40px;">
-                      <h2 style="margin: 0 0 24px; color: #1a202c; font-size: 24px; font-weight: 600;">
-                        Hi ${fullName || 'there'}! 👋
-                      </h2>
-                      
-                      <p style="margin: 0 0 32px; color: #4a5568; font-size: 16px; line-height: 1.6;">
-                        Thank you for joining Simplifixr! We're excited to have you on board. 
-                      </p>
-
-                      <div style="background: #e6fffa; padding: 24px; border-radius: 12px; border-left: 4px solid #00B896; margin: 32px 0;">
-                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #22543d;">
-                          📧 Check Your Email
-                        </p>
-                        <p style="margin: 0; font-size: 14px; color: #2f855a; line-height: 1.5;">
-                          We've also sent you a separate confirmation email from Supabase. Please check your inbox (including spam folder) and click the confirmation link to activate your account.
-                        </p>
-                      </div>
-                      
-                      <!-- What's Next -->
-                      <div style="background: #f0fff4; padding: 24px; border-radius: 12px; border-left: 4px solid #48bb78; margin: 32px 0;">
-                        <p style="margin: 0 0 12px; font-size: 15px; font-weight: 600; color: #22543d;">
-                          🚀 What's next?
-                        </p>
-                        <p style="margin: 0; font-size: 14px; color: #2f855a; line-height: 1.5;">
-                          Once you confirm your email, you'll be able to browse services, connect with providers, and start simplifying your life with Simplifixr!
-                        </p>
-                      </div>
-                    </td>
-                  </tr>
-                  
-                  <!-- Footer -->
-                  <tr>
-                    <td style="padding: 32px 40px; background: #f8fafc; border-radius: 0 0 16px 16px; text-align: center; border-top: 1px solid #e2e8f0;">
-                      <p style="margin: 0 0 8px; color: #718096; font-size: 14px; font-weight: 500;">
-                        © ${new Date().getFullYear()} Simplifixr. All rights reserved.
-                      </p>
-                      <p style="margin: 0; color: #a0aec0; font-size: 12px;">
-                        Making services simple, one click at a time.
-                      </p>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </body>
-        </html>
+        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;">
+          <!-- Header Section -->
+          <div style="background-color: #10B981; border-radius: 8px 8px 0 0; padding: 32px 40px; text-align: center;">
+            <h1 style="color: #ffffff; font-size: 32px; font-weight: bold; line-height: 1.3; margin: 0 0 8px;">Welcome to Simplifixr!</h1>
+            <p style="color: #ffffff; font-size: 18px; line-height: 1.4; margin: 0; opacity: 0.9;">Your trusted service marketplace</p>
+          </div>
+          
+          <!-- Content Section -->
+          <div style="padding: 40px; background-color: #ffffff; border-radius: 0 0 8px 8px; border: 1px solid #f0f0f0;">
+            <h2 style="color: #333333; font-size: 24px; font-weight: 600; line-height: 1.3; margin: 0 0 24px;">Hi ${fullName || 'there'}! 👋</h2>
+            
+            <p style="color: #555555; font-size: 16px; line-height: 1.6; margin: 0 0 32px;">
+              Thank you for joining Simplifixr! We're excited to have you on board. To get started and secure your account, please confirm your email address by clicking the confirmation link in the email sent by Supabase.
+            </p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <div style="background-color: #10B981; color: white; padding: 16px 32px; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block;">
+                Confirm My Email Address
+              </div>
+            </div>
+            
+            <p style="color: #888888; font-size: 14px; line-height: 1.6; margin: 32px 0 16px;">
+              Need help? If you didn't receive the confirmation email from Supabase, check your spam folder or try signing up again.
+            </p>
+            
+            <p style="color: #888888; font-size: 16px; line-height: 1.6; margin: 32px 0 0;">
+              Best regards,<br>
+              The Simplifixr Team
+            </p>
+          </div>
+        </div>
       `,
       headers: {
         'X-Priority': '1',

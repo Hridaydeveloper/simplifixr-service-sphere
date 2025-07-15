@@ -92,14 +92,9 @@ const AuthConfirm = () => {
             description: "Your account has been verified successfully!",
           });
 
-          // Redirect based on user role after 2 seconds
+          // Redirect to home page after 2 seconds
           setTimeout(() => {
-            const userRole = data.user.user_metadata?.role || 'customer';
-            if (userRole === 'provider') {
-              navigate('/become-provider');
-            } else {
-              navigate('/services');
-            }
+            navigate('/');
           }, 2000);
         } else {
           setStatus('error');

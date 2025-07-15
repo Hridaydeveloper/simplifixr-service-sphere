@@ -64,14 +64,14 @@ const SimpleAuth = ({ onBack, onSuccess }: SimpleAuthProps) => {
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: formData.fullName,
-              location: formData.location,
-              role: 'customer'
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/confirm`,
+              data: {
+                full_name: formData.fullName,
+                location: formData.location,
+                role: 'customer'
+              }
             }
-          }
         });
 
         if (error) {
@@ -141,7 +141,7 @@ const SimpleAuth = ({ onBack, onSuccess }: SimpleAuthProps) => {
         type: 'signup',
         email: formData.email,
         options: {
-          emailRedirectTo: `${window.location.origin}/`
+          emailRedirectTo: `${window.location.origin}/auth/confirm`
         }
       });
 
