@@ -37,10 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const profileData = {
         id: user.id,
         full_name: userData.full_name || user.email?.split('@')[0] || 'User',
-        location: userData.location || '',
-        role: userData.role || 'customer',
-        bio: userData.service_description || userData.bio || '',
-        phone: userData.phone || ''
+        location: userData.location || ''
       };
 
       console.log('Profile data to upsert:', profileData);
