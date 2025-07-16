@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      master_services: {
+        Row: {
+          base_price_range: string | null
+          category: string
+          category_id: string | null
+          created_at: string
+          description: string | null
+          estimated_time: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          base_price_range?: string | null
+          category: string
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_time?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          base_price_range?: string | null
+          category?: string
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          estimated_time?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_services_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "service_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       otp_verifications: {
         Row: {
           created_at: string
@@ -77,6 +127,7 @@ export type Database = {
       provider_registrations: {
         Row: {
           additional_documents_urls: string[] | null
+          admin_notes: string | null
           business_address: string
           business_license_url: string | null
           business_name: string
@@ -95,9 +146,12 @@ export type Database = {
           updated_at: string
           user_id: string
           verified: boolean
+          verified_at: string | null
+          verified_by: string | null
         }
         Insert: {
           additional_documents_urls?: string[] | null
+          admin_notes?: string | null
           business_address: string
           business_license_url?: string | null
           business_name: string
@@ -116,9 +170,12 @@ export type Database = {
           updated_at?: string
           user_id: string
           verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Update: {
           additional_documents_urls?: string[] | null
+          admin_notes?: string | null
           business_address?: string
           business_license_url?: string | null
           business_name?: string
@@ -137,6 +194,88 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verified?: boolean
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      provider_services: {
+        Row: {
+          created_at: string
+          custom_service_name: string | null
+          description: string | null
+          estimated_time: string
+          id: string
+          images: string[] | null
+          is_available: boolean
+          master_service_id: string | null
+          price_range: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_service_name?: string | null
+          description?: string | null
+          estimated_time: string
+          id?: string
+          images?: string[] | null
+          is_available?: boolean
+          master_service_id?: string | null
+          price_range: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_service_name?: string | null
+          description?: string | null
+          estimated_time?: string
+          id?: string
+          images?: string[] | null
+          is_available?: boolean
+          master_service_id?: string | null
+          price_range?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_services_master_service_id_fkey"
+            columns: ["master_service_id"]
+            isOneToOne: false
+            referencedRelation: "master_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -145,8 +284,53 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_provider_service: {
+        Args: {
+          p_master_service_id?: string
+          p_custom_service_name?: string
+          p_price_range?: string
+          p_estimated_time?: string
+          p_description?: string
+          p_images?: string[]
+        }
+        Returns: string
+      }
+      get_master_services: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          category: string
+          description: string
+          base_price_range: string
+          estimated_time: string
+          image_url: string
+          is_active: boolean
+        }[]
+      }
+      get_my_provider_services: {
+        Args: { provider_id: string }
+        Returns: {
+          id: string
+          master_service_id: string
+          custom_service_name: string
+          price_range: string
+          estimated_time: string
+          description: string
+          images: string[]
+          is_available: boolean
+          master_service: Json
+        }[]
+      }
       verify_provider: {
-        Args: { registration_id: string }
+        Args:
+          | { registration_id: string }
+          | {
+              registration_id: string
+              admin_user_id: string
+              new_status: string
+              notes?: string
+            }
         Returns: undefined
       }
     }

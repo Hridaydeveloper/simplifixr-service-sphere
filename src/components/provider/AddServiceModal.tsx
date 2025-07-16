@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { serviceService, MasterService } from "@/services/serviceService";
-import { Upload, X, Search } from "lucide-react";
+import { SmartSearchSelect } from "@/components/ui/smart-search-select";
+import { Upload, X } from "lucide-react";
 
 interface AddServiceModalProps {
   open: boolean;
@@ -26,8 +26,6 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCustomService, setIsCustomService] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredServices, setFilteredServices] = useState<MasterService[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -35,23 +33,10 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
     }
   }, [open]);
 
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredServices(masterServices);
-    } else {
-      const filtered = masterServices.filter(service =>
-        service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        service.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredServices(filtered);
-    }
-  }, [searchQuery, masterServices]);
-
   const fetchMasterServices = async () => {
     try {
       const services = await serviceService.getMasterServices();
       setMasterServices(services);
-      setFilteredServices(services);
     } catch (error) {
       console.error('Error fetching master services:', error);
       toast({
@@ -61,6 +46,12 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
       });
     }
   };
+
+  const serviceOptions = masterServices.map(service => ({
+    value: service.id,
+    label: service.name,
+    category: service.category
+  }));
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -149,8 +140,6 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
     setDescription('');
     setImages([]);
     setIsCustomService(false);
-    setSearchQuery('');
-    setFilteredServices(masterServices);
     onClose();
   };
 
@@ -164,53 +153,43 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label>Service Type</Label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
-              <Input
-                placeholder="Search for a service..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 mb-2"
-              />
-            </div>
-            <Select 
-              value={isCustomService ? 'custom' : selectedServiceId} 
+            <SmartSearchSelect
+              options={serviceOptions}
+              value={isCustomService ? '' : selectedServiceId}
               onValueChange={(value) => {
-                if (value === 'custom') {
-                  setIsCustomService(true);
-                  setSelectedServiceId('');
-                } else {
-                  setIsCustomService(false);
-                  setSelectedServiceId(value);
-                }
+                setIsCustomService(false);
+                setSelectedServiceId(value);
               }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a service or choose Other" />
-              </SelectTrigger>
-              <SelectContent className="max-h-60 overflow-y-auto">
-                {filteredServices.length > 0 ? (
-                  filteredServices.map((service) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.name} - {service.category}
-                    </SelectItem>
-                  ))
-                ) : searchQuery.trim() !== '' ? (
-                  <div className="p-2 text-sm text-gray-500">No services found</div>
-                ) : null}
-                <SelectItem value="custom">Other (Custom Service)</SelectItem>
-              </SelectContent>
-            </Select>
+              placeholder="Select a service..."
+              searchPlaceholder="Search for services..."
+              allowCustom={true}
+              customLabel="Other (Custom Service)"
+              onCustomValueChange={(customValue) => {
+                setIsCustomService(true);
+                setCustomServiceName(customValue);
+                setSelectedServiceId('');
+              }}
+              className="w-full"
+            />
           </div>
 
           {isCustomService && (
-            <div className="space-y-2">
-              <Label htmlFor="customServiceName">Custom Service Name *</Label>
+            <div className="space-y-2 p-4 bg-muted/50 rounded-lg border border-primary/20">
+              <div className="flex items-center space-x-2">
+                <div className="h-2 w-2 rounded-full bg-primary"></div>
+                <Label htmlFor="customServiceName" className="text-sm font-medium text-primary">
+                  Custom Service Selected: "{customServiceName}"
+                </Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                You can edit the service name below if needed:
+              </p>
               <Input
                 id="customServiceName"
                 value={customServiceName}
                 onChange={(e) => setCustomServiceName(e.target.value)}
                 placeholder="Enter your custom service name"
+                className="bg-background border-primary/30 focus:border-primary"
                 required
               />
             </div>
