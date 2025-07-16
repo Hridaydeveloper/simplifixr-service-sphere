@@ -74,12 +74,17 @@ export function SmartSearchSelect({
         setIsOpen(false);
         setSearchTerm('');
         setHighlightedIndex(-1);
+        // Don't clear custom mode and value on outside click, just close the dropdown
+        if (!isCustomMode) {
+          setIsCustomMode(false);
+          setCustomValue('');
+        }
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [isCustomMode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen) {
@@ -124,8 +129,11 @@ export function SmartSearchSelect({
       setIsCustomMode(true);
       setIsOpen(false);
       setSearchTerm('');
+      // Clear the regular value when switching to custom mode
+      onValueChange('');
     } else {
       setIsCustomMode(false);
+      setCustomValue(''); // Clear custom value when selecting from options
       onValueChange(option.value);
       setIsOpen(false);
       setSearchTerm('');
@@ -136,6 +144,7 @@ export function SmartSearchSelect({
   const handleCustomValueSubmit = () => {
     if (customValue.trim()) {
       onCustomValueChange?.(customValue.trim());
+      setIsCustomMode(false); // Keep custom mode but close the input
       setIsOpen(false);
     }
   };

@@ -29,18 +29,18 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
       
       <CardContent className="space-y-3">
         <div className="flex items-center text-sm text-gray-600">
-          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-2 flex-shrink-0" />
           <span>4.8 (120+ reviews)</span>
         </div>
         
         <div className="flex items-center text-sm text-gray-600">
-          <Clock className="w-4 h-4 mr-2" />
+          <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
           <span>{service.estimated_time}</span>
         </div>
         
         {service.provider_profile && (
           <div className="flex items-center text-sm text-gray-600">
-            <MapPin className="w-4 h-4 mr-2" />
+            <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
             <span>{service.provider_profile.location}</span>
           </div>
         )}
