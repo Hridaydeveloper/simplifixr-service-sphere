@@ -51,6 +51,7 @@ export type Database = {
           id: string
           location: string | null
           profile_picture_url: string | null
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -59,6 +60,7 @@ export type Database = {
           id: string
           location?: string | null
           profile_picture_url?: string | null
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -67,7 +69,65 @@ export type Database = {
           id?: string
           location?: string | null
           profile_picture_url?: string | null
+          role?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      provider_registrations: {
+        Row: {
+          business_address: string
+          business_name: string
+          created_at: string
+          description: string | null
+          email: string
+          experience: string
+          full_name: string
+          id: string
+          id_proof_number: string
+          id_proof_type: string
+          phone: string
+          service_categories: string[]
+          status: string
+          updated_at: string
+          user_id: string
+          verified: boolean
+        }
+        Insert: {
+          business_address: string
+          business_name: string
+          created_at?: string
+          description?: string | null
+          email: string
+          experience: string
+          full_name: string
+          id?: string
+          id_proof_number: string
+          id_proof_type: string
+          phone: string
+          service_categories: string[]
+          status?: string
+          updated_at?: string
+          user_id: string
+          verified?: boolean
+        }
+        Update: {
+          business_address?: string
+          business_name?: string
+          created_at?: string
+          description?: string | null
+          email?: string
+          experience?: string
+          full_name?: string
+          id?: string
+          id_proof_number?: string
+          id_proof_type?: string
+          phone?: string
+          service_categories?: string[]
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verified?: boolean
         }
         Relationships: []
       }
@@ -76,7 +136,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      verify_provider: {
+        Args: { registration_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

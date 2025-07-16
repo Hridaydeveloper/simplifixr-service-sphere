@@ -23,11 +23,9 @@ const ProviderRegistration = () => {
     fullName: '',
     email: '',
     phone: '',
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
-    services: '',
+    businessName: '',
+    businessAddress: '',
+    serviceCategories: '',
     experience: '',
     description: '',
     idProofType: '',
@@ -113,11 +111,9 @@ const ProviderRegistration = () => {
         email: formData.email,
         full_name: formData.fullName,
         phone: formData.phone,
-        address: formData.address,
-        city: formData.city,
-        state: formData.state,
-        pincode: formData.pincode,
-        services: formData.services,
+        business_name: formData.businessName,
+        business_address: formData.businessAddress,
+        service_categories: [formData.serviceCategories],
         experience: formData.experience,
         description: formData.description,
         id_proof_type: formData.idProofType,
@@ -146,11 +142,12 @@ const ProviderRegistration = () => {
 
       toast({
         title: "Registration Submitted Successfully",
-        description: "Your provider registration has been submitted for review. You'll be notified once it's approved.",
+        description: "Your provider registration is now pending review. You'll be notified once it's approved.",
         variant: "default"
       });
       
-      navigate('/provider-dashboard');
+      // Update the existing registration state to show pending status
+      setExistingRegistration({ exists: true, status: 'pending' });
     } catch (error: any) {
       console.error('Registration error:', error);
       toast({
@@ -255,50 +252,28 @@ const ProviderRegistration = () => {
                   </div>
                 </div>
 
-                {/* Address Information */}
+                {/* Business Information */}
                 <div className="space-y-4">
-                  <h3 className="text-base sm:text-lg font-semibold">Address Information</h3>
+                  <h3 className="text-base sm:text-lg font-semibold">Business Information</h3>
                   <div>
-                    <Label htmlFor="address" className="text-sm sm:text-base">Address *</Label>
-                    <Textarea
-                      id="address"
-                      value={formData.address}
-                      onChange={(e) => handleInputChange('address', e.target.value)}
+                    <Label htmlFor="businessName" className="text-sm sm:text-base">Business Name *</Label>
+                    <Input
+                      id="businessName"
+                      value={formData.businessName}
+                      onChange={(e) => handleInputChange('businessName', e.target.value)}
                       required
                       className="mt-1"
                     />
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="city" className="text-sm sm:text-base">City *</Label>
-                      <Input
-                        id="city"
-                        value={formData.city}
-                        onChange={(e) => handleInputChange('city', e.target.value)}
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="state" className="text-sm sm:text-base">State *</Label>
-                      <Input
-                        id="state"
-                        value={formData.state}
-                        onChange={(e) => handleInputChange('state', e.target.value)}
-                        required
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="pincode" className="text-sm sm:text-base">Pincode *</Label>
-                      <Input
-                        id="pincode"
-                        value={formData.pincode}
-                        onChange={(e) => handleInputChange('pincode', e.target.value)}
-                        required
-                        className="mt-1"
-                      />
-                    </div>
+                  <div>
+                    <Label htmlFor="businessAddress" className="text-sm sm:text-base">Business Address *</Label>
+                    <Textarea
+                      id="businessAddress"
+                      value={formData.businessAddress}
+                      onChange={(e) => handleInputChange('businessAddress', e.target.value)}
+                      required
+                      className="mt-1"
+                    />
                   </div>
                 </div>
 
@@ -306,12 +281,12 @@ const ProviderRegistration = () => {
                 <div className="space-y-4">
                   <h3 className="text-base sm:text-lg font-semibold">Service Information</h3>
                   <div>
-                    <Label htmlFor="services" className="text-sm sm:text-base">Services Offered *</Label>
+                    <Label htmlFor="serviceCategories" className="text-sm sm:text-base">Service Categories *</Label>
                     <Textarea
-                      id="services"
+                      id="serviceCategories"
                       placeholder="List the services you can provide (e.g., Plumbing, Electrical work, etc.)"
-                      value={formData.services}
-                      onChange={(e) => handleInputChange('services', e.target.value)}
+                      value={formData.serviceCategories}
+                      onChange={(e) => handleInputChange('serviceCategories', e.target.value)}
                       required
                       className="mt-1"
                     />
