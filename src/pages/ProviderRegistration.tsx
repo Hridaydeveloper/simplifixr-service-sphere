@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, FileText, ArrowLeft } from "lucide-react";
+import { Upload, FileText, ArrowLeft, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ const ProviderRegistration = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [existingRegistration, setExistingRegistration] = useState<{ exists: boolean; status: string } | null>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -106,6 +107,49 @@ const ProviderRegistration = () => {
     setIsLoading(true);
     
     try {
+      let idProofDocumentUrl = '';
+      let businessLicenseUrl = '';
+
+      // Upload ID proof document
+      if (formData.idProofFile) {
+        const fileExt = formData.idProofFile.name.split('.').pop();
+        const fileName = `${user.id}/id-proof-${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, formData.idProofFile);
+
+        if (uploadError) {
+          throw new Error(`Failed to upload ID proof: ${uploadError.message}`);
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        idProofDocumentUrl = publicUrl;
+      }
+
+      // Upload business license/valid document
+      if (formData.validDocument) {
+        const fileExt = formData.validDocument.name.split('.').pop();
+        const fileName = `${user.id}/business-license-${Date.now()}.${fileExt}`;
+        
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('avatars')
+          .upload(fileName, formData.validDocument);
+
+        if (uploadError) {
+          throw new Error(`Failed to upload business license: ${uploadError.message}`);
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(fileName);
+        
+        businessLicenseUrl = publicUrl;
+      }
+
       const registrationData = {
         user_id: user.id,
         email: formData.email,
@@ -117,7 +161,9 @@ const ProviderRegistration = () => {
         experience: formData.experience,
         description: formData.description,
         id_proof_type: formData.idProofType,
-        id_proof_number: formData.idProofNumber
+        id_proof_number: formData.idProofNumber,
+        id_proof_document_url: idProofDocumentUrl || null,
+        business_license_url: businessLicenseUrl || null
       };
 
       const { data, error } = await supabase
@@ -140,11 +186,13 @@ const ProviderRegistration = () => {
         return;
       }
 
-      toast({
-        title: "Registration Submitted Successfully",
-        description: "Your provider registration is now pending review. You'll be notified once it's approved.",
-        variant: "default"
-      });
+      // Show custom success animation
+      setShowSuccessAnimation(true);
+      
+      // Hide animation after 2 seconds
+      setTimeout(() => {
+        setShowSuccessAnimation(false);
+      }, 2000);
       
       // Update the existing registration state to show pending status
       setExistingRegistration({ exists: true, status: 'pending' });
@@ -163,6 +211,20 @@ const ProviderRegistration = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
+      
+      {/* Success Animation Overlay */}
+      {showSuccessAnimation && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-sm mx-4 text-center animate-scale-in">
+            <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+              <CheckCircle className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Registration Successful!</h3>
+            <p className="text-gray-600">Your registration is now pending review. You'll be notified once approved.</p>
+          </div>
+        </div>
+      )}
+      
       <div className="pt-16 sm:pt-20 pb-8 sm:pb-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6 sm:mb-8">

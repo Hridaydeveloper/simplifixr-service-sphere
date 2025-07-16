@@ -76,7 +76,9 @@ export type Database = {
       }
       provider_registrations: {
         Row: {
+          additional_documents_urls: string[] | null
           business_address: string
+          business_license_url: string | null
           business_name: string
           created_at: string
           description: string | null
@@ -84,6 +86,7 @@ export type Database = {
           experience: string
           full_name: string
           id: string
+          id_proof_document_url: string | null
           id_proof_number: string
           id_proof_type: string
           phone: string
@@ -94,7 +97,9 @@ export type Database = {
           verified: boolean
         }
         Insert: {
+          additional_documents_urls?: string[] | null
           business_address: string
+          business_license_url?: string | null
           business_name: string
           created_at?: string
           description?: string | null
@@ -102,6 +107,7 @@ export type Database = {
           experience: string
           full_name: string
           id?: string
+          id_proof_document_url?: string | null
           id_proof_number: string
           id_proof_type: string
           phone: string
@@ -112,7 +118,9 @@ export type Database = {
           verified?: boolean
         }
         Update: {
+          additional_documents_urls?: string[] | null
           business_address?: string
+          business_license_url?: string | null
           business_name?: string
           created_at?: string
           description?: string | null
@@ -120,6 +128,7 @@ export type Database = {
           experience?: string
           full_name?: string
           id?: string
+          id_proof_document_url?: string | null
           id_proof_number?: string
           id_proof_type?: string
           phone?: string

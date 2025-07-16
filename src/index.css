@@ -84,6 +84,10 @@
     animation: bounceSubtle 2s infinite;
   }
   
+  .animate-scale-in {
+    animation: scaleIn 0.3s ease-out;
+  }
+  
   .text-gradient {
     @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
   }
@@ -128,6 +132,17 @@
   }
   60% {
     transform: translateY(-3px);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
