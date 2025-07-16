@@ -58,14 +58,14 @@ const ProviderRegistration = () => {
     if (!formData.email && !user?.id) return;
     
     try {
-      // Check localStorage for now until database migration is run
-      const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
-      const existingReg = existingRegistrations.find((reg: any) => 
-        reg.email === formData.email || (user?.id && reg.user_id === user.id)
-      );
-
-      if (existingReg) {
-        setExistingRegistration({ exists: true, status: existingReg.status || 'pending' });
+      const { data, error } = await supabase
+        .from('provider_registrations' as any)
+        .select('status, verified')
+        .or(`email.eq.${formData.email}${user?.id ? `,user_id.eq.${user.id}` : ''}`)
+        .maybeSingle();
+      
+      if (data && !error) {
+        setExistingRegistration({ exists: true, status: (data as any).status || 'pending' });
       } else {
         setExistingRegistration({ exists: false, status: '' });
       }
@@ -108,7 +108,6 @@ const ProviderRegistration = () => {
     setIsLoading(true);
     
     try {
-      // Store in localStorage temporarily until database migration is run
       const registrationData = {
         user_id: user.id,
         email: formData.email,
@@ -122,27 +121,28 @@ const ProviderRegistration = () => {
         experience: formData.experience,
         description: formData.description,
         id_proof_type: formData.idProofType,
-        id_proof_number: formData.idProofNumber,
-        status: 'pending',
-        created_at: new Date().toISOString()
+        id_proof_number: formData.idProofNumber
       };
 
-      const existingRegistrations = JSON.parse(localStorage.getItem('serviceProviderRegistrations') || '[]');
-      const duplicateExists = existingRegistrations.some((reg: any) => 
-        reg.email === formData.email || reg.user_id === user.id
-      );
+      const { data, error } = await supabase
+        .from('provider_registrations' as any)
+        .insert([registrationData])
+        .select()
+        .single();
 
-      if (duplicateExists) {
-        toast({
-          title: "Registration Already Exists",
-          description: "You've already submitted a registration. Please wait for approval.",
-          variant: "destructive"
-        });
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Registration Already Exists",
+            description: "You've already submitted a registration. Please wait for approval.",
+            variant: "destructive"
+          });
+        } else {
+          throw error;
+        }
+        setIsLoading(false);
         return;
       }
-
-      existingRegistrations.push(registrationData);
-      localStorage.setItem('serviceProviderRegistrations', JSON.stringify(existingRegistrations));
 
       toast({
         title: "Registration Submitted Successfully",

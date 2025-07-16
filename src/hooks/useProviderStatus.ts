@@ -31,7 +31,7 @@ export const useProviderStatus = () => {
       }
 
       try {
-        // Check user profile role (for now, we'll use this to determine provider status)
+        // Check user profile for role (using type casting until DB types update)
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
@@ -42,11 +42,17 @@ export const useProviderStatus = () => {
           console.error('Error checking user profile:', profileError);
         }
 
-        // For now, we'll consider a user a provider if they have the role set
-        // Later when service_providers table is created, we'll check that table
         const isProvider = (profile as any)?.role === 'provider';
-        const hasRegistration = isProvider; // Simplified for now
-        const isVerified = isProvider; // For demo, verified providers are those with provider role
+        
+        // Check for provider registration (using type casting until DB types update)
+        const { data: registration, error: regError } = await supabase
+          .from('provider_registrations' as any)
+          .select('status, verified')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        const hasRegistration = !!registration && !regError;
+        const isVerified = (registration as any)?.verified === true;
 
         setStatus({
           isProvider,
