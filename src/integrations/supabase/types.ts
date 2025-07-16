@@ -322,6 +322,32 @@ export type Database = {
           master_service: Json
         }[]
       }
+      get_provider_services: {
+        Args: { service_category?: string }
+        Returns: {
+          id: string
+          provider_id: string
+          master_service_id: string
+          custom_service_name: string
+          price_range: string
+          estimated_time: string
+          description: string
+          images: string[]
+          is_available: boolean
+          master_service: Json
+          provider_profile: Json
+        }[]
+      }
+      get_service_categories: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          icon: string
+          description: string
+          is_active: boolean
+        }[]
+      }
       verify_provider: {
         Args:
           | { registration_id: string }
