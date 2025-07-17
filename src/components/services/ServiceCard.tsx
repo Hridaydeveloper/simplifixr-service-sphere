@@ -35,9 +35,43 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
     return 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=300&fit=crop';
   };
 
+  // Don't show services from unavailable providers
+  if (!service.is_available) {
+    return null;
+  }
+
   return (
-    <Card className="group h-full hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:scale-[1.02] bg-white">
+    <Card className="group h-full hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:scale-[1.02] bg-card cursor-pointer"
+          onClick={() => onViewDetails?.(service)}>
       <div className="flex h-full">
+        {/* Image Section - Multiple images with navigation */}
+        <div className="w-48 sm:w-56 relative overflow-hidden rounded-l-lg">
+          {service.images && service.images.length > 0 ? (
+            <div className="relative w-full h-full">
+              <img 
+                src={service.images[0]} 
+                alt={serviceName}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                onError={(e) => {
+                  e.currentTarget.src = getServiceImage();
+                }}
+              />
+              {service.images.length > 1 && (
+                <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                  +{service.images.length - 1}
+                </div>
+              )}
+            </div>
+          ) : (
+            <img 
+              src={getServiceImage()} 
+              alt={serviceName}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10"></div>
+        </div>
+        
         {/* Content Section */}
         <div className="flex-1 p-6">
           <div className="flex items-start justify-between mb-3">
@@ -78,41 +112,11 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
           )}
           
           <div className="mt-auto">
-            <div className="text-2xl font-bold text-primary mb-4">
+            <div className="text-2xl font-bold text-primary">
               {service.price_range}
               <span className="text-xs text-muted-foreground font-normal ml-1">per service</span>
             </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                onClick={() => onViewDetails?.(service)}
-                variant="outline" 
-                className="flex-1 border-primary/20 hover:bg-primary/5 hover:border-primary/40"
-              >
-                View Details
-              </Button>
-              <Button 
-                onClick={() => onBook?.(service)}
-                className="flex-1 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/25"
-              >
-                Book Now
-              </Button>
-            </div>
           </div>
-        </div>
-        
-        {/* Image Section */}
-        <div className="w-32 sm:w-40 relative overflow-hidden rounded-r-lg">
-          <img 
-            src={getServiceImage()} 
-            alt={serviceName}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-            onError={(e) => {
-              // Fallback if image fails to load
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=300&fit=crop';
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-l from-transparent to-white/10"></div>
         </div>
       </div>
     </Card>

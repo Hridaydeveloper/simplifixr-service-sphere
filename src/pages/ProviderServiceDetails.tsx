@@ -5,6 +5,7 @@ import { ArrowLeft, Star, MapPin, Clock, Phone, Mail, MessageCircle, Calendar } 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
@@ -161,22 +162,24 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
               </CardContent>
             </Card>
 
-            {/* Availability */}
+            {/* Service Images */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Availability
-                </CardTitle>
+                <CardTitle>Service Images</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {serviceDetails.availability.map((time, index) => (
-                    <li key={index} className="text-sm text-muted-foreground">
-                      {time}
-                    </li>
-                  ))}
-                </ul>
+                <div className="grid grid-cols-2 gap-4">
+                  <img 
+                    src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop" 
+                    alt="Service example 1"
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                  <img 
+                    src="https://images.unsplash.com/photo-1588200908342-23b585c03e26?w=400&h=300&fit=crop" 
+                    alt="Service example 2"
+                    className="w-full h-40 object-cover rounded-lg"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -249,11 +252,31 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
                 </Button>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => {
+                      toast({
+                        title: "Contact Provider",
+                        description: "You can ask the provider for call and email",
+                      });
+                    }}
+                  >
                     <Phone className="w-4 h-4 mr-1" />
                     Call
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => {
+                      toast({
+                        title: "Contact Provider",
+                        description: "You can ask the provider for call and email",
+                      });
+                    }}
+                  >
                     <Mail className="w-4 h-4 mr-1" />
                     Email
                   </Button>
