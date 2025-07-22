@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle } from "lucide-react";
+import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle, BarChart3 } from "lucide-react";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,17 +69,16 @@ const ProviderDashboard = () => {
       };
 
       setUserProfile(profileData);
-      // Safely access is_available with fallback to true
+      // Safely access is_available with proper persistence
       setIsAvailable((profileData as any).is_available ?? true);
 
-      // Try to update profile with provider role using RPC
+      // Only update role to provider, don't force availability to true
       try {
         const { error: rpcError } = await (supabase as any)
           .rpc('update_profile', {
             user_id: user.id,
             profile_data: {
-              role: 'provider',
-              is_available: true
+              role: 'provider'
             }
           });
 
@@ -293,7 +293,7 @@ const ProviderDashboard = () => {
             <CardContent className="p-6">
               <div className="flex items-center">
                 <div className="p-2 bg-blue-100 rounded-lg">
-                  <Settings className="w-6 h-6 text-blue-600" />
+                  <BarChart3 className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Total Services</p>
@@ -396,6 +396,17 @@ const ProviderDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service: any) => (
                 <Card key={service.id} className="hover:shadow-lg transition-shadow">
+                  {/* Service Images */}
+                  {service.images && service.images.length > 0 && (
+                    <div className="h-48 overflow-hidden rounded-t-lg">
+                      <ImageCarousel 
+                        images={service.images} 
+                        alt={service.master_service?.name || service.custom_service_name || 'Service'} 
+                        className="w-full h-full"
+                      />
+                    </div>
+                  )}
+                  
                   <CardHeader className="pb-3">
                     <div className="flex items-center justify-between">
                       <Badge variant={service.is_available ? "default" : "secondary"}>
