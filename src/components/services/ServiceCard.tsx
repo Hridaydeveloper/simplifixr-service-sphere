@@ -13,7 +13,8 @@ interface ServiceCardProps {
 
 const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
   const serviceName = service.master_service?.name || service.custom_service_name || 'Custom Service';
-  const serviceImage = service.master_service?.image_url || service.images?.[0];
+  // Prioritize uploaded images over master service images
+  const serviceImage = (service.images && service.images.length > 0) ? service.images[0] : service.master_service?.image_url;
   
   // Get a placeholder image based on service category
   const getServiceImage = () => {
@@ -41,23 +42,23 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
   }
 
   return (
-    <Card className="group h-full hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:scale-[1.02] bg-card cursor-pointer"
+    <Card className="group h-full hover:shadow-lg transition-all duration-300 border-0 shadow-sm hover:scale-[1.01] bg-card cursor-pointer max-h-80"
           onClick={() => onViewDetails?.(service)}>
       <div className="flex h-full">
         {/* Image Section - Multiple images with navigation */}
-        <div className="w-48 sm:w-56 relative overflow-hidden rounded-l-lg">
-          {service.images && service.images.length > 0 ? (
+        <div className="w-40 sm:w-48 relative overflow-hidden rounded-l-lg">
+          {serviceImage ? (
             <div className="relative w-full h-full">
               <img 
-                src={service.images[0]} 
+                src={serviceImage} 
                 alt={serviceName}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onError={(e) => {
                   e.currentTarget.src = getServiceImage();
                 }}
               />
-              {service.images.length > 1 && (
-                <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+              {service.images && service.images.length > 1 && (
+                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
                   +{service.images.length - 1}
                 </div>
               )}
@@ -66,14 +67,14 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
             <img 
               src={getServiceImage()} 
               alt={serviceName}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10"></div>
         </div>
         
         {/* Content Section */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">

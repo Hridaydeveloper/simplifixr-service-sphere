@@ -133,20 +133,26 @@ const Navigation = ({
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                    <DropdownMenuItem onClick={handleProfileClick}>
-                      <User className="w-4 h-4 mr-2" />
-                      Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSettingsClick}>
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSignOut}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
+                   <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                     <DropdownMenuItem onClick={handleProfileClick}>
+                       <User className="w-4 h-4 mr-2" />
+                       Profile
+                     </DropdownMenuItem>
+                     {userProfile?.role === 'provider' && (
+                       <DropdownMenuItem onClick={() => navigate('/provider-dashboard')}>
+                         <Settings className="w-4 h-4 mr-2" />
+                         Dashboard
+                       </DropdownMenuItem>
+                     )}
+                     <DropdownMenuItem onClick={handleSettingsClick}>
+                       <Settings className="w-4 h-4 mr-2" />
+                       Settings
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={handleSignOut}>
+                       <LogOut className="w-4 h-4 mr-2" />
+                       Sign Out
+                     </DropdownMenuItem>
+                   </DropdownMenuContent>
                 </DropdownMenu>
               </div> : isGuest ? <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-600 dark:text-gray-300">Guest Mode</span>
@@ -201,6 +207,12 @@ const Navigation = ({
                         <User className="w-4 h-4 mr-2" />
                         Profile
                       </Button>
+                      {userProfile?.role === 'provider' && (
+                        <Button onClick={() => navigate('/provider-dashboard')} variant="outline" className="w-full justify-start">
+                          <Settings className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      )}
                       <Button onClick={handleSettingsClick} variant="outline" className="w-full justify-start">
                         <Settings className="w-4 h-4 mr-2" />
                         Settings

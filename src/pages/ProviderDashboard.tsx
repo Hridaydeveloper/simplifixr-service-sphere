@@ -423,18 +423,43 @@ const ProviderDashboard = () => {
                     )}
                     
                     <div className="flex gap-2 pt-2">
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/provider-service-details/${service.id}`, { 
+                            state: { service, provider: userProfile } 
+                          });
+                        }}
+                      >
                         <Eye className="w-4 h-4 mr-1" />
                         View
                       </Button>
-                      <Button size="sm" variant="outline" className="flex-1">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // TODO: Implement edit modal
+                          toast({
+                            title: "Coming Soon",
+                            description: "Edit functionality will be available soon"
+                          });
+                        }}
+                      >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handleDeleteService(service.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteService(service.id);
+                        }}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="w-4 h-4" />
