@@ -1,11 +1,18 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, Filter, ShoppingCart, Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
+import electricDrillSet from "@/assets/electric-drill-set.jpg";
+import pipeWrenchSet from "@/assets/pipe-wrench-set.jpg";
+import carCleaningKit from "@/assets/car-cleaning-kit.jpg";
+import safetyHelmetGloves from "@/assets/safety-helmet-gloves.jpg";
+import digitalMultimeter from "@/assets/digital-multimeter.jpg";
+import toolStorageBox from "@/assets/tool-storage-box.jpg";
 
 interface Product {
   id: string;
@@ -21,6 +28,7 @@ interface Product {
 }
 
 const Shop = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [cart, setCart] = useState<string[]>([]);
@@ -43,7 +51,7 @@ const Shop = () => {
       originalPrice: 3999,
       rating: 4.5,
       reviews: 234,
-      image: '/placeholder.svg',
+      image: electricDrillSet,
       category: 'electrical',
       inStock: true,
       description: 'Heavy-duty electric drill with multiple bits'
@@ -54,7 +62,7 @@ const Shop = () => {
       price: 1599,
       rating: 4.3,
       reviews: 156,
-      image: '/placeholder.svg',
+      image: pipeWrenchSet,
       category: 'plumbing',
       inStock: true,
       description: 'Complete pipe wrench set for all plumbing needs'
@@ -66,7 +74,7 @@ const Shop = () => {
       originalPrice: 1299,
       rating: 4.7,
       reviews: 342,
-      image: '/placeholder.svg',
+      image: carCleaningKit,
       category: 'cleaning',
       inStock: true,
       description: 'Complete car cleaning kit with microfiber cloths'
@@ -77,7 +85,7 @@ const Shop = () => {
       price: 799,
       rating: 4.4,
       reviews: 89,
-      image: '/placeholder.svg',
+      image: safetyHelmetGloves,
       category: 'safety',
       inStock: true,
       description: 'Professional safety gear for construction work'
@@ -88,7 +96,7 @@ const Shop = () => {
       price: 1299,
       rating: 4.6,
       reviews: 198,
-      image: '/placeholder.svg',
+      image: digitalMultimeter,
       category: 'electrical',
       inStock: false,
       description: 'Digital multimeter for electrical measurements'
@@ -99,7 +107,7 @@ const Shop = () => {
       price: 2199,
       rating: 4.2,
       reviews: 76,
-      image: '/placeholder.svg',
+      image: toolStorageBox,
       category: 'accessories',
       inStock: true,
       description: 'Large capacity tool storage with multiple compartments'
@@ -112,8 +120,13 @@ const Shop = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const addToCart = (productId: string) => {
-    setCart(prev => [...prev, productId]);
+  const buyNow = (product: Product) => {
+    navigate('/checkout', { 
+      state: { 
+        product,
+        totalAmount: product.price
+      }
+    });
   };
 
   const toggleWishlist = (productId: string) => {
@@ -239,12 +252,12 @@ const Shop = () => {
                   </div>
 
                   <Button
-                    onClick={() => addToCart(product.id)}
-                    disabled={!product.inStock || cart.includes(product.id)}
+                    onClick={() => buyNow(product)}
+                    disabled={!product.inStock}
                     className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    {cart.includes(product.id) ? 'Added to Cart' : 'Add to Cart'}
+                    Buy Now
                   </Button>
                 </CardContent>
               </Card>

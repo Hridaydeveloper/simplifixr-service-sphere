@@ -32,6 +32,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import Press from "./pages/Press";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import Payment from "./pages/Payment";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +76,9 @@ const App = () => {
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/about-us" element={<AboutUs />} />
                 <Route path="/shop" element={<Shop />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/help-community" element={<HelpCommunity />} />
                 <Route path="/become-provider" element={<BecomeProvider />} />
                 <Route path="/provider-registration" element={<ProviderRegistration />} />

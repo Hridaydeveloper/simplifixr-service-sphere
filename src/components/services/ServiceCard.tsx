@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, Clock, MapPin } from "lucide-react";
 import { ProviderService } from "@/services/serviceService";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 interface ServiceCardProps {
   service: ProviderService;
@@ -47,22 +48,21 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
       <div className="flex h-full">
         {/* Image Section - Multiple images with navigation */}
         <div className="w-40 sm:w-48 relative overflow-hidden rounded-l-lg">
-          {serviceImage ? (
-            <div className="relative w-full h-full">
-              <img 
-                src={serviceImage} 
-                alt={serviceName}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onError={(e) => {
-                  e.currentTarget.src = getServiceImage();
-                }}
-              />
-              {service.images && service.images.length > 1 && (
-                <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                  +{service.images.length - 1}
-                </div>
-              )}
-            </div>
+          {service.images && service.images.length > 1 ? (
+            <ImageCarousel
+              images={service.images}
+              alt={serviceName}
+              className="w-full h-full"
+            />
+          ) : serviceImage ? (
+            <img 
+              src={serviceImage} 
+              alt={serviceName}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                e.currentTarget.src = getServiceImage();
+              }}
+            />
           ) : (
             <img 
               src={getServiceImage()} 

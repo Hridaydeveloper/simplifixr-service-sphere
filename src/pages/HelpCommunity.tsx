@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navigation from "@/components/Navigation";
+import skillDevelopment from "@/assets/skill-development.jpg";
+import toolsEquipment from "@/assets/tools-equipment.jpg";
+import emergencySupport from "@/assets/emergency-support.jpg";
 
 const HelpCommunity = () => {
   const [donationAmount, setDonationAmount] = useState('');
@@ -32,7 +35,7 @@ const HelpCommunity = () => {
       target: 500000,
       raised: 325000,
       donors: 234,
-      image: '/placeholder.svg'
+      image: skillDevelopment
     },
     {
       id: 2,
@@ -41,7 +44,7 @@ const HelpCommunity = () => {
       target: 300000,
       raised: 180000,
       donors: 156,
-      image: '/placeholder.svg'
+      image: toolsEquipment
     },
     {
       id: 3,
@@ -50,7 +53,7 @@ const HelpCommunity = () => {
       target: 200000,
       raised: 145000,
       donors: 98,
-      image: '/placeholder.svg'
+      image: emergencySupport
     }
   ];
 

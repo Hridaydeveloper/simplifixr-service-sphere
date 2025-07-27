@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { serviceService, ProviderService } from "@/services/serviceService";
 
 interface ProviderServiceDetailsProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
@@ -48,12 +49,30 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
 
   const fetchServiceData = async (id: string) => {
     try {
-      // TODO: Implement actual service fetch by ID
-      // For now, redirect to services page
-      navigate('/services');
+      setLoading(true);
+      const services = await serviceService.getProviderServices();
+      const foundService = services.find(s => s.id === id);
+      
+      if (foundService) {
+        setService(foundService);
+      } else {
+        toast({
+          title: "Service not found",
+          description: "The requested service could not be found.",
+          variant: "destructive"
+        });
+        navigate('/services');
+      }
     } catch (error) {
       console.error('Error fetching service:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load service details.",
+        variant: "destructive"
+      });
       navigate('/services');
+    } finally {
+      setLoading(false);
     }
   };
 
