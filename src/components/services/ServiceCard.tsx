@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Clock, MapPin } from "lucide-react";
 import { ProviderService } from "@/services/serviceService";
 import { ImageCarousel } from "@/components/ui/image-carousel";
-
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 interface ServiceCardProps {
   service: ProviderService;
   onBook?: (service: ProviderService) => void;
@@ -14,16 +15,38 @@ interface ServiceCardProps {
 
 const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
   const serviceName = service.master_service?.name || service.custom_service_name || 'Custom Service';
-  // Prioritize uploaded images over master service images
-  const serviceImage = (service.images && service.images.length > 0) ? service.images[0] : service.master_service?.image_url;
+  const baseImage = (service.images && service.images.length > 0) ? service.images[0] : service.master_service?.image_url;
+  const [gallery, setGallery] = useState<string[]>([]);
+
+  useEffect(() => {
+    let initial: string[] = [];
+    if (service.images && service.images.length > 0) initial = service.images;
+    else if (service.master_service?.image_url) initial = [service.master_service.image_url];
+
+    async function loadDbImages() {
+      try {
+        if (service.master_service_id) {
+          const { data, error } = await (supabase as any)
+            .rpc('get_service_images', { service_id: service.master_service_id });
+          if (!error && Array.isArray(data)) {
+            const dbUrls = data.map((d: any) => d.image_url).filter(Boolean);
+            setGallery(Array.from(new Set([...(initial || []), ...dbUrls])));
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      setGallery(initial || []);
+    }
+
+    loadDbImages();
+  }, [service]);
   
   // Get a placeholder image based on service category
   const getServiceImage = () => {
-    if (serviceImage && serviceImage !== '🔧') return serviceImage;
-    
+    if (baseImage && baseImage !== '🔧') return baseImage;
     const category = service.master_service?.category?.toLowerCase() || serviceName.toLowerCase();
-    
-    // Return appropriate placeholder based on service type
     if (category.includes('clean')) return 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=300&fit=crop';
     if (category.includes('repair') || category.includes('fix')) return 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop';
     if (category.includes('electric')) return 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400&h=300&fit=crop';
@@ -32,8 +55,6 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
     if (category.includes('garden')) return 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop';
     if (category.includes('car') || category.includes('auto')) return 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=300&fit=crop';
     if (category.includes('tuition') || category.includes('teach')) return 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop';
-    
-    // Default service image
     return 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=300&fit=crop';
   };
 
@@ -48,26 +69,30 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
       <div className="flex h-full">
         {/* Image Section - Multiple images with navigation */}
         <div className="w-40 sm:w-48 relative overflow-hidden rounded-l-lg">
-          {service.images && service.images.length > 1 ? (
+          {gallery && gallery.length > 1 ? (
             <ImageCarousel
-              images={service.images}
+              images={gallery}
               alt={serviceName}
               className="w-full h-full"
             />
-          ) : serviceImage ? (
+          ) : (gallery && gallery.length === 1) ? (
             <img 
-              src={serviceImage} 
+              src={gallery[0]}
               alt={serviceName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 e.currentTarget.src = getServiceImage();
               }}
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <img 
-              src={getServiceImage()} 
+              src={getServiceImage()}
               alt={serviceName}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+              decoding="async"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10"></div>

@@ -27,16 +27,22 @@ export const bookingService = {
     provider_id: string;
     provider_service_id: string;
     scheduled_date?: string;
+    scheduled_time?: string;
+    address: string;
     notes?: string;
     total_amount?: number;
+    payment_method?: string;
   }) {
     const { data, error } = await (supabase as any)
       .rpc('create_booking', {
         p_provider_id: booking.provider_id,
         p_provider_service_id: booking.provider_service_id,
         p_scheduled_date: booking.scheduled_date,
+        p_scheduled_time: booking.scheduled_time,
+        p_address: booking.address,
         p_notes: booking.notes,
-        p_total_amount: booking.total_amount
+        p_total_amount: booking.total_amount,
+        p_payment_method: booking.payment_method
       });
 
     if (error) throw error;

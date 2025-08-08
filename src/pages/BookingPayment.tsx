@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { bookingService } from "@/services/bookingService";
 
 interface BookingPaymentProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
@@ -45,24 +46,39 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
     }
   };
 
-  const handleBooking = () => {
-    // Simulate booking process
-    const bookingData = {
-      provider,
-      service,
-      selectedDate,
-      selectedTime,
-      address,
-      specialRequests,
-      paymentMethod,
-      totalAmount,
-      bookingId: 'BK' + Date.now(),
-    };
-    
-    console.log('Booking Data:', bookingData);
-    
-    // Navigate to success page
-    navigate('/booking-success', { state: { bookingData } });
+  const handleBooking = async () => {
+    const finalPrice = service?.negotiatedPrice || service?.basePrice || "₹499";
+    const numericPrice = parseInt(String(finalPrice).replace('₹', ''));
+
+    try {
+      const bookingId = await bookingService.createBooking({
+        provider_id: service?.providerId,
+        provider_service_id: service?.id,
+        scheduled_date: selectedDate ? new Date(selectedDate).toISOString() : undefined,
+        scheduled_time: selectedTime || undefined,
+        address: address || 'To be confirmed',
+        notes: specialRequests || undefined,
+        total_amount: isNaN(numericPrice) ? undefined : numericPrice,
+        payment_method: paymentMethod
+      });
+
+      const bookingData = {
+        provider,
+        service,
+        selectedDate,
+        selectedTime,
+        address,
+        specialRequests,
+        paymentMethod,
+        totalAmount,
+        bookingId: bookingId || ('BK' + Date.now()),
+      };
+
+      navigate('/booking-success', { state: { bookingData } });
+    } catch (e) {
+      console.error('Booking failed', e);
+      // You can show a toast here if needed
+    }
   };
 
   if (!provider || !service) {

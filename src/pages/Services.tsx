@@ -54,14 +54,20 @@ const Services = () => {
   });
 
   const handleBookService = (service: ProviderService) => {
-    navigate('/chat-negotiation', { 
+    navigate('/booking-payment', { 
       state: { 
+        provider: {
+          name: service.provider_profile?.full_name || 'Service Provider',
+          location: service.provider_profile?.location || 'N/A',
+          rating: '4.8',
+          image: '🧰'
+        },
         service: {
+          serviceName: service.master_service?.name || service.custom_service_name,
+          timeRequired: service.estimated_time,
+          basePrice: service.price_range,
           id: service.id,
-          name: service.master_service?.name || service.custom_service_name,
-          price: service.price_range,
-          provider: service.provider_profile?.full_name || 'Service Provider',
-          category: service.master_service?.category || 'custom'
+          providerId: service.provider_id
         }
       } 
     });

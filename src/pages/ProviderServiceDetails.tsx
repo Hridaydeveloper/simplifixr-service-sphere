@@ -22,6 +22,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { serviceService, ProviderService } from "@/services/serviceService";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProviderServiceDetailsProps {
   onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
@@ -33,6 +34,7 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
   const { serviceId } = useParams();
   const [service, setService] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [images, setImages] = useState<string[]>([]);
   
   useEffect(() => {
     // Get service data from location state or fetch from API
@@ -46,6 +48,29 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
       navigate('/services');
     }
   }, [serviceId, location.state, navigate]);
+
+  useEffect(() => {
+    async function loadImages() {
+      if (!service) return;
+      const initial: string[] = service.images || (service.master_service?.image_url ? [service.master_service.image_url] : []);
+      try {
+        const masterId = service.master_service_id || service.master_service?.id;
+        if (masterId) {
+          const { data, error } = await (supabase as any)
+            .rpc('get_service_images', { service_id: masterId });
+          if (!error && Array.isArray(data)) {
+            const dbUrls = data.map((d: any) => d.image_url).filter(Boolean);
+            setImages(Array.from(new Set([...(initial || []), ...dbUrls])));
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+      setImages(initial || []);
+    }
+    loadImages();
+  }, [service]);
 
   const fetchServiceData = async (id: string) => {
     try {
@@ -176,10 +201,10 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
                 </div>
 
                 {/* Service Images */}
-                {service.images && service.images.length > 0 && (
+                {images && images.length > 0 && (
                   <div className="mb-6">
                     <ImageCarousel
-                      images={service.images}
+                      images={images}
                       alt={serviceName}
                       className="h-64 w-full rounded-lg overflow-hidden"
                     />
