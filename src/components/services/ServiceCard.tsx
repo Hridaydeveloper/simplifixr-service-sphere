@@ -6,7 +6,7 @@ import { Star, Clock, MapPin } from "lucide-react";
 import { ProviderService } from "@/services/serviceService";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
 interface ServiceCardProps {
   service: ProviderService;
   onBook?: (service: ProviderService) => void;
@@ -22,25 +22,7 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
     let initial: string[] = [];
     if (service.images && service.images.length > 0) initial = service.images;
     else if (service.master_service?.image_url) initial = [service.master_service.image_url];
-
-    async function loadDbImages() {
-      try {
-        if (service.master_service_id) {
-          const { data, error } = await (supabase as any)
-            .rpc('get_service_images', { service_id: service.master_service_id });
-          if (!error && Array.isArray(data)) {
-            const dbUrls = data.map((d: any) => d.image_url).filter(Boolean);
-            setGallery(Array.from(new Set([...(initial || []), ...dbUrls])));
-            return;
-          }
-        }
-      } catch (e) {
-        // ignore
-      }
-      setGallery(initial || []);
-    }
-
-    loadDbImages();
+    setGallery(initial || []);
   }, [service]);
   
   // Get a placeholder image based on service category

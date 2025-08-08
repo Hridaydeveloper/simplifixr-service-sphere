@@ -8,16 +8,26 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useProviderStatus } from "@/hooks/useProviderStatus";
 import { useAuth } from "@/contexts/AuthContext";
+import { ImageCarousel } from "@/components/ui/image-carousel";
 
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const providerStatus = useProviderStatus();
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedService, setSelectedService] = useState("");
-  const [showMap, setShowMap] = useState(false);
+const [selectedLocation, setSelectedLocation] = useState("");
+const [selectedService, setSelectedService] = useState("");
+const [showMap, setShowMap] = useState(false);
 
+// Hero showcase images (reference only, not provider images)
+const heroImages = [
+  "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80&auto=format&fit=crop", // cleaning
+  "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=1600&q=80&auto=format&fit=crop", // repairs/tools
+  "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=1600&q=80&auto=format&fit=crop", // plumbing
+  "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1600&q=80&auto=format&fit=crop", // electrical
+  "https://images.unsplash.com/photo-1545259742-2ea3ebf61fa5?w=1600&q=80&auto=format&fit=crop", // painting
+  "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1600&q=80&auto=format&fit=crop"  // gardening
+];
   const handleBookService = () => {
     navigate('/services', {
       state: {
@@ -182,33 +192,14 @@ const Hero = () => {
           {/* Hero Visual */}
           <div className="relative order-first lg:order-last">
             <div className="relative w-full h-64 lg:h-[600px] bg-gradient-to-br from-[#00B896]/30 via-[#00C9A7]/20 to-transparent rounded-3xl overflow-hidden shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#00B896]/10 to-transparent"></div>
-              
-              {/* Floating Cards */}
-              <div className="absolute top-4 lg:top-12 left-4 lg:left-8 bg-white/95 backdrop-blur-sm p-3 lg:p-6 rounded-xl lg:rounded-2xl shadow-xl border border-gray-100">
-                <div className="text-xs lg:text-sm text-gray-600 mb-1">Choose a service</div>
-                <div className="font-bold text-sm lg:text-lg text-gray-900">Cleaning • Repairs</div>
-                <div className="w-8 lg:w-12 h-1 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full mt-2"></div>
-              </div>
-              
-              <div className="absolute bottom-4 lg:bottom-12 right-4 lg:right-8 bg-white/95 backdrop-blur-sm p-3 lg:p-6 rounded-xl lg:rounded-2xl shadow-xl border border-gray-100">
-                <div className="text-xs lg:text-sm text-gray-600 mb-1">Book instantly</div>
-                <div className="font-bold text-sm lg:text-lg text-[#00B896]">Available now</div>
-                <div className="flex items-center mt-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
-                  <span className="text-xs text-gray-500">Live tracking</span>
-                </div>
-              </div>
-              
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/95 backdrop-blur-sm p-4 lg:p-8 rounded-2xl lg:rounded-3xl shadow-2xl border border-gray-200">
-                <div className="text-center">
-                  <div className="w-12 h-12 lg:w-16 lg:h-16 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-white font-bold text-lg lg:text-xl">S</span>
-                  </div>
-                  <div className="font-bold text-lg lg:text-xl text-gray-900">Simplifixr</div>
-                  <div className="text-sm text-gray-600">Your trusted partner</div>
-                </div>
-              </div>
+<div className="absolute inset-0">
+  <ImageCarousel
+    images={heroImages}
+    alt="Popular services showcase"
+    className="w-full h-full"
+  />
+  <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none"></div>
+</div>
             </div>
           </div>
         </div>
