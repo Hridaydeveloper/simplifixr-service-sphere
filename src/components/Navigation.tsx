@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Settings, User, LogOut } from "lucide-react";
+import { Menu, Settings, User, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -138,12 +138,12 @@ const Navigation = ({
                        <User className="w-4 h-4 mr-2" />
                        Profile
                      </DropdownMenuItem>
-                     {userProfile?.role === 'provider' && (
-                       <DropdownMenuItem onClick={() => navigate('/provider-dashboard')}>
-                         <Settings className="w-4 h-4 mr-2" />
-                         Dashboard
-                       </DropdownMenuItem>
-                     )}
+                      {userProfile?.role === 'provider' && (
+                        <DropdownMenuItem onClick={() => navigate('/provider-dashboard')}>
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </DropdownMenuItem>
+                      )}
                      <DropdownMenuItem onClick={handleSettingsClick}>
                        <Settings className="w-4 h-4 mr-2" />
                        Settings
@@ -207,12 +207,12 @@ const Navigation = ({
                         <User className="w-4 h-4 mr-2" />
                         Profile
                       </Button>
-                      {userProfile?.role === 'provider' && (
-                        <Button onClick={() => navigate('/provider-dashboard')} variant="outline" className="w-full justify-start">
-                          <Settings className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      )}
+                       {userProfile?.role === 'provider' && (
+                         <Button onClick={() => navigate('/provider-dashboard')} variant="outline" className="w-full justify-start">
+                           <LayoutDashboard className="w-4 h-4 mr-2" />
+                           Dashboard
+                         </Button>
+                       )}
                       <Button onClick={handleSettingsClick} variant="outline" className="w-full justify-start">
                         <Settings className="w-4 h-4 mr-2" />
                         Settings

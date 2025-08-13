@@ -21,12 +21,12 @@ const [showMap, setShowMap] = useState(false);
 
 // Hero showcase images (reference only, not provider images)
 const heroImages = [
-  "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&q=80&auto=format&fit=crop", // cleaning
-  "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=1600&q=80&auto=format&fit=crop", // repairs/tools
-  "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=1600&q=80&auto=format&fit=crop", // plumbing
-  "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1600&q=80&auto=format&fit=crop", // electrical
-  "https://images.unsplash.com/photo-1545259742-2ea3ebf61fa5?w=1600&q=80&auto=format&fit=crop", // painting
-  "https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1600&q=80&auto=format&fit=crop"  // gardening
+  "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1600&q=80&auto=format&fit=crop", // spa services
+  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80&auto=format&fit=crop", // home maintenance
+  "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1600&q=80&auto=format&fit=crop", // tutoring
+  "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80&auto=format&fit=crop", // home cleaning
+  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80&auto=format&fit=crop", // appliance repair
+  "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1600&q=80&auto=format&fit=crop"  // pet care
 ];
   const handleBookService = () => {
     navigate('/services', {
