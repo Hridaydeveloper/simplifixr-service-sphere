@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string
+          created_at: string
+          customer_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payment_status: string | null
+          provider_id: string
+          provider_service_id: string
+          scheduled_date: string | null
+          scheduled_time: string | null
+          status: string
+          total_amount: number | null
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          provider_id: string
+          provider_service_id: string
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          provider_id?: string
+          provider_service_id?: string
+          scheduled_date?: string | null
+          scheduled_time?: string | null
+          status?: string
+          total_amount?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_provider_service_id_fkey"
+            columns: ["provider_service_id"]
+            isOneToOne: false
+            referencedRelation: "provider_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       master_services: {
         Row: {
           base_price_range: string | null
@@ -99,6 +158,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_available: boolean | null
           location: string | null
           profile_picture_url: string | null
           role: string | null
@@ -108,6 +168,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_available?: boolean | null
           location?: string | null
           profile_picture_url?: string | null
           role?: string | null
@@ -117,6 +178,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_available?: boolean | null
           location?: string | null
           profile_picture_url?: string | null
           role?: string | null
@@ -279,6 +341,47 @@ export type Database = {
         }
         Relationships: []
       }
+      service_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          display_order: number | null
+          id: string
+          image_url: string
+          is_active: boolean | null
+          master_service_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_active?: boolean | null
+          master_service_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_active?: boolean | null
+          master_service_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_images_master_service_id_fkey"
+            columns: ["master_service_id"]
+            isOneToOne: false
+            referencedRelation: "master_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -294,6 +397,23 @@ export type Database = {
           p_images?: string[]
         }
         Returns: string
+      }
+      create_booking: {
+        Args: {
+          p_provider_id: string
+          p_provider_service_id: string
+          p_scheduled_date?: string
+          p_scheduled_time?: string
+          p_address?: string
+          p_notes?: string
+          p_total_amount?: number
+          p_payment_method?: string
+        }
+        Returns: string
+      }
+      delete_provider_service: {
+        Args: { service_id: string }
+        Returns: undefined
       }
       get_master_services: {
         Args: Record<PropertyKey, never>
@@ -347,6 +467,56 @@ export type Database = {
           description: string
           is_active: boolean
         }[]
+      }
+      get_service_images: {
+        Args: { service_id: string }
+        Returns: {
+          id: string
+          image_url: string
+          alt_text: string
+          display_order: number
+        }[]
+      }
+      get_user_bookings: {
+        Args: { user_id: string }
+        Returns: {
+          id: string
+          customer_id: string
+          provider_id: string
+          provider_service_id: string
+          status: string
+          scheduled_date: string
+          scheduled_time: string
+          address: string
+          notes: string
+          total_amount: number
+          payment_method: string
+          payment_status: string
+          created_at: string
+          updated_at: string
+          provider_service: Json
+          customer_profile: Json
+          provider_profile: Json
+        }[]
+      }
+      update_booking_status: {
+        Args: { booking_id: string; new_status: string }
+        Returns: boolean
+      }
+      update_profile: {
+        Args: { user_id: string; profile_data: Json }
+        Returns: boolean
+      }
+      update_provider_service: {
+        Args: {
+          service_id: string
+          p_price_range?: string
+          p_estimated_time?: string
+          p_description?: string
+          p_images?: string[]
+          p_is_available?: boolean
+        }
+        Returns: undefined
       }
       verify_provider: {
         Args:

@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { serviceService, MasterService } from "@/services/serviceService";
 import { SmartSearchSelect } from "@/components/ui/smart-search-select";
 import { Upload, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddServiceModalProps {
   open: boolean;
@@ -25,6 +26,7 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
   const [description, setDescription] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [isCustomService, setIsCustomService] = useState(false);
 
   useEffect(() => {
@@ -53,19 +55,78 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
     category: service.category
   }));
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
 
-    // For demo purposes, we'll create placeholder URLs
-    // In production, you'd upload to Supabase storage
-    const newImages = Array.from(files).map((file, index) => 
-      URL.createObjectURL(file)
-    );
-    setImages(prev => [...prev, ...newImages].slice(0, 5)); // Limit to 5 images
+    setUploadingImages(true);
+    const newImageUrls: string[] = [];
+
+    try {
+      for (const file of Array.from(files)) {
+        // Create unique filename
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        // Upload to Supabase Storage
+        const { data, error } = await supabase.storage
+          .from('service-images')
+          .upload(fileName, file);
+
+        if (error) {
+          console.error('Upload error:', error);
+          toast({
+            title: "Upload Error",
+            description: `Failed to upload ${file.name}`,
+            variant: "destructive"
+          });
+          continue;
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('service-images')
+          .getPublicUrl(fileName);
+
+        newImageUrls.push(publicUrl);
+      }
+
+      if (newImageUrls.length > 0) {
+        setImages(prev => [...prev, ...newImageUrls].slice(0, 5)); // Limit to 5 images
+        toast({
+          title: "Success",
+          description: `${newImageUrls.length} image(s) uploaded successfully`,
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload images",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingImages(false);
+    }
   };
 
-  const removeImage = (index: number) => {
+  const removeImage = async (index: number) => {
+    const imageUrl = images[index];
+    
+    // Extract filename from URL and delete from storage
+    try {
+      const url = new URL(imageUrl);
+      const fileName = url.pathname.split('/').pop();
+      
+      if (fileName) {
+        await supabase.storage
+          .from('service-images')
+          .remove([fileName]);
+      }
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
+    
     setImages(prev => prev.filter((_, i) => i !== index));
   };
 
@@ -264,13 +325,18 @@ const AddServiceModal = ({ open, onClose, onServiceAdded }: AddServiceModalProps
                   onChange={handleImageUpload}
                   className="hidden"
                   id="imageUpload"
+                  disabled={uploadingImages}
                 />
                 <Label 
                   htmlFor="imageUpload"
-                  className="flex items-center space-x-2 cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded border"
+                  className={`flex items-center space-x-2 cursor-pointer px-4 py-2 rounded border transition-colors ${
+                    uploadingImages 
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
                 >
                   <Upload className="w-4 h-4" />
-                  <span>Upload Images</span>
+                  <span>{uploadingImages ? 'Uploading...' : 'Upload Images'}</span>
                 </Label>
               </div>
             )}

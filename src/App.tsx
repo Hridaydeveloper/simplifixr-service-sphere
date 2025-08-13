@@ -35,6 +35,7 @@ import Press from "./pages/Press";
 import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import Payment from "./pages/Payment";
+import ServiceDetails from "./pages/ServiceDetails";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/services/:serviceId" element={<ServiceDetails />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/service-providers" element={<ServiceProviders />} />
                 <Route path="/provider/:id" element={<ProviderDetails />} />
