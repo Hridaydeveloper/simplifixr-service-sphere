@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle, BarChart3 } from "lucide-react";
+import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle, BarChart3, Check, X, Clock, MapPin, User } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AddServiceModal from "@/components/provider/AddServiceModal";
 import VerificationSteps from "@/components/provider/VerificationSteps";
 import { useProviderStatus } from "@/hooks/useProviderStatus";
+import { bookingService } from "@/services/bookingService";
 
 const ProviderDashboard = () => {
   const navigate = useNavigate();
@@ -231,6 +232,31 @@ const ProviderDashboard = () => {
 
   const handleServiceAdded = () => {
     fetchDashboardData();
+  };
+
+  const handleBookingAction = async (bookingId: string, action: 'confirmed' | 'cancelled') => {
+    try {
+      await bookingService.updateBookingStatus(bookingId, action);
+      
+      // Update local state
+      setBookings(prev => prev.map(booking => 
+        booking.id === bookingId 
+          ? { ...booking, status: action }
+          : booking
+      ));
+      
+      toast({
+        title: "Booking Updated",
+        description: `Booking has been ${action === 'confirmed' ? 'accepted' : 'rejected'}`
+      });
+    } catch (error) {
+      console.error('Error updating booking status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update booking status",
+        variant: "destructive"
+      });
+    }
   };
 
   if (loading) {
@@ -496,34 +522,157 @@ const ProviderDashboard = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
               {bookings.slice(0, 5).map((booking: any) => (
-                <Card key={booking.id}>
-                  <CardContent className="p-4">
+                <Card key={booking.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-semibold">
-                          {booking.provider_service?.master_service?.name || 
-                           booking.provider_service?.custom_service_name || 'Service'}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          Customer: {booking.customer_profile?.full_name || 'Unknown'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {booking.scheduled_date ? 
-                            new Date(booking.scheduled_date).toLocaleDateString() : 
-                            'No date scheduled'
-                          }
-                        </p>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-12 h-12 bg-[#00B896]/10 rounded-lg flex items-center justify-center">
+                          <Calendar className="w-6 h-6 text-[#00B896]" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">
+                            {booking.provider_service?.master_service?.name || 
+                             booking.provider_service?.custom_service_name || 'Service Booking'}
+                          </CardTitle>
+                          <p className="text-sm text-gray-500">Booking #{booking.id.slice(0, 8).toUpperCase()}</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <Badge variant="outline">{booking.status || 'pending'}</Badge>
-                        {booking.total_amount && (
-                          <p className="text-lg font-semibold text-[#00B896] mt-1">
-                            ₹{booking.total_amount}
-                          </p>
+                      <Badge 
+                        variant={booking.status === 'pending' ? 'default' : 
+                                booking.status === 'confirmed' ? 'secondary' : 
+                                booking.status === 'completed' ? 'outline' : 'destructive'}
+                        className={booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                  booking.status === 'completed' ? 'bg-blue-100 text-blue-800' : ''}
+                      >
+                        {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || 'Pending'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    {/* Customer Info */}
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {booking.customer_profile?.full_name || 'Customer'}
+                          </div>
+                          <div className="text-sm text-gray-600">Customer</div>
+                        </div>
+                      </div>
+                      {booking.total_amount && (
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-[#00B896]">₹{booking.total_amount}</div>
+                          <div className="text-sm text-gray-500">Total Amount</div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Booking Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {booking.scheduled_date && (
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="w-4 h-4 text-gray-500" />
+                          <div>
+                            <div className="text-sm font-medium">Scheduled Date</div>
+                            <div className="text-sm text-gray-600">
+                              {new Date(booking.scheduled_date).toLocaleDateString('en-IN', {
+                                weekday: 'short',
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                              })}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {booking.scheduled_time && (
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-gray-500" />
+                          <div>
+                            <div className="text-sm font-medium">Time</div>
+                            <div className="text-sm text-gray-600">{booking.scheduled_time}</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Service Details */}
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="text-sm font-medium text-gray-700 mb-2">Service Details</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                        {booking.provider_service?.price_range && (
+                          <div>
+                            <span className="font-medium">Price Range:</span> {booking.provider_service.price_range}
+                          </div>
+                        )}
+                        {booking.payment_method && (
+                          <div>
+                            <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}
+                          </div>
                         )}
                       </div>
+                      {booking.provider_service?.description && (
+                        <p className="text-sm text-gray-600 mt-2">{booking.provider_service.description}</p>
+                      )}
+                    </div>
+
+                    {/* Address */}
+                    {booking.address && (
+                      <div className="flex items-start space-x-2">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-1" />
+                        <div>
+                          <div className="text-sm font-medium">Service Address</div>
+                          <div className="text-sm text-gray-600">{booking.address}</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Notes */}
+                    {booking.notes && (
+                      <div className="p-3 bg-yellow-50 rounded-lg">
+                        <div className="text-sm font-medium text-gray-700 mb-1">Customer Notes</div>
+                        <div className="text-sm text-gray-600">{booking.notes}</div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    {booking.status === 'pending' && (
+                      <div className="flex gap-3 pt-4 border-t">
+                        <Button 
+                          onClick={() => handleBookingAction(booking.id, 'confirmed')}
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <Check className="w-4 h-4 mr-2" />
+                          Accept Booking
+                        </Button>
+                        <Button 
+                          onClick={() => handleBookingAction(booking.id, 'cancelled')}
+                          variant="outline"
+                          className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Reject
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* Booking Timestamp */}
+                    <div className="text-xs text-gray-500 text-right pt-2 border-t">
+                      Booked on {new Date(booking.created_at).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </div>
                   </CardContent>
                 </Card>

@@ -32,7 +32,8 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
   const [discount, setDiscount] = useState(0);
 
   const finalPrice = service?.negotiatedPrice || service?.basePrice || "₹499";
-  const numericPrice = parseInt(finalPrice.replace('₹', ''));
+  const cleanPrice = String(finalPrice).replace(/[₹,]/g, '');
+  const numericPrice = parseFloat(cleanPrice) || 499;
   const discountAmount = (numericPrice * discount) / 100;
   const totalAmount = numericPrice - discountAmount;
 
@@ -48,7 +49,9 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
 
   const handleBooking = async () => {
     const finalPrice = service?.negotiatedPrice || service?.basePrice || "₹499";
-    const numericPrice = parseInt(String(finalPrice).replace('₹', ''));
+    const cleanPrice = String(finalPrice).replace(/[₹,]/g, '');
+    const numericPrice = parseFloat(cleanPrice) || 499;
+    const finalTotalAmount = Math.round(numericPrice + 29 - discountAmount);
 
     try {
       const bookingId = await bookingService.createBooking({
@@ -58,7 +61,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
         scheduled_time: selectedTime || undefined,
         address: address || 'To be confirmed',
         notes: specialRequests || undefined,
-        total_amount: isNaN(numericPrice) ? undefined : numericPrice,
+        total_amount: finalTotalAmount,
         payment_method: paymentMethod
       });
 
@@ -70,7 +73,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
         address,
         specialRequests,
         paymentMethod,
-        totalAmount,
+        totalAmount: finalTotalAmount,
         bookingId: bookingId || ('BK' + Date.now()),
       };
 
@@ -291,7 +294,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
                 
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total Amount</span>
-                  <span>₹{totalAmount + 29}</span>
+                  <span>₹{Math.round(totalAmount + 29)}</span>
                 </div>
               </CardContent>
             </Card>
@@ -327,7 +330,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
                   size="lg"
                   disabled={!selectedDate || !selectedTime || !address}
                 >
-                  Complete Booking - ₹{totalAmount + 29}
+                  Complete Booking - ₹{Math.round(totalAmount + 29)}
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-2">
                   By booking, you agree to our Terms & Conditions

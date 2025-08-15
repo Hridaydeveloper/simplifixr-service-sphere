@@ -8,8 +8,12 @@ export interface Booking {
   provider_service_id: string;
   status: 'pending' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled';
   scheduled_date: string | null;
+  scheduled_time?: string | null;
+  address?: string | null;
   notes: string | null;
   total_amount: number | null;
+  payment_method?: string | null;
+  payment_status?: string | null;
   created_at: string;
   updated_at: string;
   provider_service?: {
@@ -18,7 +22,7 @@ export interface Booking {
     price_range: string;
   };
   customer_profile?: { full_name: string };
-  provider_profile?: { full_name: string };
+  provider_profile?: { full_name: string; location?: string };
 }
 
 export const bookingService = {

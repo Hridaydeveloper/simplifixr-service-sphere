@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Settings, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -138,6 +138,10 @@ const Navigation = ({
                        <User className="w-4 h-4 mr-2" />
                        Profile
                      </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => navigate('/my-bookings')}>
+                       <Calendar className="w-4 h-4 mr-2" />
+                       Your Bookings
+                     </DropdownMenuItem>
                       {userProfile?.role === 'provider' && (
                         <DropdownMenuItem onClick={() => navigate('/provider-dashboard')}>
                           <LayoutDashboard className="w-4 h-4 mr-2" />
@@ -206,6 +210,10 @@ const Navigation = ({
                       <Button onClick={handleProfileClick} variant="outline" className="w-full justify-start">
                         <User className="w-4 h-4 mr-2" />
                         Profile
+                      </Button>
+                      <Button onClick={() => navigate('/my-bookings')} variant="outline" className="w-full justify-start">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Your Bookings
                       </Button>
                        {userProfile?.role === 'provider' && (
                          <Button onClick={() => navigate('/provider-dashboard')} variant="outline" className="w-full justify-start">
