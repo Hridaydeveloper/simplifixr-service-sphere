@@ -9,25 +9,21 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useProviderStatus } from "@/hooks/useProviderStatus";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImageCarousel } from "@/components/ui/image-carousel";
+import { useHomePageImages } from "@/hooks/useHomePageImages";
 
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const providerStatus = useProviderStatus();
-const [selectedLocation, setSelectedLocation] = useState("");
-const [selectedService, setSelectedService] = useState("");
-const [showMap, setShowMap] = useState(false);
+  const { images: heroImages } = useHomePageImages();
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedService, setSelectedService] = useState("");
+  const [showMap, setShowMap] = useState(false);
 
-// Hero showcase images (reference only, not provider images)
-const heroImages = [
-  "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1600&q=80&auto=format&fit=crop", // spa services
-  "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80&auto=format&fit=crop", // home maintenance
-  "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=1600&q=80&auto=format&fit=crop", // tutoring
-  "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80&auto=format&fit=crop", // home cleaning
-  "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80&auto=format&fit=crop", // appliance repair
-  "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=1600&q=80&auto=format&fit=crop"  // pet care
-];
+  // Extract image URLs and alt text for carousel
+  const imageUrls = heroImages.map(img => img.image_url);
+  const altText = heroImages.length > 0 ? heroImages[0].alt_text : "Popular services showcase";
   const handleBookService = () => {
     navigate('/services', {
       state: {
@@ -194,8 +190,8 @@ const heroImages = [
             <div className="relative w-full h-64 lg:h-[600px] bg-gradient-to-br from-[#00B896]/30 via-[#00C9A7]/20 to-transparent rounded-3xl overflow-hidden shadow-2xl">
 <div className="absolute inset-0">
   <ImageCarousel
-    images={heroImages}
-    alt="Popular services showcase"
+    images={imageUrls}
+    alt={altText}
     className="w-full h-full"
   />
   <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none"></div>

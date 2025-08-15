@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -72,6 +72,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      home_page_images: {
+        Row: {
+          alt_text: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       master_services: {
         Row: {
@@ -389,25 +422,25 @@ export type Database = {
     Functions: {
       add_provider_service: {
         Args: {
-          p_master_service_id?: string
           p_custom_service_name?: string
-          p_price_range?: string
-          p_estimated_time?: string
           p_description?: string
+          p_estimated_time?: string
           p_images?: string[]
+          p_master_service_id?: string
+          p_price_range?: string
         }
         Returns: string
       }
       create_booking: {
         Args: {
+          p_address?: string
+          p_notes?: string
+          p_payment_method?: string
           p_provider_id: string
           p_provider_service_id: string
           p_scheduled_date?: string
           p_scheduled_time?: string
-          p_address?: string
-          p_notes?: string
           p_total_amount?: number
-          p_payment_method?: string
         }
         Returns: string
       }
@@ -418,85 +451,85 @@ export type Database = {
       get_master_services: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
+          base_price_range: string
           category: string
           description: string
-          base_price_range: string
           estimated_time: string
+          id: string
           image_url: string
           is_active: boolean
+          name: string
         }[]
       }
       get_my_provider_services: {
         Args: { provider_id: string }
         Returns: {
-          id: string
-          master_service_id: string
           custom_service_name: string
-          price_range: string
-          estimated_time: string
           description: string
+          estimated_time: string
+          id: string
           images: string[]
           is_available: boolean
           master_service: Json
+          master_service_id: string
+          price_range: string
         }[]
       }
       get_provider_services: {
         Args: { service_category?: string }
         Returns: {
-          id: string
-          provider_id: string
-          master_service_id: string
           custom_service_name: string
-          price_range: string
-          estimated_time: string
           description: string
+          estimated_time: string
+          id: string
           images: string[]
           is_available: boolean
           master_service: Json
+          master_service_id: string
+          price_range: string
+          provider_id: string
           provider_profile: Json
         }[]
       }
       get_service_categories: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          icon: string
           description: string
+          icon: string
+          id: string
           is_active: boolean
+          name: string
         }[]
       }
       get_service_images: {
         Args: { service_id: string }
         Returns: {
-          id: string
-          image_url: string
           alt_text: string
           display_order: number
+          id: string
+          image_url: string
         }[]
       }
       get_user_bookings: {
         Args: { user_id: string }
         Returns: {
-          id: string
-          customer_id: string
-          provider_id: string
-          provider_service_id: string
-          status: string
-          scheduled_date: string
-          scheduled_time: string
           address: string
+          created_at: string
+          customer_id: string
+          customer_profile: Json
+          id: string
           notes: string
-          total_amount: number
           payment_method: string
           payment_status: string
-          created_at: string
-          updated_at: string
-          provider_service: Json
-          customer_profile: Json
+          provider_id: string
           provider_profile: Json
+          provider_service: Json
+          provider_service_id: string
+          scheduled_date: string
+          scheduled_time: string
+          status: string
+          total_amount: number
+          updated_at: string
         }[]
       }
       update_booking_status: {
@@ -504,29 +537,29 @@ export type Database = {
         Returns: boolean
       }
       update_profile: {
-        Args: { user_id: string; profile_data: Json }
+        Args: { profile_data: Json; user_id: string }
         Returns: boolean
       }
       update_provider_service: {
         Args: {
-          service_id: string
-          p_price_range?: string
-          p_estimated_time?: string
           p_description?: string
+          p_estimated_time?: string
           p_images?: string[]
           p_is_available?: boolean
+          p_price_range?: string
+          service_id: string
         }
         Returns: undefined
       }
       verify_provider: {
         Args:
-          | { registration_id: string }
           | {
-              registration_id: string
               admin_user_id: string
               new_status: string
               notes?: string
+              registration_id: string
             }
+          | { registration_id: string }
         Returns: undefined
       }
     }

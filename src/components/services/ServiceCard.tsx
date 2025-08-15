@@ -120,9 +120,26 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
           )}
           
           <div className="mt-auto">
-            <div className="text-2xl font-bold text-primary">
-              {service.price_range}
-              <span className="text-xs text-muted-foreground font-normal ml-1">per service</span>
+            <div className="flex items-center justify-between">
+              <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-3 py-2 rounded-lg border border-primary/20">
+                <div className="text-lg font-bold text-primary">
+                  {service.price_range}
+                </div>
+                <div className="text-xs text-muted-foreground font-medium">
+                  per service
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-primary/20 hover:bg-primary hover:text-primary-foreground transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBook?.(service);
+                }}
+              >
+                Book Now
+              </Button>
             </div>
           </div>
         </div>
