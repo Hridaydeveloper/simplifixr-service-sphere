@@ -82,7 +82,26 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
   };
 
   if (!provider || !service) {
-    return <div>Booking information not found</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation onShowAuth={onShowAuth} />
+        <div className="pt-20 pb-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-2xl font-bold mb-4">Booking Information Not Found</h1>
+            <p className="text-muted-foreground mb-6">
+              We couldn't find the booking details. Please select a service from our providers page.
+            </p>
+            <Button 
+              onClick={() => navigate('/service-providers')}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Browse Service Providers
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
   }
 
   return (
