@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { PlusCircle, Settings, Eye, Edit, Trash2, Calendar, DollarSign, Star, ArrowLeft, AlertCircle, BarChart3, Check, X, Clock, MapPin, User } from "lucide-react";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { toast } from "@/hooks/use-toast";
@@ -25,6 +26,8 @@ const ProviderDashboard = () => {
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
+  const [showOtpInput, setShowOtpInput] = useState<Record<string, boolean>>({});
+  const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
   const [stats, setStats] = useState({
     totalServices: 0,
     activeBookings: 0,
@@ -255,6 +258,63 @@ const ProviderDashboard = () => {
         title: "Error",
         description: "Failed to update booking status",
         variant: "destructive"
+      });
+    }
+  };
+
+  const handleServiceDone = async (bookingId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('service-completion', {
+        body: {
+          action: 'generate_otp',
+          booking_id: bookingId
+        }
+      });
+
+      if (error) throw error;
+
+      setShowOtpInput(prev => ({ ...prev, [bookingId]: true }));
+      toast({
+        title: "OTP Generated",
+        description: `OTP sent to customer. Ask them to provide: ${data.otp}`,
+      });
+    } catch (error) {
+      console.error('Error generating OTP:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate OTP",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleVerifyOtp = async (bookingId: string) => {
+    try {
+      const otp = otpInputs[bookingId];
+      const { data, error } = await supabase.functions.invoke('service-completion', {
+        body: {
+          action: 'verify_otp',
+          booking_id: bookingId,
+          otp: otp
+        }
+      });
+
+      if (error) throw error;
+
+      setShowOtpInput(prev => ({ ...prev, [bookingId]: false }));
+      setOtpInputs(prev => ({ ...prev, [bookingId]: '' }));
+      fetchDashboardData(); // Refresh to show updated status
+      
+      toast({
+        title: "Service Completed",
+        description: "Service has been marked as completed successfully!",
+      });
+    } catch (error) {
+      console.error('Error verifying OTP:', error);
+      toast({
+        title: "Error",
+        description: "Invalid OTP or verification failed",
+        variant: "destructive",
       });
     }
   };
@@ -643,26 +703,64 @@ const ProviderDashboard = () => {
                       </div>
                     )}
 
-                    {/* Action Buttons */}
-                    {booking.status === 'pending' && (
-                      <div className="flex gap-3 pt-4 border-t">
-                        <Button 
-                          onClick={() => handleBookingAction(booking.id, 'confirmed')}
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <Check className="w-4 h-4 mr-2" />
-                          Accept Booking
-                        </Button>
-                        <Button 
-                          onClick={() => handleBookingAction(booking.id, 'cancelled')}
-                          variant="outline"
-                          className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Reject
-                        </Button>
-                      </div>
-                    )}
+                     {/* Action Buttons */}
+                     {booking.status === 'pending' && (
+                       <div className="flex gap-3 pt-4 border-t">
+                         <Button 
+                           onClick={() => handleBookingAction(booking.id, 'confirmed')}
+                           className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                         >
+                           <Check className="w-4 h-4 mr-2" />
+                           Accept Booking
+                         </Button>
+                         <Button 
+                           onClick={() => handleBookingAction(booking.id, 'cancelled')}
+                           variant="outline"
+                           className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                         >
+                           <X className="w-4 h-4 mr-2" />
+                           Reject
+                         </Button>
+                       </div>
+                     )}
+
+                     {booking.status === 'confirmed' && (
+                       <div className="pt-4 border-t">
+                         <Button
+                           onClick={() => handleServiceDone(booking.id)}
+                           className="bg-blue-600 hover:bg-blue-700 text-white"
+                         >
+                           Mark Service Done
+                         </Button>
+                       </div>
+                     )}
+                     
+                     {showOtpInput[booking.id] && (
+                       <div className="pt-4 border-t space-y-3">
+                         <p className="text-sm text-muted-foreground">
+                           OTP sent to customer. Ask customer to provide the OTP:
+                         </p>
+                         <div className="flex gap-2">
+                           <Input
+                             type="text"
+                             placeholder="Enter OTP"
+                             value={otpInputs[booking.id] || ''}
+                             onChange={(e) => setOtpInputs(prev => ({
+                               ...prev,
+                               [booking.id]: e.target.value
+                             }))}
+                             maxLength={6}
+                           />
+                           <Button
+                             onClick={() => handleVerifyOtp(booking.id)}
+                             className="bg-green-600 hover:bg-green-700"
+                             disabled={!otpInputs[booking.id] || otpInputs[booking.id].length !== 6}
+                           >
+                             Verify
+                           </Button>
+                         </div>
+                       </div>
+                     )}
 
                     {/* Booking Timestamp */}
                     <div className="text-xs text-gray-500 text-right pt-2 border-t">

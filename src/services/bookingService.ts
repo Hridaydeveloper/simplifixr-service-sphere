@@ -14,6 +14,9 @@ export interface Booking {
   total_amount: number | null;
   payment_method?: string | null;
   payment_status?: string | null;
+  completion_otp?: string | null;
+  completion_otp_expires_at?: string | null;
+  completed_at?: string | null;
   created_at: string;
   updated_at: string;
   provider_service?: {

@@ -8,11 +8,12 @@ import { Calendar, MapPin, Clock, IndianRupee, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { bookingService, Booking } from "@/services/bookingService";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const MyBookings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,8 +27,22 @@ const MyBookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const data = await bookingService.getMyBookings();
-      setBookings(data);
+      // Get bookings with OTP data
+      const { data: bookingsData, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          provider_service:provider_services(*,
+            master_service:master_services(*)
+          ),
+          customer_profile:profiles!customer_id(*),
+          provider_profile:profiles!provider_id(*)
+        `)
+        .eq('customer_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setBookings(bookingsData || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);
       toast({
@@ -208,10 +223,31 @@ const MyBookings = () => {
                     </div>
                   </div>
 
-                  {/* Booking Date */}
-                  <div className="text-xs text-gray-500 text-right">
-                    Booked on {formatDate(booking.created_at)}
-                  </div>
+                   {/* OTP Display */}
+                   {booking.completion_otp && (
+                     <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                       <div className="text-sm font-medium text-blue-900 mb-1">Service Completion OTP:</div>
+                       <div className="text-2xl font-bold text-blue-600 tracking-wider mb-2">{booking.completion_otp}</div>
+                       <div className="text-xs text-blue-700">
+                         Share this OTP with your service provider to mark the service as completed.
+                       </div>
+                     </div>
+                   )}
+                   
+                   {/* Completion Status */}
+                   {booking.status === 'completed' && (
+                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                       <div className="text-sm font-medium text-green-900">✅ Service Completed</div>
+                       <div className="text-xs text-green-700">
+                         Thank you for using our service! We hope you had a great experience.
+                       </div>
+                     </div>
+                   )}
+
+                   {/* Booking Date */}
+                   <div className="text-xs text-gray-500 text-right">
+                     Booked on {formatDate(booking.created_at)}
+                   </div>
                 </CardContent>
               </Card>
             ))}

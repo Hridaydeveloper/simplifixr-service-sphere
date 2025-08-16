@@ -31,8 +31,8 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
 
-  const finalPrice = service?.negotiatedPrice || service?.basePrice || "₹499";
-  const cleanPrice = String(finalPrice).replace(/[₹,]/g, '');
+  const servicePrice = service?.negotiatedPrice || service?.price_range || service?.basePrice || "₹499";
+  const cleanPrice = String(servicePrice).replace(/[₹INR,\s]/g, '');
   const numericPrice = parseFloat(cleanPrice) || 499;
   const discountAmount = (numericPrice * discount) / 100;
   const totalAmount = numericPrice - discountAmount;
@@ -48,8 +48,8 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
   };
 
   const handleBooking = async () => {
-    const finalPrice = service?.negotiatedPrice || service?.basePrice || "₹499";
-    const cleanPrice = String(finalPrice).replace(/[₹,]/g, '');
+    const servicePrice = service?.negotiatedPrice || service?.price_range || service?.basePrice || "₹499";
+    const cleanPrice = String(servicePrice).replace(/[₹INR,\s]/g, '');
     const numericPrice = parseFloat(cleanPrice) || 499;
     const finalTotalAmount = Math.round(numericPrice + 29 - discountAmount);
 
@@ -164,7 +164,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-primary">{finalPrice}</p>
+                    <p className="text-2xl font-bold text-primary">{servicePrice}</p>
                     {fromNegotiation && (
                       <p className="text-sm text-green-600">Negotiated Price</p>
                     )}
@@ -276,7 +276,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
                 <div className="space-y-2">
                   <div className="flex justify-between">
                     <span>Service Charge</span>
-                    <span>{finalPrice}</span>
+                    <span>{servicePrice}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Platform Fee</span>
