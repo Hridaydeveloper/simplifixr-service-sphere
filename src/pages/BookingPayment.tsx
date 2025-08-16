@@ -210,6 +210,16 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
                 </div>
 
                 <div>
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Enter your contact number"
+                    required
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="address">Service Address</Label>
                   <Textarea
                     id="address"

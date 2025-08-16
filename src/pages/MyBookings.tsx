@@ -27,21 +27,7 @@ const MyBookings = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      // Get bookings with OTP data
-      const { data: bookingsData, error } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          provider_service:provider_services(*,
-            master_service:master_services(*)
-          ),
-          customer_profile:profiles!customer_id(*),
-          provider_profile:profiles!provider_id(*)
-        `)
-        .eq('customer_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const bookingsData = await bookingService.getMyBookings();
       setBookings(bookingsData || []);
     } catch (error) {
       console.error('Error fetching bookings:', error);

@@ -46,11 +46,11 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
   }
 
   return (
-    <Card className="group h-full hover:shadow-lg transition-all duration-300 border-0 shadow-sm hover:scale-[1.01] bg-card cursor-pointer max-h-80"
-          onClick={() => onViewDetails?.(service)}>
+    <Card className="group h-full hover:shadow-lg transition-all duration-300 border-0 shadow-sm hover:scale-[1.01] bg-card cursor-pointer max-h-72"
+          onClick={() => onBook?.(service)}>
       <div className="flex h-full">
         {/* Image Section - Multiple images with navigation */}
-        <div className="w-40 sm:w-48 relative overflow-hidden rounded-l-lg">
+        <div className="w-32 sm:w-36 relative overflow-hidden rounded-l-lg">
           {gallery && gallery.length > 1 ? (
             <ImageCarousel
               images={gallery}

@@ -43,6 +43,11 @@ const ProviderDashboard = () => {
     }
   }, [user, navigate]);
 
+  // Update stats whenever services or bookings change
+  useEffect(() => {
+    updateStats();
+  }, [services, bookings]);
+
   const checkUserAccess = async () => {
     if (!user) return;
     
@@ -145,10 +150,8 @@ const ProviderDashboard = () => {
         setBookings([]);
       }
 
-      // Update stats after fetching data
-      setTimeout(() => {
-        updateStats();
-      }, 100);
+      // Update stats immediately after fetching data
+      updateStats();
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -158,19 +161,18 @@ const ProviderDashboard = () => {
   };
 
   const updateStats = () => {
-    const validServices = services || [];
-    const validBookings = bookings || [];
-    
-    const activeBookings = validBookings.filter((b: any) => 
+    // Use length directly from state arrays since they're updated in useEffect
+    const totalServices = services.length;
+    const activeBookings = bookings.filter((b: any) => 
       b.status && ['pending', 'confirmed', 'in_progress'].includes(b.status)
     ).length;
     
-    const totalEarnings = validBookings
+    const totalEarnings = bookings
       .filter((b: any) => b.status === 'completed' && b.total_amount)
       .reduce((sum: number, b: any) => sum + (parseFloat(b.total_amount.toString()) || 0), 0);
 
     setStats({
-      totalServices: validServices.length,
+      totalServices,
       activeBookings,
       totalEarnings,
       rating: 4.8
@@ -540,10 +542,8 @@ const ProviderDashboard = () => {
                         className="flex-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // TODO: Implement edit modal
-                          toast({
-                            title: "Coming Soon",
-                            description: "Edit functionality will be available soon"
+                          navigate(`/provider-service-details/${service.id}`, { 
+                            state: { service, provider: userProfile, edit: true } 
                           });
                         }}
                       >
