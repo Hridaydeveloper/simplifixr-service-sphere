@@ -15,6 +15,7 @@ const MyBookings = () => {
   const { user } = useAuth();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [otpTimers, setOtpTimers] = useState<{[key: string]: number}>({});
 
   useEffect(() => {
     if (!user) {
@@ -23,6 +24,54 @@ const MyBookings = () => {
     }
     fetchBookings();
   }, [user, navigate]);
+
+  // Poll for OTP updates every 3 seconds for bookings that might have OTP
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const hasActiveBookings = bookings.some(booking => 
+        booking.status === 'confirmed' && !booking.completion_otp
+      );
+      
+      if (hasActiveBookings) {
+        fetchBookings();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [bookings]);
+
+  // Timer countdown for OTP expiry
+  useEffect(() => {
+    const intervals: {[key: string]: NodeJS.Timeout} = {};
+    
+    bookings.forEach(booking => {
+      if (booking.completion_otp && booking.completion_otp_expires_at) {
+        const expiryTime = new Date(booking.completion_otp_expires_at).getTime();
+        const now = Date.now();
+        const timeLeft = Math.max(0, Math.floor((expiryTime - now) / 1000));
+        
+        if (timeLeft > 0) {
+          setOtpTimers(prev => ({ ...prev, [booking.id]: timeLeft }));
+          
+          intervals[booking.id] = setInterval(() => {
+            setOtpTimers(prev => {
+              const newTime = prev[booking.id] - 1;
+              if (newTime <= 0) {
+                // OTP expired, refresh bookings to clear it
+                fetchBookings();
+                return { ...prev, [booking.id]: 0 };
+              }
+              return { ...prev, [booking.id]: newTime };
+            });
+          }, 1000);
+        }
+      }
+    });
+
+    return () => {
+      Object.values(intervals).forEach(interval => clearInterval(interval));
+    };
+  }, [bookings]);
 
   const fetchBookings = async () => {
     try {
@@ -210,12 +259,32 @@ const MyBookings = () => {
                   </div>
 
                    {/* OTP Display */}
-                   {booking.completion_otp && (
+                   {booking.completion_otp && otpTimers[booking.id] > 0 && (
                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                       <div className="text-sm font-medium text-blue-900 mb-1">Service Completion OTP:</div>
+                       <div className="flex items-center justify-between mb-2">
+                         <div className="text-sm font-medium text-blue-900">Service Completion OTP:</div>
+                         <div className="text-xs font-medium text-red-600">
+                           Expires in: {Math.floor(otpTimers[booking.id] / 60)}:{(otpTimers[booking.id] % 60).toString().padStart(2, '0')}
+                         </div>
+                       </div>
                        <div className="text-2xl font-bold text-blue-600 tracking-wider mb-2">{booking.completion_otp}</div>
                        <div className="text-xs text-blue-700">
                          Share this OTP with your service provider to mark the service as completed.
+                       </div>
+                       <div className="mt-2 bg-blue-100 rounded p-2">
+                         <div className="text-xs text-blue-800 font-medium">
+                           ⏰ This OTP will expire automatically in {Math.floor(otpTimers[booking.id] / 60)} minutes and {otpTimers[booking.id] % 60} seconds
+                         </div>
+                       </div>
+                     </div>
+                   )}
+
+                   {/* OTP Expired Message */}
+                   {booking.completion_otp && otpTimers[booking.id] === 0 && (
+                     <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                       <div className="text-sm font-medium text-red-900 mb-1">⏰ OTP Expired</div>
+                       <div className="text-xs text-red-700">
+                         The service completion OTP has expired. Please ask your service provider to generate a new one.
                        </div>
                      </div>
                    )}

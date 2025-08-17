@@ -275,10 +275,13 @@ const ProviderDashboard = () => {
 
       if (error) throw error;
 
+      // Refresh bookings to show updated OTP data
+      await fetchDashboardData();
+      
       setShowOtpInput(prev => ({ ...prev, [bookingId]: true }));
       toast({
         title: "OTP Generated",
-        description: `OTP sent to customer. Ask them to provide: ${data.otp}`,
+        description: `OTP sent to customer. OTP: ${data.otp}`,
       });
     } catch (error) {
       console.error('Error generating OTP:', error);
