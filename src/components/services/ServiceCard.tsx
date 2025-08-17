@@ -46,11 +46,11 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
   }
 
   return (
-    <Card className="group h-full hover:shadow-lg transition-all duration-300 border-0 shadow-sm hover:scale-[1.01] bg-card cursor-pointer max-h-72"
+    <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:scale-[1.02] bg-card cursor-pointer rounded-2xl"
           onClick={() => onBook?.(service)}>
-      <div className="flex h-full">
-        {/* Image Section - Multiple images with navigation */}
-        <div className="w-32 sm:w-36 relative overflow-hidden rounded-l-lg">
+      <div className="relative h-72">
+        {/* Image Section - Full width background */}
+        <div className="absolute inset-0">
           {gallery && gallery.length > 1 ? (
             <ImageCarousel
               images={gallery}
@@ -61,7 +61,7 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
             <img 
               src={gallery[0]}
               alt={serviceName}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               onError={(e) => {
                 e.currentTarget.src = getServiceImage();
               }}
@@ -72,75 +72,71 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
             <img 
               src={getServiceImage()}
               alt={serviceName}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
               decoding="async"
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
         </div>
         
-        {/* Content Section */}
-        <div className="flex-1 p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs bg-primary/10 text-primary border-primary/20">
-                {service.master_service?.category || 'Custom'}
-              </Badge>
-            </div>
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-              <span className="font-medium">4.8</span>
-              <span className="text-xs ml-1">(120+)</span>
-            </div>
+        {/* Top badges */}
+        <div className="absolute top-4 left-4 right-4 flex items-start justify-between z-10">
+          <Badge variant="secondary" className="text-xs bg-primary text-primary-foreground font-semibold shadow-lg">
+            {service.master_service?.category || 'Custom'}
+          </Badge>
+          <div className="flex items-center bg-white/90 backdrop-blur-sm rounded-full px-2 py-1 shadow-lg">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
+            <span className="text-xs font-semibold text-gray-800">4.8</span>
+            <span className="text-xs text-gray-600 ml-1">(120+)</span>
           </div>
-          
-          <CardTitle className="text-xl font-bold line-clamp-2 mb-3 group-hover:text-primary transition-colors">
+        </div>
+        
+        {/* Content Section - Overlaid at bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-10">
+          <CardTitle className="text-xl font-bold mb-2 text-white drop-shadow-lg">
             {serviceName}
           </CardTitle>
           
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center text-sm text-muted-foreground">
-              <Clock className="w-4 h-4 mr-2 flex-shrink-0 text-primary" />
-              <span>{service.estimated_time}</span>
+          <div className="flex items-center gap-4 mb-3 text-sm">
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-1 text-white/90" />
+              <span className="text-white/90">{service.estimated_time}</span>
             </div>
             
             {service.provider_profile && (
-              <div className="flex items-center text-sm text-muted-foreground">
-                <MapPin className="w-4 h-4 mr-2 flex-shrink-0 text-primary" />
-                <span>{service.provider_profile.location}</span>
+              <div className="flex items-center">
+                <MapPin className="w-4 h-4 mr-1 text-white/90" />
+                <span className="text-white/90">{service.provider_profile.location}</span>
               </div>
             )}
           </div>
           
           {service.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+            <p className="text-sm text-white/80 line-clamp-2 mb-4 drop-shadow">
               {service.description}
             </p>
           )}
           
-          <div className="mt-auto">
-            <div className="flex items-center justify-between">
-              <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-3 py-2 rounded-lg border border-primary/20">
-                <div className="text-lg font-bold text-primary">
-                  {service.price_range}
-                </div>
-                <div className="text-xs text-muted-foreground font-medium">
-                  per service
-                </div>
+          <div className="flex items-center justify-between">
+            <div className="text-left">
+              <div className="text-2xl font-bold text-white drop-shadow-lg">
+                {service.price_range}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="border-primary/20 hover:bg-primary hover:text-primary-foreground transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onBook?.(service);
-                }}
-              >
-                Book Now
-              </Button>
+              <div className="text-xs text-white/80 font-medium">
+                per service
+              </div>
             </div>
+            <Button 
+              size="lg"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
+              onClick={(e) => {
+                e.stopPropagation();
+                onBook?.(service);
+              }}
+            >
+              Book Now
+            </Button>
           </div>
         </div>
       </div>

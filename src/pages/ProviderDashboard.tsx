@@ -738,32 +738,47 @@ const ProviderDashboard = () => {
                        </div>
                      )}
                      
-                     {showOtpInput[booking.id] && (
-                       <div className="pt-4 border-t space-y-3">
-                         <p className="text-sm text-muted-foreground">
-                           OTP sent to customer. Ask customer to provide the OTP:
-                         </p>
-                         <div className="flex gap-2">
-                           <Input
-                             type="text"
-                             placeholder="Enter OTP"
-                             value={otpInputs[booking.id] || ''}
-                             onChange={(e) => setOtpInputs(prev => ({
-                               ...prev,
-                               [booking.id]: e.target.value
-                             }))}
-                             maxLength={6}
-                           />
-                           <Button
-                             onClick={() => handleVerifyOtp(booking.id)}
-                             className="bg-green-600 hover:bg-green-700"
-                             disabled={!otpInputs[booking.id] || otpInputs[booking.id].length !== 6}
-                           >
-                             Verify
-                           </Button>
-                         </div>
-                       </div>
-                     )}
+                      {showOtpInput[booking.id] && (
+                        <div className="pt-4 border-t space-y-3">
+                          <p className="text-sm text-muted-foreground">
+                            OTP sent to customer. Ask customer to provide the OTP:
+                          </p>
+                          <div className="flex gap-2">
+                            <Input
+                              type="text"
+                              placeholder="Enter OTP"
+                              value={otpInputs[booking.id] || ''}
+                              onChange={(e) => setOtpInputs(prev => ({
+                                ...prev,
+                                [booking.id]: e.target.value
+                              }))}
+                              maxLength={6}
+                            />
+                            <Button
+                              onClick={() => handleVerifyOtp(booking.id)}
+                              className="bg-green-600 hover:bg-green-700"
+                              disabled={!otpInputs[booking.id] || otpInputs[booking.id].length !== 6}
+                            >
+                              Verify
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Service Complete Indicator for Provider */}
+                      {booking.status === 'completed' && (
+                        <div className="pt-4 border-t">
+                          <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                            <div className="flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-xl mb-1">✅</div>
+                                <div className="text-sm font-bold text-green-800">Service Completed</div>
+                                <div className="text-xs text-green-600">Payment processed successfully</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                     {/* Booking Timestamp */}
                     <div className="text-xs text-gray-500 text-right pt-2 border-t">
