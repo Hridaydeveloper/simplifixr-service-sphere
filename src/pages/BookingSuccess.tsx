@@ -179,7 +179,7 @@ const BookingSuccess = ({ onShowAuth }: BookingSuccessProps) => {
             <Button onClick={() => navigate('/')} variant="outline" size="lg">
               Back to Home
             </Button>
-            <Button onClick={() => navigate('/profile')} size="lg">
+            <Button onClick={() => navigate('/my-bookings')} size="lg">
               View My Bookings
             </Button>
           </div>

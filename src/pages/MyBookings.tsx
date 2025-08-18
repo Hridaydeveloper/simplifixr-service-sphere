@@ -44,7 +44,7 @@ const MyBookings = () => {
     fetchBookings();
   }, [user, navigate]);
 
-  // Poll for OTP updates every 3 seconds for bookings that might have OTP
+  // Poll for OTP updates every 10 seconds for bookings that might have OTP
   useEffect(() => {
     const interval = setInterval(() => {
       const hasActiveBookings = bookings.some(booking => 
@@ -54,7 +54,7 @@ const MyBookings = () => {
       if (hasActiveBookings) {
         fetchBookings();
       }
-    }, 3000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, [bookings]);
@@ -270,47 +270,39 @@ const MyBookings = () => {
                     </div>
                   )}
 
-                  {/* Service Details */}
-                  <div className="p-3 bg-green-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-700 mb-2">Service Details</div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                      {booking.provider_service?.price_range && (
-                        <div>
-                          <span className="font-medium">Price Range:</span> {booking.provider_service.price_range}
-                        </div>
-                      )}
-                      {booking.payment_method && (
-                        <div>
-                          <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                   {/* OTP Display */}
-                   {booking.completion_otp && otpTimers[booking.id] > 0 && (
-                     <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-lg">
-                       <div className="flex items-center justify-between mb-3">
-                         <div className="text-sm font-bold text-green-900 flex items-center">
-                           🔐 Service Completion OTP
+                   {/* Service Details */}
+                   <div className="p-3 bg-green-50 rounded-lg">
+                     <div className="text-sm font-medium text-gray-700 mb-2">Service Details</div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
+                       {booking.provider_service?.price_range && (
+                         <div>
+                           <span className="font-medium">Price Range:</span> {booking.provider_service.price_range}
                          </div>
-                         <div className="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-full">
-                           ⏰ {Math.floor(otpTimers[booking.id] / 60)}:{(otpTimers[booking.id] % 60).toString().padStart(2, '0')}
+                       )}
+                       {booking.payment_method && (
+                         <div>
+                           <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}
                          </div>
-                       </div>
-                       <div className="text-3xl font-black text-green-700 tracking-[0.2em] mb-3 text-center bg-white rounded-lg py-3 shadow-inner">
-                         {booking.completion_otp}
-                       </div>
-                       <div className="text-sm text-green-800 font-medium mb-3 text-center">
-                         📱 Share this OTP with your service provider to complete the service
-                       </div>
-                       <div className="bg-gradient-to-r from-green-100 to-emerald-100 rounded-lg p-3 border border-green-300">
-                         <div className="text-xs text-green-800 font-semibold text-center">
-                           ⚡ Auto-expires in {Math.floor(otpTimers[booking.id] / 60)} min {otpTimers[booking.id] % 60} sec
-                         </div>
-                       </div>
+                       )}
                      </div>
-                   )}
+
+                     {/* OTP Display in Service Details */}
+                     {booking.completion_otp && otpTimers[booking.id] > 0 && (
+                       <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                         <div className="text-sm font-bold text-blue-900 mb-2">
+                           Your OTP is: <span className="text-2xl font-black text-blue-700 tracking-widest">{booking.completion_otp}</span>
+                         </div>
+                         <div className="text-xs text-blue-800 mb-2">
+                           Only share this OTP with the provider after service completion
+                         </div>
+                         <div className="text-xs text-red-600 font-semibold">
+                           Expires in: {Math.floor(otpTimers[booking.id] / 60)}:{(otpTimers[booking.id] % 60).toString().padStart(2, '0')}
+                         </div>
+                       </div>
+                     )}
+                   </div>
+
+                   {/* OTP Display - Positioned in Service Details */}
 
                    {/* Service Complete Indicator */}
                    {booking.status === 'completed' && (

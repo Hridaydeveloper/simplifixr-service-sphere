@@ -102,14 +102,14 @@ const Hero = () => {
                 <span className="text-[#00B896] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
               </div>
               
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight xl:text-6xl">
-                Home services at your{" "}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+                Home services with{" "}
                 <span className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
-                  doorstep
+                  SimplifixR
                 </span>
               </h1>
               
-              <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-lg">
+              <p className="text-base lg:text-lg text-gray-600 leading-relaxed max-w-lg">
                 What are you looking for?
               </p>
             </div>
