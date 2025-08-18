@@ -4,7 +4,7 @@ import Navigation from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock, IndianRupee, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Clock, IndianRupee, ArrowRight, Check, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { bookingService, Booking } from "@/services/bookingService";
 import { toast } from "@/hooks/use-toast";
@@ -16,6 +16,24 @@ const MyBookings = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [otpTimers, setOtpTimers] = useState<{[key: string]: number}>({});
+
+  const handleDeleteBooking = async (bookingId: string) => {
+    try {
+      await bookingService.deleteBooking(bookingId);
+      setBookings(prev => prev.filter(booking => booking.id !== bookingId));
+      toast({
+        title: "Booking Deleted",
+        description: "Booking has been deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive"
+      });
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -172,9 +190,19 @@ const MyBookings = () => {
                         {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' ')}
                       </Badge>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-500">Booking ID</div>
-                      <div className="text-sm font-mono">{booking.id.slice(0, 8)}</div>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500">Booking ID</div>
+                        <div className="text-sm font-mono">{booking.id.slice(0, 8)}</div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteBooking(booking.id)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -288,7 +316,9 @@ const MyBookings = () => {
                      <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl">
                        <div className="flex items-center justify-center">
                          <div className="text-center">
-                           <div className="text-3xl mb-2">✅</div>
+                            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
+                              <Check className="w-8 h-8 text-white" />
+                            </div>
                            <div className="text-lg font-bold text-green-800">Service Complete</div>
                            <div className="text-sm text-green-600">This service has been successfully completed</div>
                          </div>

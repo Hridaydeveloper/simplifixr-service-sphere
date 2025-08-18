@@ -92,10 +92,10 @@ const AuthConfirm = () => {
             description: "Your account has been verified successfully!",
           });
 
-          // Redirect to home page after 2 seconds
+          // Redirect to home page immediately after success
           setTimeout(() => {
-            navigate('/');
-          }, 2000);
+            navigate('/', { replace: true });
+          }, 1000);
         } else {
           setStatus('error');
           setMessage('Confirmation failed. Please try again.');

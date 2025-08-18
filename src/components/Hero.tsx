@@ -21,9 +21,22 @@ const Hero = () => {
   const [selectedService, setSelectedService] = useState("");
   const [showMap, setShowMap] = useState(false);
 
+  // Service categories data
+  const serviceCategories = [
+    { icon: "👩‍💼", name: "Women's Salon & Spa", category: "salon" },
+    { icon: "👨‍💼", name: "Men's Salon & Massage", category: "salon" },
+    { icon: "❄️", name: "AC & Appliance Repair", category: "repair" },
+    { icon: "🧹", name: "Cleaning & Pest Control", category: "cleaning" },
+    { icon: "⚡", name: "Electrician, Plumber & Carpenter", category: "maintenance" },
+    { icon: "💧", name: "Native Water Purifier", category: "purifier" },
+    { icon: "🎨", name: "Painting & Waterproofing", category: "painting" },
+    { icon: "🏗️", name: "Wall Panels & Woodwork", category: "construction" },
+  ];
+
   // Extract image URLs and alt text for carousel
   const imageUrls = heroImages.map(img => img.image_url);
   const altText = heroImages.length > 0 ? heroImages[0].alt_text : "Popular services showcase";
+  
   const handleBookService = () => {
     navigate('/services', {
       state: {
@@ -48,11 +61,6 @@ const Hero = () => {
     return "Become a Provider";
   };
 
-  const getProviderButtonIcon = () => {
-    if (providerStatus.isVerified) return <Shield className="w-5 h-5 mr-2" />;
-    return <ArrowRight className="w-5 h-5 ml-2" />;
-  };
-
   const handleSearch = () => {
     // Navigate to services page with search parameters
     navigate('/services', {
@@ -64,10 +72,13 @@ const Hero = () => {
     });
   };
 
-  const handleLocationSearch = () => {
-    if (selectedLocation.trim()) {
-      setShowMap(true);
-    }
+  const handleCategoryClick = (category: string) => {
+    navigate('/services', {
+      state: {
+        searchQuery: category,
+        scrollToTop: true
+      }
+    });
   };
 
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
@@ -91,38 +102,36 @@ const Hero = () => {
                 <span className="text-[#00B896] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
               </div>
               
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight xl:text-4xl">
-                Simplify Your Life,{" "}
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 leading-tight xl:text-6xl">
+                Home services at your{" "}
                 <span className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
-                  One Service
-                </span>{" "}
-                at a Time
+                  doorstep
+                </span>
               </h1>
               
               <p className="text-lg lg:text-xl text-gray-600 leading-relaxed max-w-lg">
-                Connect with verified local service providers for all your needs. From cleaning to repairs, education to events - we've got you covered with trust and excellence.
+                What are you looking for?
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={handleBookService} className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-white">
-                Book a Service
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button 
-                onClick={handleBecomeProvider} 
-                variant={providerStatus.isVerified ? "default" : "outline"} 
-                className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 ${
-                  providerStatus.isVerified 
-                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg" 
-                    : "border-2 border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]"
-                }`}
-                disabled={providerStatus.loading}
-              >
-                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
-                {getProviderButtonText()}
-                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
-              </Button>
+            {/* Service Categories Grid */}
+            <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-gray-200/50 max-w-2xl">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {serviceCategories.map((service, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleCategoryClick(service.category)}
+                    className="flex flex-col items-center p-4 rounded-xl hover:bg-[#00B896]/10 transition-all duration-300 group"
+                  >
+                    <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
+                      {service.icon}
+                    </div>
+                    <span className="text-sm font-medium text-gray-700 text-center leading-tight">
+                      {service.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Enhanced Search Bar */}
@@ -155,6 +164,27 @@ const Hero = () => {
               </div>
             </div>
 
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button onClick={handleBookService} className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-white">
+                Book a Service
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button 
+                onClick={handleBecomeProvider} 
+                variant={providerStatus.isVerified ? "default" : "outline"} 
+                className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 ${
+                  providerStatus.isVerified 
+                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg" 
+                    : "border-2 border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]"
+                }`}
+                disabled={providerStatus.loading}
+              >
+                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
+                {getProviderButtonText()}
+                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
+              </Button>
+            </div>
+
             {/* Show Map when location is searched */}
             {showMap && selectedLocation && (
               <div className="max-w-2xl">
@@ -169,17 +199,15 @@ const Hero = () => {
                   <span className="text-white font-bold text-sm">4.8</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">Average Rating</div>
-                  <div className="text-gray-600 text-xs">Trusted by thousands</div>
+                  <div className="font-semibold text-gray-900 text-sm">Service Rating*</div>
                 </div>
               </div>
               <div className="flex items-center bg-white/70 backdrop-blur-sm px-4 py-3 rounded-full shadow-md">
                 <div className="w-10 h-10 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-sm">1K+</span>
+                  <span className="text-white font-bold text-xs">12M+</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">Verified Providers</div>
-                  <div className="text-gray-600 text-xs">Background checked</div>
+                  <div className="font-semibold text-gray-900 text-sm">Customers Globally*</div>
                 </div>
               </div>
             </div>
@@ -188,14 +216,14 @@ const Hero = () => {
           {/* Hero Visual */}
           <div className="relative order-first lg:order-last">
             <div className="relative w-full h-64 lg:h-[600px] bg-gradient-to-br from-[#00B896]/30 via-[#00C9A7]/20 to-transparent rounded-3xl overflow-hidden shadow-2xl">
-<div className="absolute inset-0">
-  <ImageCarousel
-    images={imageUrls}
-    alt={altText}
-    className="w-full h-full"
-  />
-  <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none"></div>
-</div>
+              <div className="absolute inset-0">
+                <ImageCarousel
+                  images={imageUrls}
+                  alt={altText}
+                  className="w-full h-full"
+                />
+                <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none"></div>
+              </div>
             </div>
           </div>
         </div>

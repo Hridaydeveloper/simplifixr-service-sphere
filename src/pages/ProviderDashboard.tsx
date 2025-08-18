@@ -278,10 +278,9 @@ const ProviderDashboard = () => {
       // Refresh bookings to show updated OTP data
       await fetchDashboardData();
       
-      setShowOtpInput(prev => ({ ...prev, [bookingId]: true }));
       toast({
         title: "OTP Generated",
-        description: `OTP sent to customer. OTP: ${data.otp}`,
+        description: "OTP sent to customer and will be visible in their booking.",
       });
     } catch (error) {
       console.error('Error generating OTP:', error);
@@ -673,7 +672,7 @@ const ProviderDashboard = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                         {booking.provider_service?.price_range && (
                           <div>
-                            <span className="font-medium">Price Range:</span> {booking.provider_service.price_range}
+                            <span className="font-medium">Actual Price:</span> {booking.provider_service.price_range}
                           </div>
                         )}
                         {booking.payment_method && (
@@ -771,7 +770,9 @@ const ProviderDashboard = () => {
                           <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                             <div className="flex items-center justify-center">
                               <div className="text-center">
-                                <div className="text-xl mb-1">✅</div>
+                                 <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-1">
+                                   <Check className="w-5 h-5 text-white" />
+                                 </div>
                                 <div className="text-sm font-bold text-green-800">Service Completed</div>
                                 <div className="text-xs text-green-600">Payment processed successfully</div>
                               </div>

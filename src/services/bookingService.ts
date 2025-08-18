@@ -82,5 +82,17 @@ export const bookingService = {
 
     if (error) throw error;
     return data;
+  },
+
+  // Delete booking
+  async deleteBooking(id: string) {
+    const { error } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('id', id)
+      .eq('customer_id', (await supabase.auth.getUser()).data.user?.id);
+
+    if (error) throw error;
+    return true;
   }
 };
