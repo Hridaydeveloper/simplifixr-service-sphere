@@ -54,6 +54,24 @@ const AuthConfirm = () => {
               refresh_token: fragmentRefreshToken,
             });
           } else {
+            // Check if user is already logged in - this might be a valid link but user is already confirmed
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            if (user) {
+              console.log('User already logged in, treating as successful confirmation');
+              setStatus('success');
+              setMessage('Your email has been confirmed successfully!');
+              
+              toast({
+                title: "Email Confirmed",
+                description: "Your account has been verified successfully!",
+              });
+
+              setTimeout(() => {
+                navigate('/', { replace: true });
+              }, 1000);
+              return;
+            }
+            
             console.log('No valid confirmation parameters found');
             setStatus('error');
             setMessage('Invalid confirmation link. Please check your email for the correct link or try signing up again.');

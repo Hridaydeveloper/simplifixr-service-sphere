@@ -19,6 +19,10 @@ const MyBookings = () => {
   const [otpTimers, setOtpTimers] = useState<{[key: string]: number}>({});
 
   const handleDeleteBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+      return;
+    }
+
     try {
       await bookingService.deleteBooking(bookingId);
       setBookings(prev => prev.filter(booking => booking.id !== bookingId));
@@ -191,20 +195,22 @@ const MyBookings = () => {
                         {booking.status.charAt(0).toUpperCase() + booking.status.slice(1).replace('_', ' ')}
                       </Badge>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-500">Booking ID</div>
-                        <div className="text-sm font-mono">{booking.id.slice(0, 8)}</div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteBooking(booking.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                     <div className="flex items-center space-x-2">
+                       <div className="text-right">
+                         <div className="text-sm text-gray-500">Booking ID</div>
+                         <div className="text-sm font-mono">{booking.id.slice(0, 8)}</div>
+                       </div>
+                       {(booking.status === 'cancelled' || booking.status === 'completed') && (
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={() => handleDeleteBooking(booking.id)}
+                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </Button>
+                       )}
+                     </div>
                   </div>
                 </CardHeader>
                 

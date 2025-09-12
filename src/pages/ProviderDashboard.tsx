@@ -239,6 +239,28 @@ const ProviderDashboard = () => {
     fetchDashboardData();
   };
 
+  const handleDeleteBooking = async (bookingId: string) => {
+    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await bookingService.deleteBooking(bookingId);
+      setBookings(prev => prev.filter(booking => booking.id !== bookingId));
+      toast({
+        title: "Booking Deleted",
+        description: "Booking has been deleted successfully"
+      });
+    } catch (error) {
+      console.error('Error deleting booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete booking",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleBookingAction = async (bookingId: string, action: 'confirmed' | 'cancelled') => {
     try {
       await bookingService.updateBookingStatus(bookingId, action);
@@ -587,47 +609,61 @@ const ProviderDashboard = () => {
             <div className="space-y-6">
               {bookings.slice(0, 5).map((booking: any) => (
                 <Card key={booking.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-[#00B896]/10 rounded-lg flex items-center justify-center">
-                          <Calendar className="w-6 h-6 text-[#00B896]" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-lg">
-                            {booking.provider_service?.master_service?.name || 
-                             booking.provider_service?.custom_service_name || 'Service Booking'}
-                          </CardTitle>
-                          <p className="text-sm text-gray-500">Booking #{booking.id.slice(0, 8).toUpperCase()}</p>
-                        </div>
-                      </div>
-                      <Badge 
-                        variant={booking.status === 'pending' ? 'default' : 
-                                booking.status === 'confirmed' ? 'secondary' : 
-                                booking.status === 'completed' ? 'outline' : 'destructive'}
-                        className={booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                  booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
-                                  booking.status === 'completed' ? 'bg-blue-100 text-blue-800' : ''}
-                      >
-                        {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || 'Pending'}
-                      </Badge>
-                    </div>
-                  </CardHeader>
+                   <CardHeader className="pb-4">
+                     <div className="flex items-center justify-between">
+                       <div className="flex items-center space-x-3">
+                         <div className="w-12 h-12 bg-[#00B896]/10 rounded-lg flex items-center justify-center">
+                           <Calendar className="w-6 h-6 text-[#00B896]" />
+                         </div>
+                         <div>
+                           <CardTitle className="text-lg">
+                             {booking.provider_service?.master_service?.name || 
+                              booking.provider_service?.custom_service_name || 'Service Booking'}
+                           </CardTitle>
+                           <p className="text-sm text-gray-500">Booking #{booking.id.slice(0, 8).toUpperCase()}</p>
+                         </div>
+                       </div>
+                       <div className="flex items-center space-x-2">
+                         <Badge 
+                           variant={booking.status === 'pending' ? 'default' : 
+                                   booking.status === 'confirmed' ? 'secondary' : 
+                                   booking.status === 'completed' ? 'outline' : 'destructive'}
+                           className={booking.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                     booking.status === 'confirmed' ? 'bg-green-100 text-green-800' :
+                                     booking.status === 'completed' ? 'bg-blue-100 text-blue-800' : ''}
+                         >
+                           {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || 'Pending'}
+                         </Badge>
+                         {(booking.status === 'cancelled' || booking.status === 'completed') && (
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             onClick={() => handleDeleteBooking(booking.id)}
+                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </Button>
+                         )}
+                       </div>
+                     </div>
+                   </CardHeader>
                   
                   <CardContent className="space-y-4">
                     {/* Customer Info */}
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {booking.customer_profile?.full_name || 'Customer'}
-                          </div>
-                          <div className="text-sm text-gray-600">Customer</div>
-                        </div>
-                      </div>
+                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                       <div className="flex items-center space-x-3">
+                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                           <User className="w-5 h-5 text-blue-600" />
+                         </div>
+                         <div>
+                           <div className="font-medium text-gray-900">
+                             {booking.customer_profile?.full_name || 'Customer'}
+                           </div>
+                           <div className="text-sm text-gray-600">
+                             {booking.customer_profile?.phone ? `📞 ${booking.customer_profile.phone}` : 'Customer'}
+                           </div>
+                         </div>
+                       </div>
                       {booking.total_amount && (
                         <div className="text-right">
                           <div className="text-2xl font-bold text-[#00B896]">₹{booking.total_amount}</div>
@@ -726,16 +762,33 @@ const ProviderDashboard = () => {
                        </div>
                      )}
 
-                     {booking.status === 'confirmed' && (
-                       <div className="pt-4 border-t">
-                         <Button
-                           onClick={() => handleServiceDone(booking.id)}
-                           className="bg-blue-600 hover:bg-blue-700 text-white"
-                         >
-                           Mark Service Done
-                         </Button>
-                       </div>
-                     )}
+                      {booking.status === 'confirmed' && !booking.completion_otp && (
+                        <div className="pt-4 border-t">
+                          <Button
+                            onClick={() => handleServiceDone(booking.id)}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            Mark Service Done
+                          </Button>
+                        </div>
+                      )}
+                      
+                      {booking.status === 'confirmed' && booking.completion_otp && !showOtpInput[booking.id] && (
+                        <div className="pt-4 border-t">
+                          <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                            <div className="text-sm font-medium text-green-800 mb-1">✅ OTP Sent to Customer</div>
+                            <div className="text-xs text-green-600">
+                              Ask the customer for the 6-digit OTP to complete the service.
+                            </div>
+                          </div>
+                          <Button
+                            onClick={() => setShowOtpInput(prev => ({ ...prev, [booking.id]: true }))}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            Enter Customer OTP
+                          </Button>
+                        </div>
+                      )}
                      
                       {showOtpInput[booking.id] && (
                         <div className="pt-4 border-t space-y-3">
