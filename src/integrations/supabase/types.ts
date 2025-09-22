@@ -440,6 +440,10 @@ export type Database = {
         }
         Returns: string
       }
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       create_booking: {
         Args: {
           p_address?: string
@@ -541,6 +545,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      secure_update_user_role: {
+        Args: { new_role: string; target_user_id: string }
+        Returns: boolean
+      }
       update_booking_status: {
         Args: { booking_id: string; new_status: string }
         Returns: boolean
@@ -569,7 +577,7 @@ export type Database = {
               registration_id: string
             }
           | { registration_id: string }
-        Returns: undefined
+        Returns: boolean
       }
     }
     Enums: {
