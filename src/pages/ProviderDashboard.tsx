@@ -13,6 +13,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AddServiceModal from "@/components/provider/AddServiceModal";
 import VerificationSteps from "@/components/provider/VerificationSteps";
+import BookingDetailsModal from "@/components/provider/BookingDetailsModal";
 import { useProviderStatus } from "@/hooks/useProviderStatus";
 import { bookingService } from "@/services/bookingService";
 
@@ -24,10 +25,10 @@ const ProviderDashboard = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState<any>(null);
-  const [showOtpInput, setShowOtpInput] = useState<Record<string, boolean>>({});
-  const [otpInputs, setOtpInputs] = useState<Record<string, string>>({});
   const [stats, setStats] = useState({
     totalServices: 0,
     activeBookings: 0,
@@ -286,63 +287,14 @@ const ProviderDashboard = () => {
     }
   };
 
-  const handleServiceDone = async (bookingId: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('service-completion', {
-        body: {
-          action: 'generate_otp',
-          booking_id: bookingId
-        }
-      });
-
-      if (error) throw error;
-
-      // Refresh bookings to show updated OTP data
-      await fetchDashboardData();
-      
-      toast({
-        title: "OTP Generated",
-        description: "OTP sent to customer and will be visible in their booking.",
-      });
-    } catch (error) {
-      console.error('Error generating OTP:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate OTP",
-        variant: "destructive",
-      });
-    }
+  const handleOpenBookingModal = (booking: any) => {
+    setSelectedBooking(booking);
+    setShowBookingModal(true);
   };
 
-  const handleVerifyOtp = async (bookingId: string) => {
-    try {
-      const otp = otpInputs[bookingId];
-      const { data, error } = await supabase.functions.invoke('service-completion', {
-        body: {
-          action: 'verify_otp',
-          booking_id: bookingId,
-          otp: otp
-        }
-      });
-
-      if (error) throw error;
-
-      setShowOtpInput(prev => ({ ...prev, [bookingId]: false }));
-      setOtpInputs(prev => ({ ...prev, [bookingId]: '' }));
-      fetchDashboardData(); // Refresh to show updated status
-      
-      toast({
-        title: "Service Completed",
-        description: "Service has been marked as completed successfully!",
-      });
-    } catch (error) {
-      console.error('Error verifying OTP:', error);
-      toast({
-        title: "Error",
-        description: "Invalid OTP or verification failed",
-        variant: "destructive",
-      });
-    }
+  const handleCloseBookingModal = () => {
+    setShowBookingModal(false);
+    setSelectedBooking(null);
   };
 
   if (loading) {
@@ -608,7 +560,11 @@ const ProviderDashboard = () => {
           ) : (
             <div className="space-y-6">
               {bookings.slice(0, 5).map((booking: any) => (
-                <Card key={booking.id} className="hover:shadow-lg transition-shadow">
+                <Card 
+                  key={booking.id} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => handleOpenBookingModal(booking)}
+                >
                    <CardHeader className="pb-4">
                      <div className="flex items-center justify-between">
                        <div className="flex items-center space-x-3">
@@ -635,12 +591,15 @@ const ProviderDashboard = () => {
                            {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || 'Pending'}
                          </Badge>
                          {(booking.status === 'cancelled' || booking.status === 'completed') && (
-                           <Button
-                             size="sm"
-                             variant="outline"
-                             onClick={() => handleDeleteBooking(booking.id)}
-                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                           >
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteBooking(booking.id);
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
                              <Trash2 className="w-4 h-4" />
                            </Button>
                          )}
@@ -741,81 +700,12 @@ const ProviderDashboard = () => {
                       </div>
                     )}
 
-                     {/* Action Buttons */}
-                     {booking.status === 'pending' && (
-                       <div className="flex gap-3 pt-4 border-t">
-                         <Button 
-                           onClick={() => handleBookingAction(booking.id, 'confirmed')}
-                           className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                         >
-                           <Check className="w-4 h-4 mr-2" />
-                           Accept Booking
-                         </Button>
-                         <Button 
-                           onClick={() => handleBookingAction(booking.id, 'cancelled')}
-                           variant="outline"
-                           className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                         >
-                           <X className="w-4 h-4 mr-2" />
-                           Reject
-                         </Button>
+                     {/* Click for Details Indicator */}
+                     <div className="pt-4 border-t">
+                       <div className="text-center text-sm text-gray-500">
+                         Click to view full details and manage this booking
                        </div>
-                     )}
-
-                      {booking.status === 'confirmed' && !booking.completion_otp && (
-                        <div className="pt-4 border-t">
-                          <Button
-                            onClick={() => handleServiceDone(booking.id)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            Mark Service Done
-                          </Button>
-                        </div>
-                      )}
-                      
-                      {booking.status === 'confirmed' && booking.completion_otp && !showOtpInput[booking.id] && (
-                        <div className="pt-4 border-t">
-                          <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
-                            <div className="text-sm font-medium text-green-800 mb-1">✅ OTP Sent to Customer</div>
-                            <div className="text-xs text-green-600">
-                              Ask the customer for the 6-digit OTP to complete the service.
-                            </div>
-                          </div>
-                          <Button
-                            onClick={() => setShowOtpInput(prev => ({ ...prev, [booking.id]: true }))}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            Enter Customer OTP
-                          </Button>
-                        </div>
-                      )}
-                     
-                      {showOtpInput[booking.id] && (
-                        <div className="pt-4 border-t space-y-3">
-                          <p className="text-sm text-muted-foreground">
-                            OTP sent to customer. Ask customer to provide the OTP:
-                          </p>
-                          <div className="flex gap-2">
-                            <Input
-                              type="text"
-                              placeholder="Enter OTP"
-                              value={otpInputs[booking.id] || ''}
-                              onChange={(e) => setOtpInputs(prev => ({
-                                ...prev,
-                                [booking.id]: e.target.value
-                              }))}
-                              maxLength={6}
-                            />
-                            <Button
-                              onClick={() => handleVerifyOtp(booking.id)}
-                              className="bg-green-600 hover:bg-green-700"
-                              disabled={!otpInputs[booking.id] || otpInputs[booking.id].length !== 6}
-                            >
-                              Verify
-                            </Button>
-                          </div>
-                        </div>
-                      )}
+                     </div>
 
                       {/* Service Complete Indicator for Provider */}
                       {booking.status === 'completed' && (
@@ -856,6 +746,13 @@ const ProviderDashboard = () => {
         open={showAddServiceModal}
         onClose={() => setShowAddServiceModal(false)}
         onServiceAdded={handleServiceAdded}
+      />
+
+      <BookingDetailsModal
+        booking={selectedBooking}
+        isOpen={showBookingModal}
+        onClose={handleCloseBookingModal}
+        onBookingUpdate={fetchDashboardData}
       />
     </div>
   );
