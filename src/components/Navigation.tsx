@@ -7,6 +7,7 @@ import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar } from "lucide-
 import { useAuth } from "@/contexts/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AuthModal from "@/components/AuthModal";
 
 interface NavigationProps {
   onShowAuth?: (authFlow: {
@@ -19,6 +20,7 @@ const Navigation = ({
   onShowAuth
 }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const {
     user,
     signOut,
@@ -41,7 +43,12 @@ const Navigation = ({
   const userInitials = getInitials(displayName);
 
   const handleSignIn = () => {
-    navigate('/auth');
+    setShowAuthModal(true);
+  };
+
+  const handleAuthSuccess = (role: 'customer' | 'provider') => {
+    // Auth context will handle the login state
+    setShowAuthModal(false);
   };
 
   const handleBecomeProvider = () => {
@@ -230,20 +237,26 @@ const Navigation = ({
                         Sign Out
                       </Button>
                     </> : <>
-                      <Button onClick={handleSignIn} variant="outline" className="w-full">
-                        Sign In
-                      </Button>
-                      <Button onClick={handleBecomeProvider} className="w-full bg-[#00B896] hover:bg-[#00A085] text-white">
-                        Become Provider
-                      </Button>
-                    </>}
-                </div>
-              </nav>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </div>
-    </nav>;
+                       <Button onClick={handleSignIn} variant="outline" className="w-full">
+                         Sign In
+                       </Button>
+                       <Button onClick={handleBecomeProvider} className="w-full bg-[#00B896] hover:bg-[#00A085] text-white">
+                         Become Provider
+                       </Button>
+                     </>}
+                 </div>
+               </nav>
+             </SheetContent>
+           </Sheet>
+         </div>
+       </div>
+       
+       <AuthModal
+         isOpen={showAuthModal}
+         onClose={() => setShowAuthModal(false)}
+         onSuccess={handleAuthSuccess}
+       />
+     </nav>;
 };
 
 export default Navigation;
