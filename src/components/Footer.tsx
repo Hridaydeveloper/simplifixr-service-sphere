@@ -37,9 +37,20 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <div className="text-2xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
+            <button 
+              onClick={() => {
+                navigate('/');
+                setTimeout(() => {
+                  window.scrollTo({ 
+                    top: 0, 
+                    behavior: 'smooth' 
+                  });
+                }, 100);
+              }}
+              className="text-2xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer"
+            >
               Simplifixr
-            </div>
+            </button>
             <p className="text-gray-400 text-sm leading-relaxed">
               Connecting communities through trusted local services. Dignity in every job, simplicity in every booking.
             </p>

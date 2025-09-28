@@ -106,7 +106,18 @@ const Navigation = ({
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <button onClick={handleHomeClick} className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <button 
+            onClick={() => {
+              navigate('/');
+              setTimeout(() => {
+                window.scrollTo({ 
+                  top: 0, 
+                  behavior: 'smooth' 
+                });
+              }, 100);
+            }} 
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 bg-gradient-to-br from-[#00B896] to-[#00C9A7] rounded-lg flex items-center justify-center">
               <Settings className="w-5 h-5 text-white" />
             </div>

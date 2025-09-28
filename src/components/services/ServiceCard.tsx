@@ -6,14 +6,18 @@ import { Star, Clock, MapPin } from "lucide-react";
 import { ProviderService } from "@/services/serviceService";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ServiceCardProps {
   service: ProviderService;
   onBook?: (service: ProviderService) => void;
   onViewDetails?: (service: ProviderService) => void;
+  onShowAuth?: () => void;
 }
 
-const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
+const ServiceCard = ({ service, onBook, onViewDetails, onShowAuth }: ServiceCardProps) => {
+  const { user } = useAuth();
+  const isGuest = localStorage.getItem('guestMode') === 'true';
   const serviceName = service.master_service?.name || service.custom_service_name || 'Custom Service';
   const baseImage = (service.images && service.images.length > 0) ? service.images[0] : service.master_service?.image_url;
   const [gallery, setGallery] = useState<string[]>([]);
@@ -132,7 +136,11 @@ const ServiceCard = ({ service, onBook, onViewDetails }: ServiceCardProps) => {
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105"
               onClick={(e) => {
                 e.stopPropagation();
-                onBook?.(service);
+                if (!user && !isGuest) {
+                  onShowAuth?.();
+                } else {
+                  onBook?.(service);
+                }
               }}
             >
               Book Now

@@ -10,14 +10,19 @@ import { Search, MapPin, Filter, Star } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { serviceService, ServiceCategory, ProviderService } from "@/services/serviceService";
 import ServiceCard from "@/components/services/ServiceCard";
+import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Services = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [services, setServices] = useState<ProviderService[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const isGuest = localStorage.getItem('guestMode') === 'true';
 
   useEffect(() => {
     fetchData();
@@ -54,6 +59,11 @@ const Services = () => {
   });
 
   const handleBookService = (service: ProviderService) => {
+    if (!user && !isGuest) {
+      setShowAuthModal(true);
+      return;
+    }
+    
     navigate('/booking-payment', { 
       state: { 
         provider: {
@@ -71,6 +81,14 @@ const Services = () => {
         }
       } 
     });
+  };
+
+  const handleShowAuth = () => {
+    setShowAuthModal(true);
+  };
+
+  const handleAuthSuccess = (role: 'customer' | 'provider') => {
+    setShowAuthModal(false);
   };
 
   const handleViewDetails = (service: ProviderService) => {
@@ -158,6 +176,7 @@ const Services = () => {
                 service={service}
                 onBook={handleBookService}
                 onViewDetails={handleViewDetails}
+                onShowAuth={handleShowAuth}
               />
             ))}
           </div>
@@ -183,6 +202,12 @@ const Services = () => {
           </Card>
         </div>
       </div>
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };
