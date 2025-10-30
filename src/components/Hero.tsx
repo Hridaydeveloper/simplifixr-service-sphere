@@ -92,41 +92,41 @@ const Hero = () => {
   };
 
   return (
-    <section id="home" className="pt-20 pb-16 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <section id="home" className="pt-20 pb-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center min-h-[80vh]">
           <div className="space-y-6 lg:space-y-8 animate-fade-in">
             <div className="space-y-4 lg:space-y-6">
-              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#00B896]/20 to-[#00C9A7]/20 rounded-full border border-[#00B896]/30 backdrop-blur-sm">
-                <span className="w-2 h-2 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full mr-3 animate-pulse"></span>
-                <span className="text-[#00B896] text-sm font-semibold tracking-wide">Services at Your Fingertips</span>
+              <div className="inline-flex items-center px-4 py-2 glass-effect rounded-full glow-effect">
+                <span className="w-2 h-2 bg-primary rounded-full mr-3 animate-pulse"></span>
+                <span className="text-primary text-sm font-semibold tracking-wide uppercase">Services at Your Fingertips</span>
               </div>
               
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight">
                 Home services with{" "}
-                <span className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
+                <span className="text-gradient">
                   SimplifixR
                 </span>
               </h1>
               
-              <p className="text-base lg:text-lg text-gray-600 leading-relaxed max-w-lg">
+              <p className="text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg">
                 What are you looking for?
               </p>
             </div>
 
             {/* Service Categories Grid */}
-            <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-gray-200/50 max-w-2xl">
+            <div className="glass-effect p-6 rounded-2xl shadow-xl max-w-2xl">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {serviceCategories.map((service, index) => (
                   <button
                     key={index}
                     onClick={() => handleCategoryClick(service.category)}
-                    className="flex flex-col items-center p-4 rounded-xl hover:bg-[#00B896]/10 transition-all duration-300 group"
+                    className="flex flex-col items-center p-4 rounded-xl bg-card/50 hover:bg-primary/10 hover:border-primary border border-transparent transition-all duration-300 group glow-effect-hover"
                   >
                     <div className="text-3xl mb-2 group-hover:scale-110 transition-transform duration-300">
                       {service.icon}
                     </div>
-                    <span className="text-sm font-medium text-gray-700 text-center leading-tight">
+                    <span className="text-sm font-semibold text-foreground text-center leading-tight">
                       {service.name}
                     </span>
                   </button>
@@ -135,29 +135,30 @@ const Hero = () => {
             </div>
 
             {/* Enhanced Search Bar */}
-            <div className="bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-gray-200/50 max-w-2xl">
+            <div className="glass-effect p-6 rounded-2xl shadow-xl max-w-2xl glow-effect">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary z-10" />
                   <Input 
                     placeholder={isMobile ? "What service do you need?" : "Search services..."} 
                     value={selectedService}
                     onChange={(e) => setSelectedService(e.target.value)}
-                    className="pl-12 pr-4 py-4 border-gray-200 focus:border-[#00B896] focus:ring-[#00B896]/20 rounded-lg text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" 
+                    className="pl-12 pr-4 py-4 bg-secondary border-border focus:border-primary focus:ring-primary/20 rounded-xl text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50" 
                   />
                 </div>
                 <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#00B896] z-10" />
+                  <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary z-10" />
                   <Input 
                     placeholder="Your location" 
                     value={selectedLocation} 
                     onChange={(e) => setSelectedLocation(e.target.value)} 
-                    className="pl-12 pr-4 py-4 border-gray-200 rounded-lg focus:border-[#00B896] focus:ring-[#00B896]/20 text-base placeholder:text-gray-400 transition-all duration-300 hover:border-[#00B896]/50" 
+                    className="pl-12 pr-4 py-4 bg-secondary border-border rounded-xl focus:border-primary focus:ring-primary/20 text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50" 
                   />
                 </div>
                 <Button 
                   onClick={handleSearch} 
-                  className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] py-4 rounded-lg font-semibold text-white text-base transition-all duration-300"
+                  size="lg"
+                  className="py-4 rounded-xl font-semibold text-base"
                 >
                   Search
                 </Button>
@@ -165,18 +166,15 @@ const Hero = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={handleBookService} className="bg-gradient-to-r from-[#00B896] to-[#00C9A7] hover:from-[#009985] hover:to-[#00B896] px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-white">
+              <Button onClick={handleBookService} size="lg" className="px-8 text-lg">
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               <Button 
                 onClick={handleBecomeProvider} 
                 variant={providerStatus.isVerified ? "default" : "outline"} 
-                className={`px-8 py-4 text-lg font-semibold rounded-xl transition-all duration-300 ${
-                  providerStatus.isVerified 
-                    ? "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg" 
-                    : "border-2 border-[#00B896] hover:bg-[#00B896] hover:text-white text-[#00B896]"
-                }`}
+                size="lg"
+                className="px-8 text-lg"
                 disabled={providerStatus.loading}
               >
                 {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
@@ -194,20 +192,20 @@ const Hero = () => {
 
             {/* Trust Indicators */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-8 text-sm">
-              <div className="flex items-center bg-white/70 backdrop-blur-sm px-4 py-3 rounded-full shadow-md">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-sm">4.8</span>
+              <div className="flex items-center glass-effect px-4 py-3 rounded-full">
+                <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mr-3">
+                  <span className="text-primary-foreground font-bold text-sm">4.8</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">Service Rating*</div>
+                  <div className="font-semibold text-foreground text-sm">Service Rating*</div>
                 </div>
               </div>
-              <div className="flex items-center bg-white/70 backdrop-blur-sm px-4 py-3 rounded-full shadow-md">
-                <div className="w-10 h-10 bg-gradient-to-r from-[#00B896] to-[#00C9A7] rounded-full flex items-center justify-center mr-3">
-                  <span className="text-white font-bold text-xs">12M+</span>
+              <div className="flex items-center glass-effect px-4 py-3 rounded-full">
+                <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mr-3">
+                  <span className="text-primary-foreground font-bold text-xs">12M+</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900 text-sm">Customers Globally*</div>
+                  <div className="font-semibold text-foreground text-sm">Customers Globally*</div>
                 </div>
               </div>
             </div>
@@ -215,14 +213,14 @@ const Hero = () => {
 
           {/* Hero Visual */}
           <div className="relative order-first lg:order-last">
-            <div className="relative w-full h-64 lg:h-[600px] bg-gradient-to-br from-[#00B896]/30 via-[#00C9A7]/20 to-transparent rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative w-full h-64 lg:h-[600px] bg-gradient-to-br from-primary/20 via-accent/10 to-transparent rounded-3xl overflow-hidden shadow-2xl glow-effect">
               <div className="absolute inset-0">
                 <ImageCarousel
                   images={imageUrls}
                   alt={altText}
                   className="w-full h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-background/20 to-transparent pointer-events-none"></div>
               </div>
             </div>
           </div>

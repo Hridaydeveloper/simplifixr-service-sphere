@@ -95,16 +95,16 @@ const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
     navigate('/services');
   };
   
-  return <section id="services" className="py-20 bg-white">
+  return <section id="services" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl font-bold text-foreground mb-4">
             All Services in{" "}
-            <span className="bg-gradient-to-r from-[#00D4AA] to-[#00F5D4] bg-clip-text text-teal-500">
+            <span className="text-gradient">
               One Place
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             From everyday tasks to specialized services, find verified professionals for every need
           </p>
         </div>
@@ -113,7 +113,7 @@ const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
           {services.map((service, index) => (
             <Card 
               key={index} 
-              className="group hover:shadow-xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border-0 shadow-md relative z-10" 
+              className="group hover:shadow-2xl hover:shadow-primary/20 hover:-translate-y-2 transition-all duration-300 cursor-pointer border-border/50 hover:border-primary/50 relative z-10 glow-effect-hover" 
               onClick={handleServiceClick}
               onMouseEnter={() => handleServiceHover(service)}
               onMouseLeave={handleServiceLeave}
@@ -122,44 +122,44 @@ const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${service.color} flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform`}>
                   <service.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2 leading-tight">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 leading-tight">
                   {service.title}
                 </h3>
-                <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
                   {service.description}
                 </p>
                 
                 {/* Hover popup for category services */}
                 {hoveredCategory === service.category && (
-                  <div className="absolute top-full left-0 mt-2 w-80 bg-white shadow-2xl rounded-lg border border-gray-200 p-4 z-50">
-                    <h4 className="font-semibold text-gray-900 mb-3">{service.title} Services</h4>
+                  <div className="absolute top-full left-0 mt-2 w-80 bg-card shadow-2xl rounded-2xl border border-border p-4 z-50 glow-effect">
+                    <h4 className="font-semibold text-foreground mb-3">{service.title} Services</h4>
                     {loading ? (
                       <div className="flex items-center justify-center py-4">
-                        <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                       </div>
                     ) : categoryServices[service.category]?.length > 0 ? (
                       <div className="space-y-2 max-h-48 overflow-y-auto">
                         {categoryServices[service.category].slice(0, 5).map((providerService, idx) => (
-                          <div key={idx} className="p-2 hover:bg-gray-50 rounded border-l-2 border-teal-500">
-                            <div className="font-medium text-sm text-gray-900">
+                          <div key={idx} className="p-2 hover:bg-secondary rounded-xl border-l-2 border-primary">
+                            <div className="font-medium text-sm text-foreground">
                               {providerService.master_service?.name || providerService.custom_service_name}
                             </div>
-                            <div className="text-xs text-gray-600">
+                            <div className="text-xs text-muted-foreground">
                               {providerService.description || 'Professional service available'}
                             </div>
-                            <div className="text-xs text-teal-600 font-medium">
+                            <div className="text-xs text-primary font-medium">
                               ₹{providerService.price_range} • {providerService.estimated_time}
                             </div>
                           </div>
                         ))}
                         {categoryServices[service.category].length > 5 && (
-                          <div className="text-xs text-gray-500 text-center pt-2">
+                          <div className="text-xs text-muted-foreground text-center pt-2">
                             +{categoryServices[service.category].length - 5} more services available
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="text-sm text-gray-500 py-2">
+                      <div className="text-sm text-muted-foreground py-2">
                         No services available in this category yet.
                       </div>
                     )}
@@ -171,7 +171,7 @@ const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
         </div>
 
         <div className="text-center mt-12">
-          <button onClick={handleServiceClick} className="font-semibold transition-colors text-teal-500">
+          <button onClick={handleServiceClick} className="font-semibold transition-colors text-primary hover:text-accent uppercase tracking-wide">
             View All Services →
           </button>
         </div>
