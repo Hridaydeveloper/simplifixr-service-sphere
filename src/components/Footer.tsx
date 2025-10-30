@@ -32,7 +32,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-card dark:bg-card text-card-foreground dark:text-card-foreground border-t border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-4 gap-8">
           {/* Brand */}
@@ -47,35 +47,35 @@ const Footer = () => {
                   });
                 }, 100);
               }}
-              className="text-2xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer"
+              className="text-2xl font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer"
             >
               Simplifixr
             </button>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               Connecting communities through trusted local services. Dignity in every job, simplicity in every booking.
             </p>
             <div className="flex space-x-4">
               <button 
                 onClick={() => handleSocialClick('facebook')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <Facebook className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('twitter')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <Twitter className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('instagram')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <Instagram className="w-4 h-4" />
               </button>
               <button 
                 onClick={() => handleSocialClick('linkedin')}
-                className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center hover:bg-[#00B896] transition-colors cursor-pointer"
+                className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"
               >
                 <Linkedin className="w-4 h-4" />
               </button>
@@ -85,9 +85,9 @@ const Footer = () => {
           {/* Services */}
           <div>
             <h3 className="font-semibold mb-4">Popular Services</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-muted-foreground">
               {services.map((service, index) => (
-                <li key={index} className="hover:text-[#00B896] cursor-pointer transition-colors">
+                <li key={index} className="hover:text-primary cursor-pointer transition-colors">
                   {service}
                 </li>
               ))}
@@ -97,40 +97,40 @@ const Footer = () => {
           {/* Company */}
           <div>
             <h3 className="font-semibold mb-4">Company</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-2 text-sm text-muted-foreground">
               <li 
                 onClick={() => handleCompanyNavigation('about-us')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 About Us
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('careers')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 Careers
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('press')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 Press
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('blog')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 Blog
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('terms-of-service')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 Terms of Service
               </li>
               <li 
                 onClick={() => handleCompanyNavigation('privacy-policy')}
-                className="hover:text-[#00B896] cursor-pointer transition-colors"
+                className="hover:text-primary cursor-pointer transition-colors"
               >
                 Privacy Policy
               </li>
@@ -140,18 +140,18 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
-            <div className="space-y-2 text-sm text-gray-400">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p>🕿 +91-9876543210</p>
               <p>📧 support@simplifixr.com</p>
               <p>📍 Agartala, Tripura</p>
             </div>
             <div className="mt-4">
-              <h4 className="font-medium mb-2 text-white">Download App</h4>
+              <h4 className="font-medium mb-2 text-foreground">Download App</h4>
               <div className="space-y-2">
-                <div className="bg-gray-800 px-3 py-2 rounded text-xs cursor-pointer hover:bg-gray-700 transition-colors">
+                <div className="bg-secondary px-3 py-2 rounded text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
                   📱 Download for Android
                 </div>
-                <div className="bg-gray-800 px-3 py-2 rounded text-xs cursor-pointer hover:bg-gray-700 transition-colors">
+                <div className="bg-secondary px-3 py-2 rounded text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
                   🍎 Download for iOS
                 </div>
               </div>
@@ -159,8 +159,8 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8 mt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+        <div className="border-t border-border pt-8 mt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
             <p>© 2025 Simplifixr. All rights reserved.</p>
             <p>Made with ❤️ in India</p>
           </div>

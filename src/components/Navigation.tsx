@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar } from "lucide-react";
+import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthModal from "@/components/AuthModal";
@@ -26,6 +27,7 @@ const Navigation = ({
     signOut,
     userProfile
   } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const isGuest = localStorage.getItem('guestMode') === 'true';
@@ -102,7 +104,7 @@ const Navigation = ({
     }
   };
 
-  return <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50 dark:bg-gray-900/95 dark:border-gray-800">
+  return <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -121,25 +123,37 @@ const Navigation = ({
             <div className="w-8 h-8 bg-gradient-to-br from-[#00B896] to-[#00C9A7] rounded-lg flex items-center justify-center">
               <Settings className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-[#00B896] to-[#00C9A7] bg-clip-text text-transparent">
+            <span className="text-xl font-bold text-primary">
               Simplifixr
             </span>
           </button>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <button onClick={handleHomeClick} className={`text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896] ${location.pathname === '/' ? 'text-[#00B896] font-semibold' : ''}`}>
+            <button onClick={handleHomeClick} className={`text-foreground hover:text-primary transition-colors duration-200 font-medium ${location.pathname === '/' ? 'text-primary font-semibold' : ''}`}>
               Home
             </button>
-            {navItems.map(item => <Link key={item.name} to={item.href} className={`text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium dark:text-gray-300 dark:hover:text-[#00B896] ${location.pathname === item.href ? 'text-[#00B896] font-semibold' : ''}`}>
+            {navItems.map(item => <Link key={item.name} to={item.href} className={`text-foreground hover:text-primary transition-colors duration-200 font-medium ${location.pathname === item.href ? 'text-primary font-semibold' : ''}`}>
                 {item.name}
               </Link>)}
           </div>
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="mr-2"
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
             {user ? <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 dark:text-gray-300">
+                <span className="text-sm text-foreground">
                   {displayName}
                 </span>
                 <DropdownMenu>
@@ -151,7 +165,7 @@ const Navigation = ({
                       </AvatarFallback>
                     </Avatar>
                   </DropdownMenuTrigger>
-                   <DropdownMenuContent align="end" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                   <DropdownMenuContent align="end" className="bg-popover border-border z-50">
                      <DropdownMenuItem onClick={handleProfileClick}>
                        <User className="w-4 h-4 mr-2" />
                        Profile
@@ -177,18 +191,18 @@ const Navigation = ({
                    </DropdownMenuContent>
                 </DropdownMenu>
               </div> : isGuest ? <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-600 dark:text-gray-300">Guest Mode</span>
+                <span className="text-sm text-muted-foreground">Guest Mode</span>
                 <Button onClick={handleSignIn} variant="outline" size="sm">
                   Sign In
                 </Button>
-                <Button onClick={handleBecomeProvider} className="bg-[#00B896] hover:bg-[#00A085] text-white" size="sm">
+                <Button onClick={handleBecomeProvider} className="bg-primary hover:bg-primary/90 text-primary-foreground" size="sm">
                   Become Provider
                 </Button>
               </div> : <div className="flex items-center space-x-4">
                 <Button onClick={handleSignIn} variant="outline" size="sm">
                   Sign In
                 </Button>
-                <Button onClick={handleBecomeProvider} className="bg-[#00B896] hover:bg-[#00A085] text-white" size="sm">
+                <Button onClick={handleBecomeProvider} className="bg-primary hover:bg-primary/90 text-primary-foreground" size="sm">
                   Become Provider
                 </Button>
               </div>}
@@ -201,18 +215,36 @@ const Navigation = ({
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-white dark:bg-gray-900">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-background">
               <nav className="flex flex-col space-y-4 mt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={toggleTheme}
+                  className="w-full justify-start mb-2"
+                >
+                  {theme === 'dark' ? (
+                    <>
+                      <Sun className="h-4 w-4 mr-2" />
+                      Light Mode
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="h-4 w-4 mr-2" />
+                      Dark Mode
+                    </>
+                  )}
+                </Button>
                 <button onClick={() => {
                 handleHomeClick();
                 setIsOpen(false);
-              }} className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2 dark:text-gray-300 text-left">
+              }} className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2 text-left w-full">
                   Home
                 </button>
-                {navItems.map(item => <Link key={item.name} to={item.href} className="text-gray-600 hover:text-[#00B896] transition-colors duration-200 font-medium py-2 dark:text-gray-300" onClick={() => setIsOpen(false)}>
+                {navItems.map(item => <Link key={item.name} to={item.href} className="text-foreground hover:text-primary transition-colors duration-200 font-medium py-2 block" onClick={() => setIsOpen(false)}>
                     {item.name}
                   </Link>)}
-                <div className="border-t pt-4 space-y-2 dark:border-gray-700">
+                <div className="border-t border-border pt-4 space-y-2">
                    {user ? <>
                       <div className="flex items-center space-x-3 py-2">
                         <Avatar className="h-8 w-8">
@@ -221,7 +253,7 @@ const Navigation = ({
                             {userInitials}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                        <div className="text-sm text-foreground">
                           {displayName}
                         </div>
                       </div>
@@ -251,7 +283,7 @@ const Navigation = ({
                        <Button onClick={handleSignIn} variant="outline" className="w-full">
                          Sign In
                        </Button>
-                       <Button onClick={handleBecomeProvider} className="w-full bg-[#00B896] hover:bg-[#00A085] text-white">
+                       <Button onClick={handleBecomeProvider} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
                          Become Provider
                        </Button>
                      </>}
