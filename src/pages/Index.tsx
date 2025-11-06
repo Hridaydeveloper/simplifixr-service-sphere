@@ -17,7 +17,7 @@ const Index = ({ onShowAuth }: IndexProps) => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navigation onShowAuth={onShowAuth} />
       <Hero />
       <ServicesGrid onShowAuth={onShowAuth} />

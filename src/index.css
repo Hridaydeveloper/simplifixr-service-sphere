@@ -6,54 +6,54 @@
 
 @layer base {
   :root {
-    /* Light mode - minimal usage, dark is primary */
-    --background: 0 0% 100%;
-    --foreground: 217 91% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 217 91% 10%;
+    /* Light Mode - Bright, clean design with green accent */
+    --background: 0 0% 100%;           /* Pure white */
+    --foreground: 220 13% 13%;         /* Dark gray text */
+    --card: 0 0% 98%;                  /* Light gray card */
+    --card-foreground: 220 13% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 217 91% 10%;
-    --primary: 165 100% 39%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 165 100% 39%;
-    --accent-foreground: 0 0% 100%;
+    --popover-foreground: 220 13% 13%;
+    --primary: 165 100% 39%;           /* #00C896 - Green accent */
+    --primary-foreground: 0 0% 100%;   /* White text on green */
+    --secondary: 220 13% 95%;          /* Light gray secondary */
+    --secondary-foreground: 220 13% 13%;
+    --muted: 220 13% 95%;
+    --muted-foreground: 220 9% 46%;    /* Medium gray */
+    --accent: 165 100% 45%;            /* Lighter green */
+    --accent-foreground: 220 13% 13%;
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;             /* Light border */
+    --input: 220 13% 91%;
     --ring: 165 100% 39%;
     --radius: 1rem;
   }
 
   .dark {
-    /* Primary dark theme - #0B1220 background, #00C896 accent */
-    --background: 217 67% 8%;        /* #0B1220 */
-    --foreground: 210 17% 90%;       /* #E5E7EB */
-    --card: 217 47% 11%;             /* #111827 */
-    --card-foreground: 210 17% 90%;  /* #E5E7EB */
+    /* Dark Mode - Deep navy with green accent */
+    --background: 217 67% 8%;          /* #0B1220 - Deep navy */
+    --foreground: 210 17% 90%;         /* #E5E7EB - Light gray */
+    --card: 217 47% 11%;               /* #111827 - Dark card */
+    --card-foreground: 210 17% 90%;
     --popover: 217 47% 11%;
     --popover-foreground: 210 17% 90%;
-    --primary: 165 100% 39%;         /* #00C896 */
-    --primary-foreground: 217 67% 8%;
-    --secondary: 217 33% 17%;        /* #1F2937 */
+    --primary: 165 100% 39%;           /* #00C896 - Green accent */
+    --primary-foreground: 0 0% 100%;   /* White text on green */
+    --secondary: 217 33% 17%;          /* #1F2937 - Medium dark */
     --secondary-foreground: 210 17% 90%;
     --muted: 217 33% 17%;
-    --muted-foreground: 220 9% 64%;  /* #9CA3AF */
-    --accent: 165 100% 45%;          /* #00E6A8 - lighter glow */
+    --muted-foreground: 220 9% 64%;    /* #9CA3AF - Gray */
+    --accent: 165 100% 45%;            /* #00E6A8 - Lighter green glow */
     --accent-foreground: 217 67% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 17% 90%;
-    --border: 217 33% 17%;           /* #1F2937 */
+    --border: 217 33% 17%;             /* #1F2937 - Dark border */
     --input: 217 33% 17%;
     --ring: 165 100% 45%;
     --chart-1: 165 100% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 142 76% 36%;
-    --chart-4: 221 83% 53%;          /* #2563EB secondary accent */
+    --chart-4: 221 83% 53%;
     --chart-5: 165 100% 39%;
   }
 }
@@ -101,11 +101,19 @@
   }
   
   .glow-effect {
-    box-shadow: 0 0 20px rgba(0, 200, 150, 0.3);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
   }
   
   .glow-effect-hover:hover {
-    box-shadow: 0 0 30px rgba(0, 230, 168, 0.4);
+    box-shadow: 0 0 30px hsl(var(--accent) / 0.4);
+  }
+  
+  .glow-border {
+    @apply border border-primary/20 shadow-[0_0_15px_rgba(0,200,150,0.15)];
+  }
+  
+  .glow-border-hover:hover {
+    @apply shadow-[0_0_25px_rgba(0,230,168,0.25)];
   }
 }
 
