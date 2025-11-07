@@ -36,6 +36,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import Payment from "./pages/Payment";
 import ServiceDetails from "./pages/ServiceDetails";
 import MyBookings from "./pages/MyBookings";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const App = () => {
                 <Route path="/become-provider" element={<BecomeProvider />} />
                 <Route path="/provider-registration" element={<ProviderRegistration />} />
                 <Route path="/provider-dashboard" element={<ProviderDashboard />} />
+                <Route path="/admin-panel" element={<AdminPanel />} />
                 <Route path="/auth/confirm" element={<AuthConfirm />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

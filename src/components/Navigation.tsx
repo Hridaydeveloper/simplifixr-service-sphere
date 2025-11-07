@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar, Moon, Sun } from "lucide-react";
+import { Menu, Settings, User, LogOut, LayoutDashboard, Calendar, Moon, Sun, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthModal from "@/components/AuthModal";
@@ -18,6 +19,7 @@ const Navigation = () => {
     userProfile
   } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { isAdmin } = useAdminRole();
   const navigate = useNavigate();
   const location = useLocation();
   const isGuest = localStorage.getItem('guestMode') === 'true';
@@ -164,7 +166,7 @@ const Navigation = () => {
                        <Calendar className="w-4 h-4 mr-2" />
                        Your Bookings
                      </DropdownMenuItem>
-                      {userProfile?.role === 'provider' && (
+                     {userProfile?.role === 'provider' && (
                         <DropdownMenuItem onClick={() => navigate('/provider-dashboard')} className="cursor-pointer hover:bg-primary/10">
                           <LayoutDashboard className="w-4 h-4 mr-2" />
                           Dashboard
@@ -174,6 +176,12 @@ const Navigation = () => {
                        <Settings className="w-4 h-4 mr-2" />
                        Settings
                      </DropdownMenuItem>
+                     {isAdmin && (
+                       <DropdownMenuItem onClick={() => navigate('/admin-panel')} className="cursor-pointer hover:bg-primary/10 border-t border-border mt-1 pt-1">
+                         <Shield className="w-4 h-4 mr-2 text-primary" />
+                         <span className="text-primary font-semibold">Admin Panel</span>
+                       </DropdownMenuItem>
+                     )}
                      <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer hover:bg-primary/10">
                        <LogOut className="w-4 h-4 mr-2" />
                        Sign Out
@@ -265,6 +273,12 @@ const Navigation = () => {
                         <Settings className="w-4 h-4 mr-2" />
                         Settings
                       </Button>
+                      {isAdmin && (
+                        <Button onClick={() => navigate('/admin-panel')} variant="outline" className="w-full justify-start border-primary/50">
+                          <Shield className="w-4 h-4 mr-2 text-primary" />
+                          <span className="text-primary font-semibold">Admin Panel</span>
+                        </Button>
+                      )}
                       <Button onClick={handleSignOut} variant="outline" className="w-full justify-start">
                         <LogOut className="w-4 h-4 mr-2" />
                         Sign Out

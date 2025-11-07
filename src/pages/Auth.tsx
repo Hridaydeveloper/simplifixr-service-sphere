@@ -17,11 +17,13 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <SimpleAuth
-        onBack={handleBack}
-        onSuccess={handleAuthSuccess}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-black/90 backdrop-blur-md p-4 fixed inset-0 z-50">
+      <div className="w-full max-w-md bg-background rounded-2xl shadow-2xl border border-border/50">
+        <SimpleAuth
+          onBack={handleBack}
+          onSuccess={handleAuthSuccess}
+        />
+      </div>
     </div>
   );
 };

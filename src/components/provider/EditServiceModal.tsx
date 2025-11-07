@@ -114,7 +114,7 @@ const EditServiceModal = ({ open, onClose, onServiceUpdated, service }: EditServ
       }
 
       const updates = {
-        price_range: priceRange,
+        price_range: `₹${priceRange}`,
         estimated_time: estimatedTime,
         description: description || undefined,
         images: images.length > 0 ? images : undefined

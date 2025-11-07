@@ -10,9 +10,9 @@ interface AuthModalProps {
 const AuthModal = ({ isOpen, onClose, onSuccess }: AuthModalProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogOverlay className="bg-black/80 backdrop-blur-sm fixed inset-0 z-50" />
-      <DialogContent className="max-w-md mx-auto p-0 border-0 bg-transparent shadow-none z-50">
-        <div className="bg-background dark:bg-card rounded-2xl shadow-2xl">
+      <DialogOverlay className="bg-black/90 backdrop-blur-md fixed inset-0 z-50" />
+      <DialogContent className="max-w-md mx-auto p-0 border-0 bg-transparent shadow-none z-[60] fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <div className="bg-background rounded-2xl shadow-2xl border border-border/50">
           <SimpleAuth
             onBack={onClose}
             onSuccess={(role) => {
