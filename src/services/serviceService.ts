@@ -114,7 +114,11 @@ export const serviceService = {
     const { data, error } = await (supabase as any)
       .rpc('update_provider_service', {
         service_id: id,
-        updates: updates
+        p_price_range: updates.price_range || null,
+        p_estimated_time: updates.estimated_time || null,
+        p_description: updates.description || null,
+        p_images: updates.images || null,
+        p_is_available: updates.is_available !== undefined ? updates.is_available : null
       });
 
     if (error) throw error;
