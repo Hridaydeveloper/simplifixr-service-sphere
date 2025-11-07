@@ -1,20 +1,15 @@
-
 import { CheckCircle, DollarSign, Users, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import AuthModal from "@/components/AuthModal";
+import { useState } from "react";
 
-interface ProviderSectionProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
-}
-
-const ProviderSection = ({ onShowAuth }: ProviderSectionProps) => {
+const ProviderSection = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
-  // Check if user is a guest
-  const isGuest = !user && localStorage.getItem('guestMode') === 'true';
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const benefits = [{
     icon: Users,
@@ -53,14 +48,16 @@ const ProviderSection = ({ onShowAuth }: ProviderSectionProps) => {
   }];
 
   const handleBecomeProvider = () => {
-    if (isGuest) {
-      // Show auth flow for provider
-      if (onShowAuth) {
-        onShowAuth({ show: true, role: 'provider' });
-      }
+    if (!user) {
+      setShowAuthModal(true);
     } else {
       navigate('/become-provider');
     }
+  };
+
+  const handleAuthSuccess = (role: 'customer' | 'provider') => {
+    setShowAuthModal(false);
+    navigate('/become-provider');
   };
 
   return (
@@ -123,13 +120,19 @@ const ProviderSection = ({ onShowAuth }: ProviderSectionProps) => {
         <div className="text-center">
           <Button 
             onClick={handleBecomeProvider}
-            className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950"
+            size="lg"
           >
             Start Your Journey Today
           </Button>
           <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
         </div>
       </div>
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </section>
   );
 };

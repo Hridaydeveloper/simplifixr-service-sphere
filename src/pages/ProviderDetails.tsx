@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { ArrowLeft, Star, MapPin, Clock, Phone, Mail, Calendar, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,15 +9,13 @@ import Footer from "@/components/Footer";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import AuthModal from "@/components/AuthModal";
 
-interface ProviderDetailsProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void;
-}
-
-const ProviderDetails = ({ onShowAuth }: ProviderDetailsProps) => {
+const ProviderDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { provider, serviceName } = location.state || {};
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
@@ -41,9 +38,7 @@ const ProviderDetails = ({ onShowAuth }: ProviderDetailsProps) => {
     }
 
     if (isGuest || !user) {
-      if (onShowAuth) {
-        onShowAuth({ show: true, role: 'customer', fromBooking: true });
-      }
+      setShowAuthModal(true);
     } else {
       navigate('/payment', { 
         state: { 
@@ -54,6 +49,10 @@ const ProviderDetails = ({ onShowAuth }: ProviderDetailsProps) => {
         } 
       });
     }
+  };
+
+  const handleAuthSuccess = (role: 'customer' | 'provider') => {
+    setShowAuthModal(false);
   };
 
   if (!provider) {
@@ -71,7 +70,7 @@ const ProviderDetails = ({ onShowAuth }: ProviderDetailsProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       
       <div className="pt-20 pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,6 +261,12 @@ const ProviderDetails = ({ onShowAuth }: ProviderDetailsProps) => {
       </div>
 
       <Footer />
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };

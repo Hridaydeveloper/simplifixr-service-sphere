@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
@@ -9,20 +8,16 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 
-interface IndexProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
-}
-
-const Index = ({ onShowAuth }: IndexProps) => {
+const Index = () => {
   const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       <Hero />
-      <ServicesGrid onShowAuth={onShowAuth} />
+      <ServicesGrid />
       <AboutSection />
-      <ProviderSection onShowAuth={onShowAuth} />
+      <ProviderSection />
       <ContactSection />
       <Footer />
     </div>

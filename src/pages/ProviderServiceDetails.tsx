@@ -23,12 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { ImageCarousel } from "@/components/ui/image-carousel";
 import { serviceService, ProviderService } from "@/services/serviceService";
 
-
-interface ProviderServiceDetailsProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
-}
-
-const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => {
+const ProviderServiceDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { serviceId } = useParams();
@@ -143,7 +138,7 @@ const ProviderServiceDetails = ({ onShowAuth }: ProviderServiceDetailsProps) => 
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}

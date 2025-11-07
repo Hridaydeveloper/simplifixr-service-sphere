@@ -1,15 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { Home, Wrench, GraduationCap, Heart, Truck, PartyPopper, Sparkles, Car, Smartphone } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { serviceService, ProviderService } from "@/services/serviceService";
 
-interface ServicesGridProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
-}
-
-const ServicesGrid = ({ onShowAuth }: ServicesGridProps) => {
+const ServicesGrid = () => {
   const navigate = useNavigate();
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [categoryServices, setCategoryServices] = useState<{[key: string]: ProviderService[]}>({});

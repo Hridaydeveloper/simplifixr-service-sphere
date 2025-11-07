@@ -1,12 +1,16 @@
-
 import { CheckCircle, DollarSign, Users, Smartphone, ArrowRight, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import AuthModal from "@/components/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
 
 const BecomeProvider = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
   
   const benefits = [{
     icon: Users,
@@ -44,6 +48,19 @@ const BecomeProvider = () => {
     description: "Receive bookings and grow your business"
   }];
 
+  const handleRegister = () => {
+    if (!user) {
+      setShowAuthModal(true);
+    } else {
+      navigate('/provider-registration');
+    }
+  };
+
+  const handleAuthSuccess = (role: 'customer' | 'provider') => {
+    setShowAuthModal(false);
+    navigate('/provider-registration');
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <Navigation />
@@ -74,7 +91,7 @@ const BecomeProvider = () => {
               Join thousands of professionals earning on their own terms. No commission fees, 
               direct payments, and complete control over your business.
             </p>
-            <Button onClick={() => navigate('/provider-registration')} className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950" size="lg">
+            <Button onClick={handleRegister} size="lg">
               Start Registration
               <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
@@ -129,13 +146,19 @@ const BecomeProvider = () => {
             <p className="text-gray-600 mb-6">
               Complete our simple registration process and start earning within 24 hours
             </p>
-            <Button onClick={() => navigate('/provider-registration')} className="bg-[#00C9A7] hover:bg-[#00B896] px-8 py-4 text-lg text-slate-950">
+            <Button onClick={handleRegister}>
               Complete Registration
             </Button>
             <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
           </div>
         </div>
       </div>
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        onSuccess={handleAuthSuccess}
+      />
     </div>
   );
 };

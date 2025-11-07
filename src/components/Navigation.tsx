@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,16 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AuthModal from "@/components/AuthModal";
 
-interface NavigationProps {
-  onShowAuth?: (authFlow: {
-    show: boolean;
-    role?: 'customer' | 'provider';
-  }) => void;
-}
-
-const Navigation = ({
-  onShowAuth
-}: NavigationProps) => {
+const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const {

@@ -8,11 +8,7 @@ import SearchAndFilters from "@/components/providers/SearchAndFilters";
 import ProvidersList from "@/components/providers/ProvidersList";
 import { useProviders } from "@/hooks/useProviders";
 
-interface ServiceProvidersProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider'; fromBooking?: boolean }) => void;
-}
-
-const ServiceProviders = ({ onShowAuth }: ServiceProvidersProps) => {
+const ServiceProviders = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { serviceName, serviceCategory } = location.state || {};
@@ -37,7 +33,7 @@ const ServiceProviders = ({ onShowAuth }: ServiceProvidersProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       
       <div className="pt-16 sm:pt-20 pb-6 sm:pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

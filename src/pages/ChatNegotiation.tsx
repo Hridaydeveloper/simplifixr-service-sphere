@@ -155,7 +155,7 @@ const ChatNegotiation = ({ onShowAuth }: ChatNegotiationProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       
       <div className="pt-20 pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

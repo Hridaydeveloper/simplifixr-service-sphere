@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, Calendar, Clock, MapPin, Star, CreditCard, Wallet, Smartphone } from "lucide-react";
@@ -13,11 +12,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { bookingService } from "@/services/bookingService";
 
-interface BookingPaymentProps {
-  onShowAuth?: (authFlow: { show: boolean; role?: 'customer' | 'provider' }) => void;
-}
-
-const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
+const BookingPayment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   
@@ -87,7 +82,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
   if (!provider || !service) {
     return (
       <div className="min-h-screen bg-background">
-        <Navigation onShowAuth={onShowAuth} />
+        <Navigation />
         <div className="pt-20 pb-8">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-2xl font-bold mb-4">Booking Information Not Found</h1>
@@ -109,7 +104,7 @@ const BookingPayment = ({ onShowAuth }: BookingPaymentProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation onShowAuth={onShowAuth} />
+      <Navigation />
       
       <div className="pt-20 pb-8 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
