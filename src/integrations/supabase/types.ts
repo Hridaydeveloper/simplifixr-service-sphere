@@ -479,6 +479,97 @@ export type Database = {
         Args: { service_id: string }
         Returns: undefined
       }
+      get_all_bookings_admin: {
+        Args: never
+        Returns: {
+          address: string
+          created_at: string
+          customer_email: string
+          customer_id: string
+          customer_name: string
+          id: string
+          payment_method: string
+          payment_status: string
+          provider_email: string
+          provider_id: string
+          provider_name: string
+          scheduled_date: string
+          scheduled_time: string
+          service_name: string
+          status: string
+          total_amount: number
+        }[]
+      }
+      get_all_provider_registrations: {
+        Args: never
+        Returns: {
+          additional_documents_urls: string[]
+          admin_notes: string
+          business_address: string
+          business_license_url: string
+          business_name: string
+          created_at: string
+          description: string
+          email: string
+          experience: string
+          full_name: string
+          id: string
+          id_proof_document_url: string
+          id_proof_number: string
+          id_proof_type: string
+          phone: string
+          service_categories: string[]
+          status: string
+          updated_at: string
+          user_id: string
+          verified: boolean
+          verified_at: string
+          verified_by: string
+        }[]
+      }
+      get_all_services_with_providers: {
+        Args: never
+        Returns: {
+          created_at: string
+          custom_service_name: string
+          description: string
+          estimated_time: string
+          images: string[]
+          is_available: boolean
+          master_service_id: string
+          master_service_name: string
+          price_range: string
+          provider_email: string
+          provider_id: string
+          provider_location: string
+          provider_name: string
+          service_category: string
+          service_id: string
+        }[]
+      }
+      get_all_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          location: string
+          profile_picture_url: string
+          role: string
+        }[]
+      }
+      get_booking_stats: {
+        Args: never
+        Returns: {
+          cancelled_bookings: number
+          completed_bookings: number
+          confirmed_bookings: number
+          pending_bookings: number
+          total_bookings: number
+          total_revenue: number
+        }[]
+      }
       get_master_services: {
         Args: never
         Returns: {
@@ -520,6 +611,15 @@ export type Database = {
           price_range: string
           provider_id: string
           provider_profile: Json
+        }[]
+      }
+      get_provider_stats: {
+        Args: never
+        Returns: {
+          approved_providers: number
+          pending_providers: number
+          rejected_providers: number
+          total_providers: number
         }[]
       }
       get_service_categories: {
