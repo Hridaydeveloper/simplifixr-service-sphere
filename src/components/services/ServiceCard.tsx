@@ -125,7 +125,7 @@ const ServiceCard = ({ service, onBook, onViewDetails, onShowAuth }: ServiceCard
           <div className="flex items-center justify-between">
             <div className="text-left">
               <div className="text-2xl font-bold text-white drop-shadow-lg">
-                {service.price_range}
+                {service.price_range?.includes('₹') ? service.price_range : `₹${service.price_range}`}
               </div>
               <div className="text-xs text-white/80 font-medium">
                 per service

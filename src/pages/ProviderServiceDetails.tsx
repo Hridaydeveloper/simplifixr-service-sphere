@@ -257,45 +257,48 @@ const ProviderServiceDetails = () => {
                     </div>
                   )}
 
-                  <div className="pt-4 border-t space-y-3">
-                    <Button 
-                      onClick={handleBookNow}
-                      className="w-full bg-primary hover:bg-primary/90"
-                      size="lg"
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Book Service
-                    </Button>
-                    
-                    <Button 
-                      onClick={handleChatNegotiation}
-                      variant="outline" 
-                      className="w-full"
-                      size="lg"
-                    >
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Chat & Negotiate
-                    </Button>
+                  {/* Only show booking actions for customers, not when provider is viewing their own service */}
+                  {location.state?.fromProviderDashboard ? null : (
+                    <div className="pt-4 border-t space-y-3">
+                      <Button 
+                        onClick={handleBookNow}
+                        className="w-full bg-primary hover:bg-primary/90"
+                        size="lg"
+                      >
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Book Service
+                      </Button>
+                      
+                      <Button 
+                        onClick={handleChatNegotiation}
+                        variant="outline" 
+                        className="w-full"
+                        size="lg"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Chat & Negotiate
+                      </Button>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleCallEmail('call')}
-                      >
-                        <Phone className="w-4 h-4 mr-1" />
-                        Call
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleCallEmail('email')}
-                      >
-                        <Mail className="w-4 h-4 mr-1" />
-                        Email
-                      </Button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCallEmail('call')}
+                        >
+                          <Phone className="w-4 h-4 mr-1" />
+                          Call
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleCallEmail('email')}
+                        >
+                          <Mail className="w-4 h-4 mr-1" />
+                          Email
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             )}

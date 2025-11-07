@@ -270,7 +270,11 @@ export default function BookingDetailsModal({
                 {booking.provider_service?.price_range && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Price Range:</span>
-                    <span className="font-medium">{booking.provider_service.price_range}</span>
+                    <span className="font-medium">
+                      {booking.provider_service.price_range?.includes('₹') 
+                        ? booking.provider_service.price_range 
+                        : `₹${booking.provider_service.price_range}`}
+                    </span>
                   </div>
                 )}
                 {booking.payment_method && (

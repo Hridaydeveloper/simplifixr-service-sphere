@@ -280,11 +280,13 @@ const MyBookings = () => {
                    <div className="p-3 bg-green-50 rounded-lg">
                      <div className="text-sm font-medium text-gray-700 mb-2">Service Details</div>
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                       {booking.provider_service?.price_range && (
-                         <div>
-                           <span className="font-medium">Price Range:</span> {booking.provider_service.price_range}
-                         </div>
-                       )}
+                        {booking.provider_service?.price_range && (
+                          <div>
+                            <span className="font-medium">Price Range:</span> {booking.provider_service.price_range?.includes('₹') 
+                              ? booking.provider_service.price_range 
+                              : `₹${booking.provider_service.price_range}`}
+                          </div>
+                        )}
                        {booking.payment_method && (
                          <div>
                            <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}

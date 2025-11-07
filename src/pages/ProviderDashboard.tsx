@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AddServiceModal from "@/components/provider/AddServiceModal";
+import EditServiceModal from "@/components/provider/EditServiceModal";
 import VerificationSteps from "@/components/provider/VerificationSteps";
 import BookingDetailsModal from "@/components/provider/BookingDetailsModal";
 import { useProviderStatus } from "@/hooks/useProviderStatus";
@@ -25,6 +26,8 @@ const ProviderDashboard = () => {
   const [bookings, setBookings] = useState<any[]>([]);
   const [isAvailable, setIsAvailable] = useState(true);
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [showEditServiceModal, setShowEditServiceModal] = useState(false);
+  const [selectedService, setSelectedService] = useState<any>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -484,7 +487,7 @@ const ProviderDashboard = () => {
                   
                   <CardContent className="space-y-3">
                     <div className="text-lg font-semibold text-[#00B896]">
-                      {service.price_range || 'Price on request'}
+                      {service.price_range?.includes('₹') ? service.price_range : `₹${service.price_range}` || 'Price on request'}
                     </div>
                     
                     <div className="text-sm text-gray-600">
@@ -505,7 +508,7 @@ const ProviderDashboard = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/provider-service-details/${service.id}`, { 
-                            state: { service, provider: userProfile } 
+                            state: { service, provider: userProfile, fromProviderDashboard: true } 
                           });
                         }}
                       >
@@ -518,9 +521,8 @@ const ProviderDashboard = () => {
                         className="flex-1"
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/provider-service-details/${service.id}`, { 
-                            state: { service, provider: userProfile, edit: true } 
-                          });
+                          setSelectedService(service);
+                          setShowEditServiceModal(true);
                         }}
                       >
                         <Edit className="w-4 h-4 mr-1" />
@@ -667,7 +669,9 @@ const ProviderDashboard = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
                         {booking.provider_service?.price_range && (
                           <div>
-                            <span className="font-medium">Actual Price:</span> {booking.provider_service.price_range}
+                            <span className="font-medium">Actual Price:</span> {booking.provider_service.price_range?.includes('₹') 
+                              ? booking.provider_service.price_range 
+                              : `₹${booking.provider_service.price_range}`}
                           </div>
                         )}
                         {booking.payment_method && (
@@ -746,6 +750,16 @@ const ProviderDashboard = () => {
         open={showAddServiceModal}
         onClose={() => setShowAddServiceModal(false)}
         onServiceAdded={handleServiceAdded}
+      />
+
+      <EditServiceModal
+        open={showEditServiceModal}
+        onClose={() => {
+          setShowEditServiceModal(false);
+          setSelectedService(null);
+        }}
+        onServiceUpdated={handleServiceAdded}
+        service={selectedService}
       />
 
       <BookingDetailsModal

@@ -17,7 +17,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-primary/10 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <SimpleAuth
         onBack={handleBack}
         onSuccess={handleAuthSuccess}
