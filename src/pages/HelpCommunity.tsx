@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import skillDevelopment from "@/assets/skill-development.jpg";
 import toolsEquipment from "@/assets/tools-equipment.jpg";
 import emergencySupport from "@/assets/emergency-support.jpg";
@@ -78,19 +79,19 @@ const HelpCommunity = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Hero Section */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-4xl font-bold text-foreground mb-4">
               Help Our{" "}
-              <span className="bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
+              <span className="text-gradient">
                 Community
               </span>
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Your support helps us empower service providers, create opportunities, 
               and build a stronger community together.
             </p>
@@ -101,13 +102,13 @@ const HelpCommunity = () => {
             {impactStats.map((stat, index) => (
               <Card key={index} className="text-center">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <stat.icon className="w-6 h-6 text-[#00C9A7]" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <stat.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-1">
+                  <div className="text-2xl font-bold text-foreground mb-1">
                     {stat.value}
                   </div>
-                  <div className="text-sm text-gray-600">
+                  <div className="text-sm text-muted-foreground">
                     {stat.label}
                   </div>
                 </CardContent>
@@ -128,7 +129,7 @@ const HelpCommunity = () => {
                 <CardContent className="space-y-6">
                   {/* Amount Selection */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-foreground mb-3">
                       Select Amount
                     </label>
                     <div className="grid grid-cols-3 gap-2 mb-3">
@@ -138,7 +139,6 @@ const HelpCommunity = () => {
                           variant={donationAmount === amount.toString() ? "default" : "outline"}
                           size="sm"
                           onClick={() => handleAmountSelect(amount)}
-                          className={donationAmount === amount.toString() ? "bg-[#00B896] hover:bg-[#00A085]" : ""}
                         >
                           ₹{amount}
                         </Button>
@@ -155,7 +155,7 @@ const HelpCommunity = () => {
                   {/* Donor Information */}
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-foreground mb-1">
                         Full Name *
                       </label>
                       <Input
@@ -165,7 +165,7 @@ const HelpCommunity = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-foreground mb-1">
                         Email *
                       </label>
                       <Input
@@ -176,7 +176,7 @@ const HelpCommunity = () => {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-foreground mb-1">
                         Message (Optional)
                       </label>
                       <Textarea
@@ -190,7 +190,7 @@ const HelpCommunity = () => {
 
                   {/* Payment Methods */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <label className="block text-sm font-medium text-foreground mb-3">
                       Payment Method
                     </label>
                     <div className="space-y-2">
@@ -207,7 +207,7 @@ const HelpCommunity = () => {
 
                   <Button 
                     onClick={handleDonate}
-                    className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+                    className="w-full"
                     size="lg"
                   >
                     Donate Now
@@ -218,7 +218,7 @@ const HelpCommunity = () => {
 
             {/* Campaigns */}
             <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Active Campaigns</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">Active Campaigns</h2>
               <div className="space-y-6">
                 {campaigns.map(campaign => (
                   <Card key={campaign.id}>
@@ -231,22 +231,22 @@ const HelpCommunity = () => {
                         />
                       </div>
                       <div className="md:w-2/3 p-6">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        <h3 className="text-xl font-bold text-foreground mb-2">
                           {campaign.title}
                         </h3>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-muted-foreground mb-4">
                           {campaign.description}
                         </p>
                         
                         {/* Progress Bar */}
                         <div className="mb-4">
-                          <div className="flex justify-between text-sm text-gray-600 mb-1">
+                          <div className="flex justify-between text-sm text-muted-foreground mb-1">
                             <span>₹{campaign.raised.toLocaleString()} raised</span>
                             <span>₹{campaign.target.toLocaleString()} goal</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-secondary rounded-full h-2">
                             <div
-                              className="bg-[#00B896] h-2 rounded-full"
+                              className="bg-primary h-2 rounded-full"
                               style={{ width: `${(campaign.raised / campaign.target) * 100}%` }}
                             ></div>
                           </div>
@@ -254,15 +254,14 @@ const HelpCommunity = () => {
                             <Badge variant="secondary">
                               {campaign.donors} donors
                             </Badge>
-                            <span className="text-sm text-gray-600">
+                            <span className="text-sm text-muted-foreground">
                               {Math.round((campaign.raised / campaign.target) * 100)}% funded
                             </span>
                           </div>
                         </div>
 
                         <Button 
-                          variant="outline" 
-                          className="border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white"
+                          variant="outline"
                         >
                           Support This Campaign
                         </Button>
@@ -275,6 +274,7 @@ const HelpCommunity = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

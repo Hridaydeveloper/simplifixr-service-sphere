@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import electricDrillSet from "@/assets/electric-drill-set.jpg";
 import pipeWrenchSet from "@/assets/pipe-wrench-set.jpg";
 import carCleaningKit from "@/assets/car-cleaning-kit.jpg";
@@ -138,16 +139,16 @@ const Shop = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Professional Tools & Accessories
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Quality tools and accessories for electrical, plumbing, and car cleaning services
             </p>
           </div>
@@ -157,7 +158,7 @@ const Shop = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                   <Input
                     placeholder="Search tools and accessories..."
                     value={searchQuery}
@@ -180,7 +181,6 @@ const Shop = () => {
                   variant={selectedCategory === category.id ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(category.id)}
-                  className={selectedCategory === category.id ? "bg-[#00B896] hover:bg-[#00A085]" : ""}
                 >
                   {category.name}
                 </Button>
@@ -222,17 +222,17 @@ const Shop = () => {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="font-semibold text-foreground mb-2 line-clamp-2">
                     {product.name}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                     {product.description}
                   </p>
                   
                   <div className="flex items-center mb-3">
                     <div className="flex items-center">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600 ml-1">
+                      <span className="text-sm text-muted-foreground ml-1">
                         {product.rating} ({product.reviews})
                       </span>
                     </div>
@@ -240,11 +240,11 @@ const Shop = () => {
 
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-lg font-bold text-foreground">
                         ₹{product.price.toLocaleString()}
                       </span>
                       {product.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
+                        <span className="text-sm text-muted-foreground line-through">
                           ₹{product.originalPrice.toLocaleString()}
                         </span>
                       )}
@@ -254,7 +254,7 @@ const Shop = () => {
                   <Button
                     onClick={() => buyNow(product)}
                     disabled={!product.inStock}
-                    className="w-full bg-[#00B896] hover:bg-[#00A085] text-white"
+                    className="w-full"
                   >
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Buy Now
@@ -266,11 +266,12 @@ const Shop = () => {
 
           {filteredProducts.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+              <p className="text-muted-foreground text-lg">No products found matching your criteria.</p>
             </div>
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import AuthModal from "@/components/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
@@ -62,7 +63,7 @@ const BecomeProvider = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Navigation />
       <div className="pt-20 pb-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -71,7 +72,7 @@ const BecomeProvider = () => {
             <Button 
               onClick={() => navigate('/')}
               variant="outline" 
-              className="border-2 border-[#00B896] text-[#00B896] hover:bg-[#00B896] hover:text-white transition-all duration-300"
+              className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
@@ -80,14 +81,14 @@ const BecomeProvider = () => {
 
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold text-gray-900 mb-6 md:text-4xl">
+            <h1 className="text-4xl font-bold text-foreground mb-6 md:text-4xl">
               Got a Skill or Service to Offer?{" "}
-              <span className="bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
+              <span className="text-gradient">
                 Join Simplifixr
               </span>{" "}
               and Start Earning Today!
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
               Join thousands of professionals earning on their own terms. No commission fees, 
               direct payments, and complete control over your business.
             </p>
@@ -100,15 +101,15 @@ const BecomeProvider = () => {
           {/* Benefits */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {benefits.map((benefit, index) => (
-              <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <benefit.icon className="w-6 h-6 text-[#00C9A7]" />
+                  <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <benefit.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
                     {benefit.title}
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {benefit.description}
                   </p>
                 </CardContent>
@@ -117,20 +118,20 @@ const BecomeProvider = () => {
           </div>
 
           {/* Steps */}
-          <div className="bg-gray-50 rounded-3xl p-8 md:p-12 mb-12">
-            <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
+          <div className="bg-secondary rounded-3xl p-8 md:p-12 mb-12">
+            <h3 className="text-2xl font-bold text-foreground text-center mb-12">
               How to Get Started
             </h3>
             <div className="grid md:grid-cols-4 gap-8">
               {steps.map((item, index) => (
                 <div key={index} className="text-center">
-                  <div className="w-16 h-16 bg-[#00C9A7] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                  <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                     {item.step}
                   </div>
-                  <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h4 className="text-lg font-semibold text-foreground mb-2">
                     {item.title}
                   </h4>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     {item.description}
                   </p>
                 </div>
@@ -139,17 +140,17 @@ const BecomeProvider = () => {
           </div>
 
           {/* CTA Section */}
-          <div className="text-center bg-gray-50 rounded-3xl p-8 md:p-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="text-center bg-secondary rounded-3xl p-8 md:p-12">
+            <h3 className="text-2xl font-bold text-foreground mb-4">
               Ready to Start Your Journey?
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Complete our simple registration process and start earning within 24 hours
             </p>
             <Button onClick={handleRegister}>
               Complete Registration
             </Button>
-            <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
+            <p className="text-muted-foreground mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
           </div>
         </div>
       </div>
@@ -159,6 +160,7 @@ const BecomeProvider = () => {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
+      <Footer />
     </div>
   );
 };

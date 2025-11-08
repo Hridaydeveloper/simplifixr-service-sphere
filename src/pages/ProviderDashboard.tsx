@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -302,12 +303,12 @@ const ProviderDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[#00B896] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p>Setting up your provider dashboard...</p>
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-foreground">Setting up your provider dashboard...</p>
           </div>
         </div>
       </div>
@@ -315,7 +316,7 @@ const ProviderDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
@@ -332,8 +333,8 @@ const ProviderDashboard = () => {
               <span>Back</span>
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Provider Dashboard</h1>
-              <p className="text-gray-600">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Provider Dashboard</h1>
+              <p className="text-muted-foreground">
                 Welcome {userProfile?.full_name || 'Provider'}! Manage your services and bookings
               </p>
             </div>
@@ -341,7 +342,7 @@ const ProviderDashboard = () => {
           
           <div className="flex items-center space-x-4 mt-4 sm:mt-0">
             <div className="flex items-center space-x-2">
-              <span className="text-sm font-medium">Available</span>
+              <span className="text-sm font-medium text-foreground">Available</span>
               <Switch
                 checked={isAvailable}
                 onCheckedChange={handleAvailabilityToggle}
@@ -363,8 +364,8 @@ const ProviderDashboard = () => {
                   <BarChart3 className="w-6 h-6 text-blue-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Services</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.totalServices}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Services</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.totalServices}</p>
                 </div>
               </div>
             </CardContent>
@@ -377,8 +378,8 @@ const ProviderDashboard = () => {
                   <Calendar className="w-6 h-6 text-yellow-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active Bookings</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.activeBookings}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Active Bookings</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.activeBookings}</p>
                 </div>
               </div>
             </CardContent>
@@ -391,8 +392,8 @@ const ProviderDashboard = () => {
                   <DollarSign className="w-6 h-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-                  <p className="text-2xl font-bold text-gray-900">₹{stats.totalEarnings}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Total Earnings</p>
+                  <p className="text-2xl font-bold text-foreground">₹{stats.totalEarnings}</p>
                 </div>
               </div>
             </CardContent>
@@ -405,8 +406,8 @@ const ProviderDashboard = () => {
                   <Star className="w-6 h-6 text-purple-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Rating</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.rating}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Rating</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.rating}</p>
                 </div>
               </div>
             </CardContent>
@@ -423,10 +424,9 @@ const ProviderDashboard = () => {
         {/* Services Section */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">My Services</h2>
+            <h2 className="text-2xl font-bold text-foreground">My Services</h2>
             <Button 
               onClick={() => setShowAddServiceModal(true)}
-              className="bg-[#00B896] hover:bg-[#00A085]"
               disabled={!providerStatus.isVerified}
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -435,10 +435,10 @@ const ProviderDashboard = () => {
           </div>
           
           {!providerStatus.isVerified && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="bg-secondary border rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-yellow-600" />
-                <span className="text-yellow-800 font-medium">
+                <AlertCircle className="w-5 h-5 text-muted-foreground" />
+                <span className="text-foreground font-medium">
                   Complete verification to start adding services and receiving bookings.
                 </span>
               </div>
@@ -449,11 +449,10 @@ const ProviderDashboard = () => {
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="text-6xl mb-4">🛠️</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">No services yet</h3>
-                <p className="text-gray-500 mb-6">Start by adding your first service to attract customers</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No services yet</h3>
+                <p className="text-muted-foreground mb-6">Start by adding your first service to attract customers</p>
                 <Button 
                   onClick={() => setShowAddServiceModal(true)}
-                  className="bg-[#00B896] hover:bg-[#00A085]"
                 >
                   Add Your First Service
                 </Button>
@@ -490,12 +489,12 @@ const ProviderDashboard = () => {
                       {service.price_range?.includes('₹') ? service.price_range : `₹${service.price_range}` || 'Price on request'}
                     </div>
                     
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-muted-foreground">
                       Duration: {service.estimated_time || 'To be determined'}
                     </div>
                     
                     {service.description && (
-                      <p className="text-sm text-gray-600 line-clamp-2">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
                         {service.description}
                       </p>
                     )}
@@ -549,14 +548,14 @@ const ProviderDashboard = () => {
 
         {/* Recent Bookings */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Bookings</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Recent Bookings</h2>
           
           {bookings.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
                 <div className="text-6xl mb-4">📅</div>
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">No bookings yet</h3>
-                <p className="text-gray-500">Your bookings will appear here once customers start booking your services</p>
+                <h3 className="text-xl font-semibold text-foreground mb-2">No bookings yet</h3>
+                <p className="text-muted-foreground">Your bookings will appear here once customers start booking your services</p>
               </CardContent>
             </Card>
           ) : (
@@ -570,15 +569,15 @@ const ProviderDashboard = () => {
                    <CardHeader className="pb-4">
                      <div className="flex items-center justify-between">
                        <div className="flex items-center space-x-3">
-                         <div className="w-12 h-12 bg-[#00B896]/10 rounded-lg flex items-center justify-center">
-                           <Calendar className="w-6 h-6 text-[#00B896]" />
+                     <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Calendar className="w-6 h-6 text-primary" />
                          </div>
                          <div>
-                           <CardTitle className="text-lg">
-                             {booking.provider_service?.master_service?.name || 
-                              booking.provider_service?.custom_service_name || 'Service Booking'}
-                           </CardTitle>
-                           <p className="text-sm text-gray-500">Booking #{booking.id.slice(0, 8).toUpperCase()}</p>
+                            <CardTitle className="text-lg text-foreground">
+                              {booking.provider_service?.master_service?.name || 
+                               booking.provider_service?.custom_service_name || 'Service Booking'}
+                            </CardTitle>
+                            <p className="text-sm text-muted-foreground">Booking #{booking.id.slice(0, 8).toUpperCase()}</p>
                          </div>
                        </div>
                        <div className="flex items-center space-x-2">
@@ -610,106 +609,106 @@ const ProviderDashboard = () => {
                    </CardHeader>
                   
                   <CardContent className="space-y-4">
-                    {/* Customer Info */}
-                     <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                       <div className="flex items-center space-x-3">
-                         <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                           <User className="w-5 h-5 text-blue-600" />
-                         </div>
-                         <div>
-                           <div className="font-medium text-gray-900">
-                             {booking.customer_profile?.full_name || 'Customer'}
-                           </div>
-                           <div className="text-sm text-gray-600">
-                             {booking.customer_profile?.phone ? `📞 ${booking.customer_profile.phone}` : 'Customer'}
-                           </div>
-                         </div>
-                       </div>
-                      {booking.total_amount && (
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-[#00B896]">₹{booking.total_amount}</div>
-                          <div className="text-sm text-gray-500">Total Amount</div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Booking Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {booking.scheduled_date && (
-                        <div className="flex items-center space-x-2">
-                          <Calendar className="w-4 h-4 text-gray-500" />
+                     {/* Customer Info */}
+                      <div className="flex items-center justify-between p-4 bg-secondary rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-accent/10 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-accent" />
+                          </div>
                           <div>
-                            <div className="text-sm font-medium">Scheduled Date</div>
-                            <div className="text-sm text-gray-600">
-                              {new Date(booking.scheduled_date).toLocaleDateString('en-IN', {
-                                weekday: 'short',
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
+                            <div className="font-medium text-foreground">
+                              {booking.customer_profile?.full_name || 'Customer'}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {booking.customer_profile?.phone ? `📞 ${booking.customer_profile.phone}` : 'Customer'}
                             </div>
                           </div>
                         </div>
-                      )}
-                      
-                      {booking.scheduled_time && (
-                        <div className="flex items-center space-x-2">
-                          <Clock className="w-4 h-4 text-gray-500" />
-                          <div>
-                            <div className="text-sm font-medium">Time</div>
-                            <div className="text-sm text-gray-600">{booking.scheduled_time}</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Service Details */}
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <div className="text-sm font-medium text-gray-700 mb-2">Service Details</div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-gray-600">
-                        {booking.provider_service?.price_range && (
-                          <div>
-                            <span className="font-medium">Actual Price:</span> {booking.provider_service.price_range?.includes('₹') 
-                              ? booking.provider_service.price_range 
-                              : `₹${booking.provider_service.price_range}`}
-                          </div>
-                        )}
-                        {booking.payment_method && (
-                          <div>
-                            <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}
-                          </div>
-                        )}
-                      </div>
-                      {booking.provider_service?.description && (
-                        <p className="text-sm text-gray-600 mt-2">{booking.provider_service.description}</p>
-                      )}
-                    </div>
-
-                    {/* Address */}
-                    {booking.address && (
-                      <div className="flex items-start space-x-2">
-                        <MapPin className="w-4 h-4 text-gray-500 mt-1" />
-                        <div>
-                          <div className="text-sm font-medium">Service Address</div>
-                          <div className="text-sm text-gray-600">{booking.address}</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Notes */}
-                    {booking.notes && (
-                      <div className="p-3 bg-yellow-50 rounded-lg">
-                        <div className="text-sm font-medium text-gray-700 mb-1">Customer Notes</div>
-                        <div className="text-sm text-gray-600">{booking.notes}</div>
-                      </div>
-                    )}
-
-                     {/* Click for Details Indicator */}
-                     <div className="pt-4 border-t">
-                       <div className="text-center text-sm text-gray-500">
-                         Click to view full details and manage this booking
-                       </div>
+                       {booking.total_amount && (
+                         <div className="text-right">
+                           <div className="text-2xl font-bold text-primary">₹{booking.total_amount}</div>
+                           <div className="text-sm text-muted-foreground">Total Amount</div>
+                         </div>
+                       )}
                      </div>
+
+                     {/* Booking Details */}
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       {booking.scheduled_date && (
+                         <div className="flex items-center space-x-2">
+                           <Calendar className="w-4 h-4 text-muted-foreground" />
+                           <div>
+                             <div className="text-sm font-medium text-foreground">Scheduled Date</div>
+                             <div className="text-sm text-muted-foreground">
+                               {new Date(booking.scheduled_date).toLocaleDateString('en-IN', {
+                                 weekday: 'short',
+                                 year: 'numeric',
+                                 month: 'short',
+                                 day: 'numeric'
+                               })}
+                             </div>
+                           </div>
+                         </div>
+                       )}
+                       
+                       {booking.scheduled_time && (
+                         <div className="flex items-center space-x-2">
+                           <Clock className="w-4 h-4 text-muted-foreground" />
+                           <div>
+                             <div className="text-sm font-medium text-foreground">Time</div>
+                             <div className="text-sm text-muted-foreground">{booking.scheduled_time}</div>
+                           </div>
+                         </div>
+                       )}
+                     </div>
+
+                     {/* Service Details */}
+                     <div className="p-3 bg-secondary rounded-lg">
+                       <div className="text-sm font-medium text-foreground mb-2">Service Details</div>
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-muted-foreground">
+                         {booking.provider_service?.price_range && (
+                           <div>
+                             <span className="font-medium">Actual Price:</span> {booking.provider_service.price_range?.includes('₹') 
+                               ? booking.provider_service.price_range 
+                               : `₹${booking.provider_service.price_range}`}
+                           </div>
+                         )}
+                         {booking.payment_method && (
+                           <div>
+                             <span className="font-medium">Payment:</span> {booking.payment_method.toUpperCase()}
+                           </div>
+                         )}
+                       </div>
+                       {booking.provider_service?.description && (
+                         <p className="text-sm text-muted-foreground mt-2">{booking.provider_service.description}</p>
+                       )}
+                     </div>
+
+                     {/* Address */}
+                     {booking.address && (
+                       <div className="flex items-start space-x-2">
+                         <MapPin className="w-4 h-4 text-muted-foreground mt-1" />
+                         <div>
+                           <div className="text-sm font-medium text-foreground">Service Address</div>
+                           <div className="text-sm text-muted-foreground">{booking.address}</div>
+                         </div>
+                       </div>
+                     )}
+
+                     {/* Notes */}
+                     {booking.notes && (
+                       <div className="p-3 bg-secondary rounded-lg">
+                         <div className="text-sm font-medium text-foreground mb-1">Customer Notes</div>
+                         <div className="text-sm text-muted-foreground">{booking.notes}</div>
+                       </div>
+                     )}
+
+                      {/* Click for Details Indicator */}
+                      <div className="pt-4 border-t">
+                        <div className="text-center text-sm text-muted-foreground">
+                          Click to view full details and manage this booking
+                        </div>
+                      </div>
 
                       {/* Service Complete Indicator for Provider */}
                       {booking.status === 'completed' && (
@@ -728,48 +727,49 @@ const ProviderDashboard = () => {
                         </div>
                       )}
 
-                    {/* Booking Timestamp */}
-                    <div className="text-xs text-gray-500 text-right pt-2 border-t">
-                      Booked on {new Date(booking.created_at).toLocaleDateString('en-IN', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+                     {/* Booking Timestamp */}
+                     <div className="text-xs text-muted-foreground text-right pt-2 border-t">
+                       Booked on {new Date(booking.created_at).toLocaleDateString('en-IN', {
+                         day: 'numeric',
+                         month: 'short',
+                         year: 'numeric',
+                         hour: '2-digit',
+                         minute: '2-digit'
+                       })}
+                     </div>
+                   </CardContent>
+                 </Card>
+               ))}
+             </div>
+           )}
+         </div>
+       </div>
 
-      <AddServiceModal
-        open={showAddServiceModal}
-        onClose={() => setShowAddServiceModal(false)}
-        onServiceAdded={handleServiceAdded}
-      />
+       <AddServiceModal
+         open={showAddServiceModal}
+         onClose={() => setShowAddServiceModal(false)}
+         onServiceAdded={handleServiceAdded}
+       />
 
-      <EditServiceModal
-        open={showEditServiceModal}
-        onClose={() => {
-          setShowEditServiceModal(false);
-          setSelectedService(null);
-        }}
-        onServiceUpdated={handleServiceAdded}
-        service={selectedService}
-      />
+       <EditServiceModal
+         open={showEditServiceModal}
+         onClose={() => {
+           setShowEditServiceModal(false);
+           setSelectedService(null);
+         }}
+         onServiceUpdated={handleServiceAdded}
+         service={selectedService}
+       />
 
-      <BookingDetailsModal
-        booking={selectedBooking}
-        isOpen={showBookingModal}
-        onClose={handleCloseBookingModal}
-        onBookingUpdate={fetchDashboardData}
-      />
-    </div>
-  );
-};
+       <BookingDetailsModal
+         booking={selectedBooking}
+         isOpen={showBookingModal}
+         onClose={handleCloseBookingModal}
+         onBookingUpdate={fetchDashboardData}
+       />
+       <Footer />
+     </div>
+   );
+ };
 
-export default ProviderDashboard;
+ export default ProviderDashboard;

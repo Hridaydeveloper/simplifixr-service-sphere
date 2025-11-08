@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -97,12 +98,12 @@ const Services = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <div className="w-8 h-8 border-4 border-[#00B896] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p>Loading services...</p>
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-foreground">Loading services...</p>
           </div>
         </div>
       </div>
@@ -110,16 +111,16 @@ const Services = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Find the Perfect <span className="text-[#00B896]">Service</span>
+          <h1 className="text-4xl font-bold text-foreground mb-4">
+            Find the Perfect <span className="text-primary">Service</span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover trusted local service providers for all your needs
           </p>
         </div>
@@ -127,13 +128,13 @@ const Services = () => {
         {/* Search Bar */}
         <div className="max-w-2xl mx-auto mb-8">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
               type="text"
               placeholder="Search for services..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 py-3 text-lg border-2 border-gray-200 focus:border-[#00B896] rounded-xl"
+              className="pl-10 py-3 text-lg rounded-xl"
             />
           </div>
         </div>
@@ -144,7 +145,6 @@ const Services = () => {
             <Button
               variant={selectedCategory === "" ? "default" : "outline"}
               onClick={() => setSelectedCategory("")}
-              className={selectedCategory === "" ? "bg-[#00B896] hover:bg-[#00A085]" : ""}
             >
               All Services
             </Button>
@@ -153,7 +153,6 @@ const Services = () => {
                 key={category.id}
                 variant={selectedCategory === category.name ? "default" : "outline"}
                 onClick={() => setSelectedCategory(category.name)}
-                className={selectedCategory === category.name ? "bg-[#00B896] hover:bg-[#00A085]" : ""}
               >
                 {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
               </Button>
@@ -165,8 +164,8 @@ const Services = () => {
         {filteredServices.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No services found</h3>
-            <p className="text-gray-500">Try adjusting your search or browse different categories</p>
+            <h3 className="text-xl font-semibold text-foreground mb-2">No services found</h3>
+            <p className="text-muted-foreground">Try adjusting your search or browse different categories</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -184,7 +183,7 @@ const Services = () => {
 
         {/* CTA Section */}
         <div className="mt-16 text-center">
-          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-[#00B896] to-[#00C9A7] text-white">
+          <Card className="max-w-2xl mx-auto bg-gradient-to-r from-primary to-accent text-primary-foreground">
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold mb-4">Become a Service Provider</h3>
               <p className="text-lg mb-6 opacity-90">
@@ -194,7 +193,6 @@ const Services = () => {
                 onClick={() => navigate('/become-provider')}
                 variant="secondary"
                 size="lg"
-                className="bg-white text-[#00B896] hover:bg-gray-100"
               >
                 Start Earning Today
               </Button>
@@ -208,6 +206,7 @@ const Services = () => {
         onClose={() => setShowAuthModal(false)}
         onSuccess={handleAuthSuccess}
       />
+      <Footer />
     </div>
   );
 };
