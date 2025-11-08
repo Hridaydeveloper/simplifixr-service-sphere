@@ -60,28 +60,27 @@ const SimpleAuth = ({ onBack, onSuccess }: SimpleAuthProps) => {
           return;
         }
 
-        // Sign up new user
+        // Sign up new user (no email verification required)
         const { data, error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/confirm`,
-              data: {
-                full_name: formData.fullName,
-                location: formData.location,
-                role: 'customer'
-              }
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/confirm`,
+            data: {
+              full_name: formData.fullName,
+              location: formData.location,
+              role: 'customer'
             }
+          }
         });
 
         if (error) {
-          if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          if (error.message.includes('already') || error.message.includes('User already registered') || error.status === 422) {
             toast({
-              title: "Account Exists",
-              description: "This email is already registered. Try logging in instead.",
+              title: "Email Already Exists",
+              description: "This email is already registered in our database. Please try with a different one or log in instead.",
               variant: "destructive"
             });
-            setIsSignUp(false);
             return;
           }
           throw error;
@@ -90,11 +89,12 @@ const SimpleAuth = ({ onBack, onSuccess }: SimpleAuthProps) => {
         // Send welcome email
         await sendWelcomeEmail(formData.email, formData.fullName);
 
-        setEmailSent(true);
         toast({
-          title: "Check Your Email",
-          description: `We've sent a confirmation link to ${formData.email}. Please check your inbox and click the link to activate your account.`,
+          title: "Account Created!",
+          description: "Your account has been successfully created. Welcome!",
         });
+        
+        onSuccess('customer');
 
       } else {
         // Sign in existing user

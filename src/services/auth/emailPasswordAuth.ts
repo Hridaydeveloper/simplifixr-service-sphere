@@ -22,10 +22,20 @@ export const emailPasswordAuth = {
     }
   },
 
-  // Traditional email/password sign up
+  // Traditional email/password sign up (no email verification required)
   async signUp(data: SignUpData) {
     try {
       console.log('Signing up with email:', data.email);
+      
+      // Check if email already exists
+      const { data: existingUser } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', (await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password
+        }).catch(() => ({ data: null }))).data?.user?.id || '')
+        .maybeSingle();
       
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
@@ -40,7 +50,13 @@ export const emailPasswordAuth = {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        // Check for duplicate email error
+        if (error.message.includes('already') || error.status === 422) {
+          throw new Error('This email is already registered. Please try logging in instead.');
+        }
+        throw error;
+      }
 
       return authData;
     } catch (error) {

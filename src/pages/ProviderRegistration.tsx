@@ -9,13 +9,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, FileText, ArrowLeft, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { useProviderStatus } from "@/hooks/useProviderStatus";
 
 const ProviderRegistration = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isProvider, isApproved, isPending } = useProviderStatus();
   const [isLoading, setIsLoading] = useState(false);
   const [existingRegistration, setExistingRegistration] = useState<{ exists: boolean; status: string } | null>(null);
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
@@ -209,18 +212,18 @@ const ProviderRegistration = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Success Animation Overlay */}
       {showSuccessAnimation && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl max-w-sm mx-4 text-center animate-scale-in">
+          <div className="bg-background rounded-2xl p-8 shadow-2xl max-w-sm mx-4 text-center animate-scale-in border border-border">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
-              <CheckCircle className="w-8 h-8 text-white" />
+              <CheckCircle className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Registration Successful!</h3>
-            <p className="text-gray-600">Your registration is now pending review. You'll be notified once approved.</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">Registration Successful!</h3>
+            <p className="text-muted-foreground">Your registration is now pending review. You'll be notified once approved.</p>
           </div>
         </div>
       )}
@@ -236,24 +239,43 @@ const ProviderRegistration = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Become Provider
             </Button>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               Provider Registration
             </h1>
-            <p className="text-sm sm:text-base text-gray-600">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Join our platform and start earning by offering your services
             </p>
           </div>
 
-          <Card>
+          {/* Show message for approved providers */}
+          {isApproved ? (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">You're Already a Provider!</h3>
+                  <p className="text-muted-foreground">
+                    Your provider account has been approved. Access your dashboard to manage your services and bookings.
+                  </p>
+                  <Button onClick={() => navigate('/provider-dashboard')} className="mt-4">
+                    Go to Dashboard
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
             <CardHeader>
               <CardTitle className="text-lg sm:text-xl">Registration Form</CardTitle>
             </CardHeader>
             <CardContent>
-              {existingRegistration?.exists && (
-                <div className="mb-6 p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                  <h4 className="font-semibold text-orange-800 mb-2">Registration Already Submitted</h4>
-                  <p className="text-orange-700">
-                    You've already submitted a registration with status: <strong>{existingRegistration.status}</strong>. 
+              {isPending && (
+                <div className="mb-6 p-4 border border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950 rounded-lg">
+                  <h4 className="font-semibold text-orange-800 dark:text-orange-400 mb-2">Registration Pending</h4>
+                  <p className="text-orange-700 dark:text-orange-300">
+                    You've already submitted a registration. It's currently pending review. 
                     Please wait for approval before submitting another registration.
                   </p>
                 </div>
@@ -410,11 +432,11 @@ const ProviderRegistration = () => {
                         />
                         <label
                           htmlFor="idProofFile"
-                          className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#00B896] transition-colors"
+                          className="flex items-center justify-center w-full p-4 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors"
                         >
                           <div className="text-center">
-                            <Upload className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-gray-400 mb-2" />
-                            <p className="text-xs sm:text-sm text-gray-600">
+                            <Upload className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-muted-foreground mb-2" />
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {formData.idProofFile ? formData.idProofFile.name : 'Click to upload ID proof'}
                             </p>
                           </div>
@@ -434,11 +456,11 @@ const ProviderRegistration = () => {
                         />
                         <label
                           htmlFor="validDocument"
-                          className="flex items-center justify-center w-full p-4 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#00B896] transition-colors"
+                          className="flex items-center justify-center w-full p-4 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary transition-colors"
                         >
                           <div className="text-center">
-                            <FileText className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-gray-400 mb-2" />
-                            <p className="text-xs sm:text-sm text-gray-600">
+                            <FileText className="w-6 sm:w-8 h-6 sm:h-8 mx-auto text-muted-foreground mb-2" />
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               {formData.validDocument ? formData.validDocument.name : 'Click to upload certificate (optional)'}
                             </p>
                           </div>
@@ -459,8 +481,8 @@ const ProviderRegistration = () => {
                   </Button>
                   <Button 
                     type="submit"
-                    disabled={isLoading || existingRegistration?.exists}
-                    className="bg-[#00B896] hover:bg-[#00A085] text-white w-full sm:w-auto disabled:opacity-50"
+                    disabled={isLoading || isPending}
+                    className="w-full sm:w-auto disabled:opacity-50"
                   >
                     {isLoading ? 'Submitting...' : 'Submit Registration'}
                   </Button>
@@ -468,8 +490,11 @@ const ProviderRegistration = () => {
               </form>
             </CardContent>
           </Card>
+          )}
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };

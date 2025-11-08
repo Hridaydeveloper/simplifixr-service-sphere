@@ -6,6 +6,8 @@ export interface ProviderStatus {
   isProvider: boolean;
   isVerified: boolean;
   hasRegistration: boolean;
+  isApproved: boolean;
+  isPending: boolean;
   loading: boolean;
 }
 
@@ -14,6 +16,8 @@ export const useProviderStatus = () => {
     isProvider: false,
     isVerified: false,
     hasRegistration: false,
+    isApproved: false,
+    isPending: false,
     loading: true
   });
   const { user } = useAuth();
@@ -25,6 +29,8 @@ export const useProviderStatus = () => {
           isProvider: false,
           isVerified: false,
           hasRegistration: false,
+          isApproved: false,
+          isPending: false,
           loading: false
         });
         return;
@@ -53,11 +59,16 @@ export const useProviderStatus = () => {
 
         const hasRegistration = !!registration && !regError;
         const isVerified = (registration as any)?.verified === true;
+        const registrationStatus = (registration as any)?.status;
+        const isApproved = registrationStatus === 'approved' && isVerified;
+        const isPending = registrationStatus === 'pending';
 
         setStatus({
           isProvider,
           isVerified,
           hasRegistration,
+          isApproved,
+          isPending,
           loading: false
         });
       } catch (error) {
@@ -66,6 +77,8 @@ export const useProviderStatus = () => {
           isProvider: false,
           isVerified: false,
           hasRegistration: false,
+          isApproved: false,
+          isPending: false,
           loading: false
         });
       }
