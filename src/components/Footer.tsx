@@ -141,18 +141,18 @@ const Footer = () => {
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>🕿 +91-9876543210</p>
-              <p>📧 support@simplifixr.com</p>
+              <p>🕿 +91-9876543210/9615262753</p>
+              <p>📧 simplifixr2025@gmail.com</p>
               <p>📍 Agartala, Tripura</p>
             </div>
             <div className="mt-4">
               <h4 className="font-medium mb-2 text-foreground">Download App</h4>
               <div className="space-y-2">
                 <div className="bg-secondary px-3 py-2 rounded text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                  📱 Download for Android
+                  Download for Android
                 </div>
                 <div className="bg-secondary px-3 py-2 rounded text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                  🍎 Download for iOS
+                  Download for iOS
                 </div>
               </div>
             </div>
@@ -162,7 +162,9 @@ const Footer = () => {
         <div className="border-t border-border pt-8 mt-8">
           <div className="flex flex-col md:flex-row justify-between items-center text-sm text-muted-foreground">
             <p>© 2025 Simplifixr. All rights reserved.</p>
-            <p>Made with ❤️ in India</p>
+            <p>Developer: Hriday Das</p>
+            <p>🕿 +91-9615262753</p>
+            <p>📧 dashriday856@gmail.com</p>
           </div>
         </div>
       </div>
