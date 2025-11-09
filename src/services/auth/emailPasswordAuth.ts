@@ -27,16 +27,6 @@ export const emailPasswordAuth = {
     try {
       console.log('Signing up with email:', data.email);
       
-      // Check if email already exists
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('id', (await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password
-        }).catch(() => ({ data: null }))).data?.user?.id || '')
-        .maybeSingle();
-      
       const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
@@ -52,10 +42,22 @@ export const emailPasswordAuth = {
 
       if (error) {
         // Check for duplicate email error
-        if (error.message.includes('already') || error.status === 422) {
-          throw new Error('This email is already registered. Please try logging in instead.');
+        if (error.message.includes('already') || error.message.includes('registered') || error.status === 422) {
+          throw new Error('Email already exists, try a new one.');
         }
         throw error;
+      }
+
+      // Auto sign-in after successful signup
+      if (authData.user) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        
+        if (signInError) {
+          console.error('Auto sign-in error:', signInError);
+        }
       }
 
       return authData;

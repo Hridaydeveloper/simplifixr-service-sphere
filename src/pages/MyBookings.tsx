@@ -49,21 +49,6 @@ const MyBookings = () => {
     fetchBookings();
   }, [user, navigate]);
 
-  // Poll for OTP updates every 10 seconds for bookings that might have OTP
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const hasActiveBookings = bookings.some(booking => 
-        booking.status === 'confirmed' && !booking.completion_otp
-      );
-      
-      if (hasActiveBookings) {
-        fetchBookings();
-      }
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [bookings]);
-
   // Timer countdown for OTP expiry
   useEffect(() => {
     const intervals: {[key: string]: NodeJS.Timeout} = {};

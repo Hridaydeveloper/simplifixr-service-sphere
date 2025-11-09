@@ -61,16 +61,16 @@ const ProviderSection = () => {
   };
 
   return (
-    <section id="provider" className="py-20 bg-white">
+    <section id="provider" className="py-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl font-bold text-foreground mb-6">
             Become a{" "}
-            <span className="bg-gradient-to-r from-[#00C9A7] to-[#00B896] bg-clip-text text-transparent">
+            <span className="text-gradient">
               Service Provider
             </span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Join thousands of professionals earning on their own terms. No commission fees, direct payments, and complete control over your business.
           </p>
         </div>
@@ -78,15 +78,15 @@ const ProviderSection = () => {
         {/* Benefits */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
           {benefits.map((benefit, index) => (
-            <Card key={index} className="text-center border-0 shadow-md hover:shadow-lg transition-shadow">
+            <Card key={index} className="text-center border shadow-md hover:shadow-lg transition-shadow bg-card">
               <CardContent className="p-6">
-                <div className="w-12 h-12 bg-[#00C9A7]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="w-6 h-6 text-[#00C9A7]" />
+                <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <benefit.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-foreground mb-2">
                   {benefit.title}
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {benefit.description}
                 </p>
               </CardContent>
@@ -95,20 +95,20 @@ const ProviderSection = () => {
         </div>
 
         {/* Steps */}
-        <div className="bg-gray-50 rounded-3xl p-8 md:p-12 mb-12">
-          <h3 className="text-2xl font-bold text-gray-900 text-center mb-12">
+        <div className="bg-secondary/30 rounded-3xl p-8 md:p-12 mb-12">
+          <h3 className="text-2xl font-bold text-foreground text-center mb-12">
             How to Get Started
           </h3>
           <div className="grid md:grid-cols-4 gap-8">
             {steps.map((item, index) => (
               <div key={index} className="text-center">
-                <div className="w-16 h-16 bg-[#00C9A7] text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
+                <div className="w-16 h-16 bg-primary text-primary-foreground rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
                   {item.step}
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                <h4 className="text-lg font-semibold text-foreground mb-2">
                   {item.title}
                 </h4>
-                <p className="text-gray-600 text-sm">
+                <p className="text-muted-foreground text-sm">
                   {item.description}
                 </p>
               </div>
@@ -124,7 +124,7 @@ const ProviderSection = () => {
           >
             Start Your Journey Today
           </Button>
-          <p className="text-gray-600 mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
+          <p className="text-muted-foreground mt-4">Questions? WhatsApp us at +91-XXXXX XXXXX</p>
         </div>
       </div>
       
