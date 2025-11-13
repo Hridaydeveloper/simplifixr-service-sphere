@@ -133,67 +133,67 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* Enhanced Search Bar */}
-            <div className="glass-effect p-6 rounded-2xl shadow-xl max-w-2xl glow-effect">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary z-10" />
-                  <Input 
-                    placeholder={isMobile ? "What service do you need?" : "Search services..."} 
-                    value={selectedService}
-                    onChange={(e) => setSelectedService(e.target.value)}
-                    className="pl-12 pr-4 py-4 bg-secondary border-border focus:border-primary focus:ring-primary/20 rounded-xl text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50" 
-                  />
-                </div>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-primary z-10" />
-                  <Input 
-                    placeholder="Your location" 
-                    value={selectedLocation} 
-                    onChange={(e) => setSelectedLocation(e.target.value)} 
-                    className="pl-12 pr-4 py-4 bg-secondary border-border rounded-xl focus:border-primary focus:ring-primary/20 text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50" 
-                  />
-                </div>
-                <Button 
-                  onClick={handleSearch} 
-                  size="lg"
-                  className="py-4 rounded-xl font-semibold text-base"
-                >
-                  Search
-                </Button>
-              </div>
-            </div>
+{/* Enhanced Search Bar */}
+<div className="glass-effect p-6 rounded-2xl shadow-xl max-w-2xl glow-effect">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="relative flex items-center">
+      <Search className="absolute left-4 text-primary w-5 h-5" />
+      <Input
+        placeholder={isMobile ? "What service do you need?" : "Search services..."}
+        value={selectedService}
+        onChange={(e) => setSelectedService(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 bg-secondary border border-border focus:border-primary focus:ring-primary/20 rounded-xl text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50"
+      />
+    </div>
+    <div className="relative flex items-center">
+      <MapPin className="absolute left-4 text-primary w-5 h-5" />
+      <Input
+        placeholder="Your location"
+        value={selectedLocation}
+        onChange={(e) => setSelectedLocation(e.target.value)}
+        className="w-full pl-12 pr-4 py-3 bg-secondary border border-border rounded-xl focus:border-primary focus:ring-primary/20 text-base placeholder:text-muted-foreground transition-all duration-300 hover:border-primary/50"
+      />
+    </div>
+    <Button
+      onClick={handleSearch}
+      size="lg"
+      className="py-3 rounded-xl font-semibold text-base"
+    >
+      Search
+    </Button>
+  </div>
+</div>
 
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button onClick={handleBookService} size="lg" className="px-8 text-lg">
-                Book a Service
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Button 
-                onClick={handleBecomeProvider} 
-                variant={providerStatus.isVerified ? "default" : "outline"} 
-                size="lg"
-                className="px-8 text-lg"
-                disabled={providerStatus.loading}
-              >
-                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
-                {getProviderButtonText()}
-                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
-              </Button>
-            </div>
+{/* Buttons */}
+<div className="flex flex-col sm:flex-row gap-4 mt-4">
+  <Button onClick={handleBookService} size="lg" className="px-8 text-lg">
+    Book a Service
+    <ArrowRight className="w-5 h-5 ml-2" />
+  </Button>
+  <Button
+    onClick={handleBecomeProvider}
+    size="lg"
+    className={`px-8 text-lg ${providerStatus.isVerified ? "bg-red-600 hover:bg-red-700 text-white" : "border border-accent text-accent hover:bg-accent/10"}`}
+    disabled={providerStatus.loading}
+  >
+    {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
+    {getProviderButtonText()}
+    {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
+  </Button>
+</div>
 
-            {/* Show Map when location is searched */}
-            {showMap && selectedLocation && (
-              <div className="max-w-2xl">
-                <Map location={selectedLocation} onLocationSelect={handleLocationSelect} />
-              </div>
-            )}
+{/* Show Map when location is searched */}
+{showMap && selectedLocation && (
+  <div className="max-w-2xl">
+    <Map location={selectedLocation} onLocationSelect={handleLocationSelect} />
+  </div>
+)}
 
             {/* Trust Indicators */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-8 text-sm">
               <div className="flex items-center glass-effect px-4 py-3 rounded-full">
                 <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mr-3">
-                  <span className="text-primary-foreground font-bold text-sm">4.8</span>
+                  <span className="text-primary-foreground font-bold text-sm">4.5</span>
                 </div>
                 <div>
                   <div className="font-semibold text-foreground text-sm">Service Rating*</div>
