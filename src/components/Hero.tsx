@@ -1,4 +1,3 @@
-
 import { Search, MapPin, Calendar, ArrowRight, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
