@@ -9,7 +9,7 @@ const Footer = () => {
   const handleSocialClick = (platform: string) => {
     const urls = {
       linkedin: "https://www.linkedin.com/company/simplifixr-official/",
-      instagram: "https://www.instagram.com/fixwithsimplifixr/?utm_source=qr&igsh=M2c4cnAzOXNudWtz#",
+      instagram: "https://www.instagram.com/fix_with_simplifixr?igsh=M2c4cnAzOXNudWtz",
       facebook: "#",
       twitter: "#"
     };
