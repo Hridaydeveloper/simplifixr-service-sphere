@@ -104,7 +104,7 @@ const Hero = () => {
               <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground leading-tight">
                 Home services with{" "}
                 <span className="text-gradient">
-                  SimplifixR
+                  Simplifixr
                 </span>
               </h1>
               
