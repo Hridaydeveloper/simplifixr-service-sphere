@@ -10,8 +10,8 @@ const Footer = () => {
     const urls = {
       linkedin: "https://www.linkedin.com/company/simplifixr-official/?viewAsMember=true",
       instagram: "https://www.instagram.com/fix_with_simplifixr?igsh=M2c4cnAzOXNudWtz",
-      facebook: "#",
-      twitter: "#"
+      facebook: "https://www.facebook.com/share/1B9vDuFYfc/",
+      twitter: "https://x.com/Simplifixr2025?t=397s1ESlnv9koygN2nV1mw&s=09"
     };
     
     const url = urls[platform as keyof typeof urls];
