@@ -20,33 +20,14 @@ const HeroBannerSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Default slides with dynamic images from admin
-  const defaultSlides: SlideContent[] = [
-    {
-      title: "Professional Home Services",
-      subtitle: "Trusted experts for all your home service needs",
-      image: "/placeholder.svg"
-    },
-    {
-      title: "Book with Confidence",
-      subtitle: "Verified professionals, guaranteed satisfaction",
-      image: "/placeholder.svg"
-    },
-    {
-      title: "Services at Your Doorstep",
-      subtitle: "From repairs to wellness, we've got you covered",
-      image: "/placeholder.svg"
-    }
-  ];
-
-  // Merge admin images with default content
+  // Use slides from database - title and subtitle come directly from admin
   const slides: SlideContent[] = heroImages.length > 0
-    ? heroImages.map((img, index) => ({
-        title: defaultSlides[index % defaultSlides.length]?.title || "Professional Services",
-        subtitle: img.alt_text || defaultSlides[index % defaultSlides.length]?.subtitle || "Quality service guaranteed",
+    ? heroImages.map((img) => ({
+        title: img.title || '',
+        subtitle: img.subtitle || '',
         image: img.image_url
       }))
-    : defaultSlides;
+    : [];
 
   const nextSlide = useCallback(() => {
     if (isTransitioning) return;
@@ -69,11 +50,12 @@ const HeroBannerSlider = () => {
     setTimeout(() => setIsTransitioning(false), 800);
   };
 
-  // Auto-advance slides
+  // Auto-advance slides only if there are slides
   useEffect(() => {
+    if (slides.length <= 1) return;
     const interval = setInterval(nextSlide, 6000);
     return () => clearInterval(interval);
-  }, [nextSlide]);
+  }, [nextSlide, slides.length]);
 
   const handleBookService = () => {
     navigate('/services', { state: { scrollToTop: true } });
@@ -94,6 +76,50 @@ const HeroBannerSlider = () => {
     if (providerStatus.hasRegistration) return "View Status";
     return "Become a Provider";
   };
+
+  // Show placeholder when no banners are set
+  if (slides.length === 0) {
+    return (
+      <section className="relative w-full h-[90vh] min-h-[600px] max-h-[900px] overflow-hidden bg-gradient-to-br from-background to-secondary/20">
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
+          <div className="w-full lg:w-2/3 xl:w-1/2 space-y-8 animate-fade-in">
+            <div className="inline-flex items-center px-5 py-2.5 glass-effect rounded-full glow-border">
+              <span className="w-2.5 h-2.5 bg-primary rounded-full mr-3 animate-pulse" />
+              <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+                Services at Your Fingertips
+              </span>
+            </div>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
+              Welcome to <span className="text-gradient">Simplifixr</span>
+            </h1>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+              Your trusted platform for professional home services
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Button 
+                onClick={handleBookService} 
+                size="lg" 
+                className="px-8 py-6 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+              >
+                Book a Service
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              <Button
+                onClick={handleProviderDashboard}
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-lg font-semibold rounded-xl border-2"
+              >
+                {getProviderButtonText()}
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="relative w-full h-[90vh] min-h-[600px] max-h-[900px] overflow-hidden">
