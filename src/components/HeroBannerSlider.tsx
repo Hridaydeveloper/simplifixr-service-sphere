@@ -80,27 +80,27 @@ const HeroBannerSlider = () => {
   // Show placeholder when no banners are set
   if (slides.length === 0) {
     return (
-      <section className="relative w-full h-[90vh] min-h-[600px] max-h-[900px] overflow-hidden bg-gradient-to-br from-background to-secondary/20">
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-          <div className="w-full lg:w-2/3 xl:w-1/2 space-y-8 animate-fade-in">
-            <div className="inline-flex items-center px-5 py-2.5 glass-effect rounded-full glow-border">
-              <span className="w-2.5 h-2.5 bg-primary rounded-full mr-3 animate-pulse" />
-              <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+      <section className="relative w-full h-[85vh] min-h-[550px] max-h-[800px] overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900">
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+          <div className="w-full text-center space-y-6 animate-fade-in">
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+              <span className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse" />
+              <span className="text-white text-sm font-medium">
                 Services at Your Fingertips
               </span>
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-tight">
-              Welcome to <span className="text-gradient">Simplifixr</span>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight max-w-4xl mx-auto">
+              Welcome to Simplifixr
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
               Your trusted platform for professional home services
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
               <Button 
                 onClick={handleBookService} 
                 size="lg" 
-                className="px-8 py-6 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25"
+                className="px-8 py-6 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 text-white shadow-md"
               >
                 Book a Service
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -109,7 +109,7 @@ const HeroBannerSlider = () => {
                 onClick={handleProviderDashboard}
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 text-lg font-semibold rounded-xl border-2"
+                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-foreground hover:bg-white/90"
               >
                 {getProviderButtonText()}
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -122,7 +122,7 @@ const HeroBannerSlider = () => {
   }
 
   return (
-    <section className="relative w-full h-[90vh] min-h-[600px] max-h-[900px] overflow-hidden">
+    <section className="relative w-full h-[85vh] min-h-[550px] max-h-[800px] overflow-hidden">
       {/* Background Slides */}
       <div className="absolute inset-0">
         {slides.map((slide, index) => (
@@ -142,42 +142,65 @@ const HeroBannerSlider = () => {
               }}
             />
             
-            {/* Premium Dark Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/30" />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+            {/* Subtle Dark Overlay - Same for light and dark modes */}
+            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
           </div>
         ))}
       </div>
 
-      {/* Content Container */}
-      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center">
-        <div className="w-full lg:w-2/3 xl:w-1/2">
+      {/* Content Container - Centered */}
+      <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="w-full text-center">
           {/* Animated Content */}
           <div 
             key={currentSlide}
-            className="space-y-8 animate-fade-in"
+            className="space-y-6 animate-fade-in"
           >
             {/* Status Badge */}
-            <div className="inline-flex items-center px-5 py-2.5 glass-effect rounded-full glow-border">
-              <span className="w-2.5 h-2.5 bg-primary rounded-full mr-3 animate-pulse" />
-              <span className="text-primary text-sm font-semibold tracking-wide uppercase">
+            <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+              <span className="w-2 h-2 bg-primary rounded-full mr-2 animate-pulse" />
+              <span className="text-white text-sm font-medium">
                 Services at Your Fingertips
               </span>
             </div>
 
             {/* Main Heading */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-display-lg font-extrabold text-foreground leading-tight">
-              {slides[currentSlide]?.title.split(' ').slice(0, -1).join(' ')}{' '}
-              <span className="text-gradient">
-                {slides[currentSlide]?.title.split(' ').slice(-1)}
-              </span>
+            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight max-w-4xl mx-auto">
+              {slides[currentSlide]?.title}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-xl leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
               {slides[currentSlide]?.subtitle}
             </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 justify-center">
+              <Button 
+                onClick={handleBookService} 
+                size="lg" 
+                className="px-8 py-6 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 text-white shadow-md transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Book a Service
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+              
+              <Button
+                onClick={handleProviderDashboard}
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-foreground hover:bg-white/90 transition-all duration-300 hover:-translate-y-0.5"
+                disabled={providerStatus.loading}
+              >
+                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
+                {getProviderButtonText()}
+                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -206,32 +229,6 @@ const HeroBannerSlider = () => {
                 {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
               </Button>
             </div>
-
-            {/* Trust Indicators */}
-            <div className="flex flex-wrap items-center gap-6 pt-6">
-              <div className="flex items-center glass-effect px-5 py-3 rounded-full">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mr-4 shadow-lg shadow-primary/20">
-                  <span className="text-primary-foreground font-bold text-sm">4.5</span>
-                </div>
-                <div>
-                  <div className="font-semibold text-foreground">Service Rating</div>
-                  <div className="text-xs text-muted-foreground">Based on reviews</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center glass-effect px-5 py-3 rounded-full">
-                <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mr-4 shadow-lg shadow-primary/20">
-                  <span className="text-primary-foreground font-bold text-xs">12M+</span>
-                </div>
-                <div>
-                  <div className="font-semibold text-foreground">Happy Customers</div>
-                  <div className="text-xs text-muted-foreground">Worldwide</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Slide Navigation */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
