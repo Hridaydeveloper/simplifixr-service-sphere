@@ -91,6 +91,8 @@ export type Database = {
           id: string
           image_url: string
           is_active: boolean
+          subtitle: string | null
+          title: string | null
           updated_at: string
         }
         Insert: {
@@ -101,6 +103,8 @@ export type Database = {
           id?: string
           image_url: string
           is_active?: boolean
+          subtitle?: string | null
+          title?: string | null
           updated_at?: string
         }
         Update: {
@@ -111,6 +115,8 @@ export type Database = {
           id?: string
           image_url?: string
           is_active?: boolean
+          subtitle?: string | null
+          title?: string | null
           updated_at?: string
         }
         Relationships: []

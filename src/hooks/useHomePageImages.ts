@@ -15,27 +15,8 @@ export const useHomePageImages = () => {
     } catch (err) {
       console.error('Failed to fetch home page images:', err);
       setError('Failed to load images');
-      // Fallback to default images if database fetch fails
-      setImages([
-        {
-          id: 'fallback-1',
-          image_url: 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1600&q=80&auto=format&fit=crop',
-          alt_text: 'Spa and wellness services',
-          display_order: 1,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'fallback-2',
-          image_url: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80&auto=format&fit=crop',
-          alt_text: 'Home maintenance services',
-          display_order: 2,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ]);
+      // No fallback - admin must add banners
+      setImages([]);
     } finally {
       setLoading(false);
     }

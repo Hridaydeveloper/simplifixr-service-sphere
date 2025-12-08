@@ -9,6 +9,8 @@ export interface HomePageImage {
   created_at: string;
   updated_at: string;
   created_by?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 export const homePageImageService = {
