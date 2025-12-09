@@ -82,6 +82,45 @@ export type Database = {
           },
         ]
       }
+      home_page_images: {
+        Row: {
+          alt_text: string
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          alt_text: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alt_text?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       master_services: {
         Row: {
           base_price_range: string | null

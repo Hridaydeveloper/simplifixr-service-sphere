@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Trash2, Plus, Upload, Edit3 } from 'lucide-react';
+import { Trash2, Plus, Upload, Edit3, Link, ImageIcon } from 'lucide-react';
 import { homePageImageService, HomePageImage } from '@/services/homePageImageService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const HomePageImageManager = () => {
   const [images, setImages] = useState<HomePageImage[]>([]);
@@ -25,6 +27,10 @@ const HomePageImageManager = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingImage, setEditingImage] = useState<HomePageImage | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadTab, setUploadTab] = useState<'url' | 'file'>('url');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
   const [newImage, setNewImage] = useState({
     image_url: '',
     alt_text: '',
@@ -40,6 +46,7 @@ const HomePageImageManager = () => {
       const data = await homePageImageService.getAllImages();
       setImages(data);
     } catch (error) {
+      console.error('Error fetching images:', error);
       toast({
         title: "Error",
         description: "Failed to fetch home page images",
@@ -53,6 +60,59 @@ const HomePageImageManager = () => {
   useEffect(() => {
     fetchImages();
   }, []);
+
+  const uploadFile = async (file: File): Promise<string | null> => {
+    try {
+      setUploading(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = fileName;
+
+      const { error: uploadError } = await supabase.storage
+        .from('banners')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('banners')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const publicUrl = await uploadFile(file);
+    if (publicUrl) {
+      setNewImage({ ...newImage, image_url: publicUrl });
+    }
+  };
+
+  const handleEditFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingImage) return;
+
+    const publicUrl = await uploadFile(file);
+    if (publicUrl) {
+      setEditingImage({ ...editingImage, image_url: publicUrl });
+    }
+  };
 
   const handleAddImage = async () => {
     if (!newImage.image_url || !newImage.alt_text) {
@@ -83,6 +143,7 @@ const HomePageImageManager = () => {
       setNewImage({ image_url: '', alt_text: '', display_order: 0, title: '', subtitle: '' });
       fetchImages();
     } catch (error) {
+      console.error('Error adding banner:', error);
       toast({
         title: "Error",
         description: "Failed to add home page banner",
@@ -112,6 +173,7 @@ const HomePageImageManager = () => {
       setEditingImage(null);
       fetchImages();
     } catch (error) {
+      console.error('Error updating banner:', error);
       toast({
         title: "Error",
         description: "Failed to update banner",
@@ -171,6 +233,9 @@ const HomePageImageManager = () => {
         <div>
           <h1 className="text-3xl font-bold">Home Page Banners</h1>
           <p className="text-muted-foreground">Manage banner images with title and subtitle for the home page slider</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            <strong>Alt Text</strong> = Description for accessibility (screen readers) & SEO. Example: "Professional repair services banner"
+          </p>
         </div>
         
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -188,15 +253,70 @@ const HomePageImageManager = () => {
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="image_url">Image URL *</Label>
-                <Input
-                  id="image_url"
-                  placeholder="https://example.com/image.jpg"
-                  value={newImage.image_url}
-                  onChange={(e) => setNewImage({ ...newImage, image_url: e.target.value })}
-                />
-              </div>
+              <Tabs value={uploadTab} onValueChange={(v) => setUploadTab(v as 'url' | 'file')}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="url" className="flex items-center gap-2">
+                    <Link className="w-4 h-4" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="file" className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Upload File
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="url" className="mt-4">
+                  <div>
+                    <Label htmlFor="image_url">Image URL *</Label>
+                    <Input
+                      id="image_url"
+                      placeholder="https://example.com/image.jpg"
+                      value={newImage.image_url}
+                      onChange={(e) => setNewImage({ ...newImage, image_url: e.target.value })}
+                    />
+                  </div>
+                </TabsContent>
+                <TabsContent value="file" className="mt-4">
+                  <div>
+                    <Label>Upload Image *</Label>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full mt-2"
+                      disabled={uploading}
+                    >
+                      {uploading ? 'Uploading...' : 'Choose Image File'}
+                    </Button>
+                    {newImage.image_url && (
+                      <p className="text-sm text-muted-foreground mt-2 truncate">
+                        Selected: {newImage.image_url}
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              {/* Image Preview */}
+              {newImage.image_url && (
+                <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+                  <img
+                    src={newImage.image_url}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=300&fit=crop';
+                    }}
+                  />
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="title">Banner Title</Label>
                 <Input
@@ -217,10 +337,10 @@ const HomePageImageManager = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="alt_text">Alt Text *</Label>
+                <Label htmlFor="alt_text">Alt Text * (for accessibility & SEO)</Label>
                 <Input
                   id="alt_text"
-                  placeholder="Descriptive text for accessibility"
+                  placeholder="e.g., Professional repair technician working"
                   value={newImage.alt_text}
                   onChange={(e) => setNewImage({ ...newImage, alt_text: e.target.value })}
                 />
@@ -240,7 +360,7 @@ const HomePageImageManager = () => {
               <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleAddImage}>
+              <Button onClick={handleAddImage} disabled={uploading}>
                 Add Banner
               </Button>
             </DialogFooter>
@@ -259,14 +379,62 @@ const HomePageImageManager = () => {
           </DialogHeader>
           {editingImage && (
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="edit_image_url">Image URL *</Label>
-                <Input
-                  id="edit_image_url"
-                  value={editingImage.image_url}
-                  onChange={(e) => setEditingImage({ ...editingImage, image_url: e.target.value })}
+              {/* Current Image Preview */}
+              <div className="w-full h-32 bg-muted rounded-lg overflow-hidden">
+                <img
+                  src={editingImage.image_url}
+                  alt={editingImage.alt_text}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=400&h=300&fit=crop';
+                  }}
                 />
               </div>
+
+              <Tabs defaultValue="url">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="url" className="flex items-center gap-2">
+                    <Link className="w-4 h-4" />
+                    URL
+                  </TabsTrigger>
+                  <TabsTrigger value="file" className="flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Upload New
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="url" className="mt-4">
+                  <div>
+                    <Label htmlFor="edit_image_url">Image URL *</Label>
+                    <Input
+                      id="edit_image_url"
+                      value={editingImage.image_url}
+                      onChange={(e) => setEditingImage({ ...editingImage, image_url: e.target.value })}
+                    />
+                  </div>
+                </TabsContent>
+                <TabsContent value="file" className="mt-4">
+                  <div>
+                    <Label>Upload New Image</Label>
+                    <input
+                      type="file"
+                      ref={editFileInputRef}
+                      accept="image/*"
+                      onChange={handleEditFileSelect}
+                      className="hidden"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => editFileInputRef.current?.click()}
+                      className="w-full mt-2"
+                      disabled={uploading}
+                    >
+                      {uploading ? 'Uploading...' : 'Choose New Image'}
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
               <div>
                 <Label htmlFor="edit_title">Banner Title</Label>
                 <Input
@@ -287,7 +455,7 @@ const HomePageImageManager = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="edit_alt_text">Alt Text *</Label>
+                <Label htmlFor="edit_alt_text">Alt Text * (for accessibility & SEO)</Label>
                 <Input
                   id="edit_alt_text"
                   value={editingImage.alt_text}
@@ -309,7 +477,7 @@ const HomePageImageManager = () => {
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleEditImage}>
+            <Button onClick={handleEditImage} disabled={uploading}>
               Save Changes
             </Button>
           </DialogFooter>
@@ -370,7 +538,8 @@ const HomePageImageManager = () => {
                         size="sm"
                         onClick={() => openEditDialog(image)}
                       >
-                        <Edit3 className="w-4 h-4" />
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Edit
                       </Button>
                       <Button
                         variant="outline"
