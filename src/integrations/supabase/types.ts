@@ -700,6 +700,7 @@ export type Database = {
         Returns: undefined
       }
       verify_provider:
+        | { Args: { registration_id: string }; Returns: undefined }
         | {
             Args: {
               admin_user_id: string
@@ -709,7 +710,6 @@ export type Database = {
             }
             Returns: boolean
           }
-        | { Args: { registration_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

@@ -109,7 +109,7 @@ const HeroBannerSlider = () => {
                 onClick={handleProviderDashboard}
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-foreground hover:bg-white/90"
+                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-slate-800 hover:bg-white/90"
               >
                 {getProviderButtonText()}
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -190,7 +190,7 @@ const HeroBannerSlider = () => {
                 onClick={handleProviderDashboard}
                 size="lg"
                 variant="outline"
-                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-foreground hover:bg-white/90 transition-all duration-300 hover:-translate-y-0.5"
+                className="px-8 py-6 text-lg font-semibold rounded-xl border-2 border-white/80 bg-white text-slate-800 hover:bg-white/90 transition-all duration-300 hover:-translate-y-0.5"
                 disabled={providerStatus.loading}
               >
                 {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
@@ -202,34 +202,6 @@ const HeroBannerSlider = () => {
         </div>
       </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button 
-                onClick={handleBookService} 
-                size="lg" 
-                className="px-8 py-6 text-lg font-semibold rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
-              >
-                Book a Service
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              
-              <Button
-                onClick={handleProviderDashboard}
-                size="lg"
-                variant="outline"
-                className={`px-8 py-6 text-lg font-semibold rounded-xl border-2 transition-all duration-300 hover:-translate-y-0.5 ${
-                  providerStatus.isVerified 
-                    ? "bg-primary/10 border-primary text-primary hover:bg-primary/20" 
-                    : "border-border hover:border-primary hover:bg-primary/5 text-foreground"
-                }`}
-                disabled={providerStatus.loading}
-              >
-                {providerStatus.isVerified && <Shield className="w-5 h-5 mr-2" />}
-                {getProviderButtonText()}
-                {!providerStatus.isVerified && <ArrowRight className="w-5 h-5 ml-2" />}
-              </Button>
-            </div>
-
       {/* Slide Navigation */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
         {slides.map((_, index) => (
@@ -239,7 +211,7 @@ const HeroBannerSlider = () => {
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide 
                 ? 'w-10 h-3 bg-primary' 
-                : 'w-3 h-3 bg-foreground/30 hover:bg-foreground/50'
+                : 'w-3 h-3 bg-white/50 hover:bg-white/70'
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
@@ -249,7 +221,7 @@ const HeroBannerSlider = () => {
       {/* Arrow Navigation */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 glass-effect rounded-full flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-card/80 transition-all duration-300"
+        className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
         aria-label="Previous slide"
       >
         <ChevronLeft className="w-6 h-6" />
@@ -257,7 +229,7 @@ const HeroBannerSlider = () => {
       
       <button
         onClick={nextSlide}
-        className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 glass-effect rounded-full flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-card/80 transition-all duration-300"
+        className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
         aria-label="Next slide"
       >
         <ChevronRight className="w-6 h-6" />

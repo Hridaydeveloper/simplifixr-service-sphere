@@ -5,7 +5,7 @@ import Footer from '@/components/Footer';
 import { useAdminRole } from '@/hooks/useAdminRole';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, ShieldCheck, Settings, BarChart, Package } from 'lucide-react';
+import { Users, ShieldCheck, Settings, BarChart, Package, Image } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { adminService, AdminUser, ProviderRegistration, ServiceWithProvider, AdminBooking } from '@/services/adminService';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import HomePageImageManager from '@/components/admin/HomePageImageManager';
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -169,6 +170,7 @@ const AdminPanel = () => {
             <TabsTrigger value="providers">Providers</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="banners">Banners</TabsTrigger>
           </TabsList>
 
           <TabsContent value="users" className="space-y-4">
@@ -402,6 +404,10 @@ const AdminPanel = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="banners" className="space-y-4">
+            <HomePageImageManager />
           </TabsContent>
         </Tabs>
 
